@@ -1,0 +1,9 @@
+# ninja log v5
+0	34	0	clean	8a8b947ed4762d3a
+8	2688	6512424631995877	core/CMakeFiles/core.dir/src/cvk/initialize/instance_initialize.cpp.obj	a2a1c3c82ca3864d
+741	1001	6512424934986842	../core/lib/libcore.a	c4a794803da3311e
+8	740	6512424933072291	core/CMakeFiles/core.dir/src/utils/vector_util.cpp.obj	539fb811477ac851
+37	2429	6512424629512248	test/vk-test/CMakeFiles/vk-test.dir/src/main.cpp.obj	5d85286512c26e72
+1172	1324	6512407871380553	core/libcore.a	2d02487603578a01
+217	471	6512408635886268	test/vk-test/vk-test.exe	9f33e0a07eb3a601
+1002	1599	6512424941324010	../bin/vk-test_d.exe	1ee8b908d47d1bd8

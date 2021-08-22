@@ -1,0 +1,22 @@
+[
+{
+  "directory": "D:/cpp/projvk/build",
+  "command": "C:\\msys64\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe -ID:/cpp/projvk/core/include -IC:/VulkanSDK/1.2.182.0/Include -g -std=gnu++14 -o core\\CMakeFiles\\core.dir\\src\\cvk\\initialize\\device_initialize.cpp.obj -c D:\\cpp\\projvk\\core\\src\\cvk\\initialize\\device_initialize.cpp",
+  "file": "D:\\cpp\\projvk\\core\\src\\cvk\\initialize\\device_initialize.cpp"
+},
+{
+  "directory": "D:/cpp/projvk/build",
+  "command": "C:\\msys64\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe -ID:/cpp/projvk/core/include -IC:/VulkanSDK/1.2.182.0/Include -g -std=gnu++14 -o core\\CMakeFiles\\core.dir\\src\\cvk\\initialize\\instance_initialize.cpp.obj -c D:\\cpp\\projvk\\core\\src\\cvk\\initialize\\instance_initialize.cpp",
+  "file": "D:\\cpp\\projvk\\core\\src\\cvk\\initialize\\instance_initialize.cpp"
+},
+{
+  "directory": "D:/cpp/projvk/build",
+  "command": "C:\\msys64\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe -ID:/cpp/projvk/core/include -IC:/VulkanSDK/1.2.182.0/Include -g -std=gnu++14 -o core\\CMakeFiles\\core.dir\\src\\utils\\vector_util.cpp.obj -c D:\\cpp\\projvk\\core\\src\\utils\\vector_util.cpp",
+  "file": "D:\\cpp\\projvk\\core\\src\\utils\\vector_util.cpp"
+},
+{
+  "directory": "D:/cpp/projvk/build",
+  "command": "C:\\msys64\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe -ID:/cpp/projvk/core/include -IC:/VulkanSDK/1.2.182.0/Include -g -std=gnu++14 -o test\\vk-test\\CMakeFiles\\vk-test.dir\\src\\main.cpp.obj -c D:\\cpp\\projvk\\test\\vk-test\\src\\main.cpp",
+  "file": "D:\\cpp\\projvk\\test\\vk-test\\src\\main.cpp"
+}
+]

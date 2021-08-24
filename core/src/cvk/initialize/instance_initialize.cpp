@@ -1,12 +1,23 @@
 #include "cvk/initialize/instance_initialize.h"
 
 #include "clog.h"
-
 #include "utils/vector_util.h"
 
 #include <algorithm>
 
-void __cvk::get_all_supported_extensions(std::vector<std::string>& supported_extensions) 
+void __cvk::get_all_devices(VkInstance instance, std::vector<VkPhysicalDevice> &devices)
+{
+	uint32_t gpu_count = 0;
+	vkEnumeratePhysicalDevices(instance, &gpu_count, nullptr);
+	devices.resize(gpu_count);
+	if (gpu_count == 0)
+	{
+		return;
+	}
+	vkEnumeratePhysicalDevices(instance, &gpu_count, devices.data());
+}
+
+void __cvk::get_all_instance_extensions(std::vector<std::string>& supported_extensions) 
 {
     uint32_t ext_count = 0;
     vkEnumerateInstanceExtensionProperties(nullptr, &ext_count, nullptr);
@@ -23,7 +34,7 @@ void __cvk::get_all_supported_extensions(std::vector<std::string>& supported_ext
     }
 }
 
-void __cvk::get_all_supported_layers(std::vector<std::string>& supported_layers) 
+void __cvk::get_all_instance_layers(std::vector<std::string>& supported_layers) 
 {
     uint32_t layer_count = 0;
     vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
@@ -51,14 +62,14 @@ VkResult __cvk::create_instance(const std::vector<std::string>& extensions_name,
 	std::vector<std::string> all_supported_extensions;
 	std::vector<std::string> supported_extensions;
 	std::vector<const char*> supported_extensions_pchar;
-    get_all_supported_extensions(all_supported_extensions);
+    get_all_instance_extensions(all_supported_extensions);
     utils::filter_vector<std::string>(all_supported_extensions, extensions_name, supported_extensions);
     utils::string_to_charptr(supported_extensions, supported_extensions_pchar);
 
 	std::vector<std::string> all_supported_layers;
 	std::vector<std::string> supported_layers;
 	std::vector<const char*> supported_layers_pchar;
-    get_all_supported_layers(all_supported_layers);
+    get_all_instance_layers(all_supported_layers);
     utils::filter_vector<std::string>(all_supported_layers, layers_name, supported_layers);
     utils::string_to_charptr(supported_layers, supported_layers_pchar);
 
@@ -72,4 +83,9 @@ VkResult __cvk::create_instance(const std::vector<std::string>& extensions_name,
     instance_create_info.ppEnabledLayerNames = supported_layers_pchar.data();
 
 	return vkCreateInstance(&instance_create_info, nullptr, &instance);
+}
+
+void __cvk::destroy_instance(VkInstance instance)
+{
+    vkDestroyInstance(instance, nullptr);
 }

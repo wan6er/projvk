@@ -12,7 +12,7 @@ void utils::filter_vector(const std::vector<Type> &comp_vec, const std::vector<T
     {
         if (std::find(comp_vec.begin(), comp_vec.end(), item) == comp_vec.end()) 
         {
-            CLogE("Enabled instance extension %s failed.", item);
+            CLogE("Filter %s failed.", item.c_str());
         }
         else 
         {

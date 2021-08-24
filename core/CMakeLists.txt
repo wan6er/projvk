@@ -18,13 +18,14 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src PROJ_SRC)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/cvk PROJ_cvk_SRC)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/cvk/initialize PROJ_cvk_initialize_SRC)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/utils PROJ_utils_SRC)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/win32 PROJ_win32_SRC)
 
 add_library(${PROJ_NAME} 
     ${PROJ_SRC}
     ${PROJ_cvk_SRC}
     ${PROJ_cvk_initialize_SRC}
-    
     ${PROJ_utils_SRC}
+    ${PROJ_win32_SRC}
 )
 
 target_include_directories(${PROJ_NAME} PRIVATE ${Vulkan_INCLUDE_DIR})

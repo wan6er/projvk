@@ -1,4 +1,4 @@
-# Install script for directory: D:/cpp/projvk
+# Install script for directory: C:/Users/zzj/Desktop/cpp/projvk
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,17 +34,17 @@ endif()
 
 # Set default install directory permissions.
 if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "C:/msys64/mingw64/bin/objdump.exe")
+  set(CMAKE_OBJDUMP "C:/TDM-GCC-64/bin/objdump.exe")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("D:/cpp/projvk/build/core/cmake_install.cmake")
+  include("C:/Users/zzj/Desktop/cpp/projvk/build/core/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("D:/cpp/projvk/build/test/vk-test/cmake_install.cmake")
+  include("C:/Users/zzj/Desktop/cpp/projvk/build/test/vk-test/cmake_install.cmake")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -55,5 +55,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "D:/cpp/projvk/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Users/zzj/Desktop/cpp/projvk/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

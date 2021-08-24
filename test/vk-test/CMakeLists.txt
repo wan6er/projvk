@@ -15,7 +15,8 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src PROJ_SRC)
 
 add_executable(${PROJ_NAME} ${PROJ_SRC})
 
-target_link_libraries(${PROJ_NAME} ${core_LIBRARY})
+target_link_libraries(${PROJ_NAME} core)
+# target_link_libraries(${PROJ_NAME} ${core_LIBRARY})
 target_include_directories(${PROJ_NAME} PRIVATE ${core_INCLUDE_DIR})
 
 set_target_properties(${PROJ_NAME} PROPERTIES DEBUG_POSTFIX "_d")

@@ -3,7 +3,6 @@
 template <class Obj>
 utils::BaseObj<Obj>::BaseObj()
 {
-    std::cout << "construct()\n";
     _count = new int(1);
 }
 

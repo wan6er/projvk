@@ -14,9 +14,7 @@ namespace utils
         ~BaseObj();
 
     protected:
-        virtual void release() {
-            std::cout << "release()\n";
-        };
+        virtual void release() {};
 
         auto object() const -> const ObjType&;
         auto object() -> ObjType&;

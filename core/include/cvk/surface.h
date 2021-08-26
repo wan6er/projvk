@@ -1,10 +1,11 @@
 #pragma once
 
+#include "utils/base_obj.h"
 #include "cvk/vk_header.h"
 
 namespace cvk
 {
-    class Surface
+    class Surface : public utils::BaseObj<VkSurfaceKHR>
     {
     public:
         Surface(VkInstance instance);
@@ -17,8 +18,10 @@ namespace cvk
 
         operator VkSurfaceKHR() const;
     
+    protected:
+        virtual void release();
+
     private:
-        VkInstance _instance;
-        VkSurfaceKHR _surface = nullptr;
+        VkInstance _instance = nullptr;
     };
 };

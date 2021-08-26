@@ -1,6 +1,8 @@
 #pragma once
 
+#include "utils/base_obj.h"
 #include "cvk/vk_header.h"
+#include "cvk/physical_device.h"
 
 #include <vector>
 #include <map>
@@ -9,19 +11,22 @@
 namespace cvk
 {
 
-    class Device
+    class Device : public utils::BaseObj<VkDevice>, public PhysicalDevice
     {
     public:
         Device(VkPhysicalDevice physical_device, const std::vector<std::string> &extensions_name, const VkPhysicalDeviceFeatures& features, uint32_t queue_flag);
+        Device(const Device& device);
         ~Device();
 
         operator VkDevice() const;
 
         auto get_queue_family_index(VkQueueFlagBits flag) const -> uint32_t;
+        auto get_queue(VkQueueFlagBits flag) const -> VkQueue;
+
+    protected:
+        virtual void release();
 
     private:
-        VkDevice _device;
-
         typedef std::map<VkQueueFlagBits, uint32_t> DeviceQueueFamilyIndexType;
         DeviceQueueFamilyIndexType _indices;
     };

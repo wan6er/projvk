@@ -8,6 +8,7 @@
 namespace __cvk
 {
     VkResult create_swapchain(VkPhysicalDevice physical_device, VkDevice device, VkSurfaceKHR surface, VkPresentModeKHR present_mode, VkSwapchainKHR& swapchain, VkSwapchainKHR old_swapchain = nullptr);
+    void destroy_swapchain(VkDevice device, VkSwapchainKHR swapchain);
 
     void check_queue_family_present_available(VkPhysicalDevice device, VkSurfaceKHR surface, uint32_t index, VkBool32& available);
 

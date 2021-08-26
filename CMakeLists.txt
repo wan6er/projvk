@@ -19,6 +19,7 @@ set(EXTERNAL_DIR ${PROJECT_SOURCE_DIR}/external/)
 set(glm_INCLUDE_DIR ${EXTERNAL_DIR}/glm)
 
 set(CMAKE_CXX_STANDARD 14)
+# set(CMAKE_CXX_FLAGS "-Wall -g -O0")
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/core)
 add_subdirectory(${PROJECT_SOURCE_DIR}/test/vk-test)

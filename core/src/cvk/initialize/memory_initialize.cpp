@@ -1,8 +1,5 @@
 #include "cvk/initialize/memory_initialize.h"
 
-VkResult create_memory(VkDevice device, uint32_t size, uint32_t type_index, VkDeviceMemory &memory);
-void get_memory_type(const VkPhysicalDeviceMemoryProperties &all_properties, uint32_t type, VkMemoryPropertyFlags properties, uint32_t &index);
-
 VkResult __cvk::create_memory(const VkPhysicalDeviceMemoryProperties& all_properties, VkDevice device, uint32_t size, uint32_t type, VkMemoryPropertyFlags properties, VkDeviceMemory& memory)
 {    
     uint32_t memory_type_index;
@@ -10,7 +7,12 @@ VkResult __cvk::create_memory(const VkPhysicalDeviceMemoryProperties& all_proper
     return create_memory(device, size, memory_type_index, memory);
 }
 
-VkResult create_memory(VkDevice device, uint32_t size, uint32_t type_index, VkDeviceMemory& memory)
+void __cvk::destroy_memory(VkDevice device, VkDeviceMemory memory)
+{
+    vkFreeMemory(device, memory, nullptr);
+}
+
+VkResult __cvk::create_memory(VkDevice device, uint32_t size, uint32_t type_index, VkDeviceMemory& memory)
 {
 	VkMemoryAllocateInfo memory_allocate_info{};
 	memory_allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -19,7 +21,7 @@ VkResult create_memory(VkDevice device, uint32_t size, uint32_t type_index, VkDe
 	return vkAllocateMemory(device, &memory_allocate_info, nullptr, &memory);
 }
 
-void get_memory_type(const VkPhysicalDeviceMemoryProperties& all_properties, uint32_t type, VkMemoryPropertyFlags properties, uint32_t& index)
+void __cvk::get_memory_type(const VkPhysicalDeviceMemoryProperties& all_properties, uint32_t type, VkMemoryPropertyFlags properties, uint32_t& index)
 {
     for (uint32_t i = 0; i < all_properties.memoryTypeCount; i++)
     {

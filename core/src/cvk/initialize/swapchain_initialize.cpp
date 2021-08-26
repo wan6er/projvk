@@ -63,6 +63,11 @@ VkResult __cvk::create_swapchain(VkPhysicalDevice physical_device, VkDevice devi
 	return vkCreateSwapchainKHR(device, &swapchain_create_info, nullptr, &swapchain);
 }
 
+void __cvk::destroy_swapchain(VkDevice device, VkSwapchainKHR swapchain)
+{
+	vkDestroySwapchainKHR(device, swapchain, nullptr);
+}
+
 void __cvk::get_all_swapchain_image(VkDevice device, VkSwapchainKHR swapchain, std::vector<VkImage>& images)
 {
     uint32_t count;

@@ -9,9 +9,11 @@ cvk::Surface::Surface(VkInstance instance) :
 }
 cvk::Surface::~Surface()
 {
-    if (_surface) {
-        __cvk::destroy_surface(_instance, _surface);
-    }
+}
+
+void cvk::Surface::release()
+{
+    __cvk::destroy_surface(_instance, object());
 }
 
 auto cvk::Surface::instance() const -> VkInstance
@@ -26,15 +28,15 @@ auto cvk::Surface::instance() -> VkInstance&
 
 auto cvk::Surface::surface() const -> VkSurfaceKHR
 {
-    return _surface;
+    return object();
 }
 
 auto cvk::Surface::surface() -> VkSurfaceKHR &
 {
-    return _surface;
+    return object();
 }
 
 cvk::Surface::operator VkSurfaceKHR() const
 {
-    return _surface;
+    return object();
 }

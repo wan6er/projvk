@@ -4,10 +4,10 @@
 
 namespace cvk
 {
-    class PhysicalDevice
+    class CVK_API PhysicalDevice
     {
     public:
-        PhysicalDevice(VkPhysicalDevice physical_device);
+        explicit PhysicalDevice(VkPhysicalDevice physical_device);
         PhysicalDevice(const PhysicalDevice& physical_device);
 
         auto get_memory_properties() const -> const VkPhysicalDeviceMemoryProperties&;
@@ -15,7 +15,6 @@ namespace cvk
 
     private:
         VkPhysicalDevice _physical_device;
-        
         VkPhysicalDeviceMemoryProperties _memory_properties;
     };
 };

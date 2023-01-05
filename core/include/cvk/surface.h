@@ -5,7 +5,7 @@
 
 namespace cvk
 {
-    class Surface : public utils::BaseObj<VkSurfaceKHR>
+    class CVK_API Surface : protected utils::BaseObj<VkSurfaceKHR>
     {
     public:
         Surface(VkInstance instance);
@@ -19,7 +19,7 @@ namespace cvk
         operator VkSurfaceKHR() const;
     
     protected:
-        virtual void release();
+        void release();
 
     private:
         VkInstance _instance = nullptr;

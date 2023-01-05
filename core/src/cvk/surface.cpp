@@ -1,14 +1,20 @@
 #include "cvk/surface.h"
-
 #include "cvk/initialize/surface_initialize.h"
 
-cvk::Surface::Surface(VkInstance instance) :
-    _instance(instance)
+namespace cvk
 {
 
+
+cvk::Surface::Surface(VkInstance instance) :
+    utils::BaseObj<VkSurfaceKHR>(),
+    _instance(instance)
+{
 }
 cvk::Surface::~Surface()
 {
+    if (isolated()) {
+        release();
+    }
 }
 
 void cvk::Surface::release()
@@ -40,3 +46,5 @@ cvk::Surface::operator VkSurfaceKHR() const
 {
     return object();
 }
+
+};

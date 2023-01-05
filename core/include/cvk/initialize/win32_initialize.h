@@ -4,6 +4,5 @@
 
 namespace __cvk
 {
-    
-    VkResult create_win32_surface(VkInstance instance, HINSTANCE hInstance, HWND hWnd, VkSurfaceKHR& surface);
+    CVK_API VkResult create_win32_surface(VkInstance instance, HINSTANCE hInstance, HWND hWnd, VkSurfaceKHR& surface);
 };

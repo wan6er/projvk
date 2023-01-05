@@ -1,24 +1,27 @@
 #pragma once
 
+#include "cvk/vk_header.h"
+
 #include <Windows.h>
 
 #include <iostream>
 #include <string>
-
+#include <functional>
 
 namespace __win
 {
 
-    LRESULT WINAPI DefaultWinProc(HWND, UINT, WPARAM, LPARAM);
+    CVK_API LRESULT WINAPI DefaultWinProc(HWND, UINT, WPARAM, LPARAM);
 
-    ATOM register_cls(const std::string &cls_name, HINSTANCE &hInstance, WNDPROC proc);
-    void unregister_cls(const std::string &cls_name, HINSTANCE hInstance);
-    HWND create_win(const std::string &name, HINSTANCE hInstance, uint32_t width, uint32_t height);
-    void destroy_win(HWND hWnd);
-    void adjust_screen(uint32_t &width, uint32_t &height);
+    CVK_API ATOM register_cls(const std::string &cls_name, HINSTANCE &hInstance, WNDPROC proc);
+    CVK_API void unregister_cls(const std::string &cls_name, HINSTANCE hInstance);
+    CVK_API HWND create_win(const std::string &name, HINSTANCE hInstance, uint32_t width, uint32_t height);
+    CVK_API void destroy_win(HWND hWnd);
+    CVK_API void adjust_screen(uint32_t &width, uint32_t &height);
 };
 
-class Windows
+
+class CVK_API Windows
 {
 public:
     Windows(const std::string& win_name, uint32_t width, uint32_t height, WNDPROC proc = __win::DefaultWinProc);
@@ -32,9 +35,9 @@ public:
     HDC dc() { return GetDC(*this); }
 
     void show();
-    int dispatch();
+    int dispatch(std::function<void()> process);
 
-    void run();
+    void run(std::function<void()> process);
 
 private:
     std::string _name;

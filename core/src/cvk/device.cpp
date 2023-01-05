@@ -1,8 +1,12 @@
 #include "cvk/device.h"
-
 #include "cvk/initialize/device_initialize.h"
 
+namespace cvk
+{
+
+
 cvk::Device::Device(VkPhysicalDevice physical_device, const std::vector<std::string> &extensions_name, const VkPhysicalDeviceFeatures &features, uint32_t queue_flag) :
+    utils::BaseObj<VkDevice>(),
     PhysicalDevice(physical_device)
 {
     __cvk::get_all_device_queue_family_indices(physical_device, _indices);
@@ -17,6 +21,9 @@ cvk::Device::Device(const Device& device) :
 
 cvk::Device::~Device()
 {
+    if (isolated()) {
+        release();
+    }
 }
 
 void cvk::Device::release()
@@ -48,3 +55,5 @@ auto cvk::Device::get_queue(VkQueueFlagBits flag) const -> VkQueue
     __cvk::get_device_queue(object(), index, queue);
     return queue;
 }
+
+};

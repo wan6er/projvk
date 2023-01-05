@@ -1,0 +1,83 @@
+#pragma once
+
+#include "cvk/vk_header.h"
+#include "utils/base_multi_attach.h"
+
+namespace cvk
+{
+    struct CVK_API VertexInputState : 
+        public VkPipelineVertexInputStateCreateInfo,
+        public utils::BaseMultipleAttaches<VkVertexInputBindingDescription, VkVertexInputAttributeDescription>
+    {
+        VertexInputState();
+
+        template<class...__Args>
+        void attaches(__Args&&...args);
+    };
+
+    struct CVK_API InputAssemblyState : 
+        public VkPipelineInputAssemblyStateCreateInfo
+    {
+        InputAssemblyState();
+    };    
+    
+    struct CVK_API RasterizationState : 
+        public VkPipelineRasterizationStateCreateInfo
+    {
+        RasterizationState();
+    };
+
+    struct CVK_API ColorBlendState : 
+        public VkPipelineColorBlendStateCreateInfo,
+        public utils::BaseMultipleAttaches<VkPipelineColorBlendAttachmentState>
+    {
+        ColorBlendState();
+
+        ColorBlendState& attach(uint32_t color_mask, bool blend_enable);
+
+        template<class...__Args>
+        void attaches(__Args&&...args);
+    };
+    
+    struct CVK_API DepthStencilState : 
+        public VkPipelineDepthStencilStateCreateInfo
+    {
+        DepthStencilState();
+    };
+
+    struct CVK_API ViewportState : 
+        public VkPipelineViewportStateCreateInfo,
+        public utils::BaseMultipleAttaches<VkViewport, VkRect2D>
+    {
+        ViewportState();
+
+        void set_size(uint32_t viewport_count, uint32_t scissor_count);
+
+        template<class...__Args>
+        void attaches(__Args&&...args);
+    };
+    
+    struct CVK_API MultisampleState : 
+        public VkPipelineMultisampleStateCreateInfo
+    {
+        MultisampleState();
+    };
+
+    struct CVK_API DynamicState : 
+        public VkPipelineDynamicStateCreateInfo,
+        public utils::BaseMultipleAttaches<VkDynamicState>
+    {
+        DynamicState();
+        
+        template<class...__Args>
+        void attaches(__Args&&...args);
+    };
+
+    struct CVK_API ShaderStage : 
+        public utils::BaseMultipleAttaches<VkPipelineShaderStageCreateInfo>
+    {
+        ShaderStage& attach(VkShaderStageFlagBits shader_stage, VkShaderModule shader);
+    };
+};
+
+#include "pipeline_deps.inl"

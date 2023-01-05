@@ -1,42 +1,47 @@
 #include "cvk/initialize/device_initialize.h"
-
 #include "utils/vector_util.h"
 #include "clog.h"
 
+
+
+namespace __cvk
+{
+
 void get_device_queue_create_info(uint32_t index, VkDeviceQueueCreateInfo& info);
-void get_device_queue_create_infos(const __cvk::QueueIndexType& indices, uint32_t queue_flag, std::vector<VkDeviceQueueCreateInfo> &infos);
+void get_device_queue_create_infos(const QueueIndexType& indices, uint32_t queue_flag, std::vector<VkDeviceQueueCreateInfo> &infos);
 void get_device_queue_family(VkPhysicalDevice device, VkQueueFlagBits queue_flag, uint32_t &index);
 
 
-VkResult __cvk::create_device(VkPhysicalDevice physical_device, const __cvk::QueueIndexType& indices, const std::vector<std::string> &extensions_name, const VkPhysicalDeviceFeatures& features, uint32_t queue_flag, VkDevice &device)
+VkResult create_device(VkPhysicalDevice physical_device, const QueueIndexType& indices, const std::vector<std::string> &extensions_name, const VkPhysicalDeviceFeatures& features, uint32_t queue_flag, VkDevice &device)
 {
+    CVK_ASSERT(physical_device != VK_NULL_HANDLE);
 	std::vector<VkDeviceQueueCreateInfo> queue_infos;
 	get_device_queue_create_infos(indices, queue_flag, queue_infos);
 
 	std::vector<std::string> all_supported_extensions;
 	std::vector<std::string> supported_extensions;
 	std::vector<const char*> supported_extensions_pchar;
-	__cvk::get_all_device_extensions(physical_device, all_supported_extensions);
-    utils::filter_vector<std::string>(all_supported_extensions, extensions_name, supported_extensions);
+	get_all_device_extensions(physical_device, all_supported_extensions);
+    utils::vector_filter<std::string>(all_supported_extensions, extensions_name, supported_extensions);
     utils::string_to_charptr(supported_extensions, supported_extensions_pchar);
 
 	VkDeviceCreateInfo device_create_info = {};
 	device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 	device_create_info.queueCreateInfoCount = static_cast<uint32_t>(queue_infos.size());
-	device_create_info.pQueueCreateInfos = queue_infos.data();
+	device_create_info.pQueueCreateInfos = queue_infos.size() == 0 ? nullptr : queue_infos.data();
 	device_create_info.enabledExtensionCount = static_cast<uint32_t>(supported_extensions_pchar.size());
-	device_create_info.ppEnabledExtensionNames = supported_extensions_pchar.data();
+	device_create_info.ppEnabledExtensionNames = supported_extensions_pchar.size() == 0 ? nullptr : supported_extensions_pchar.data();
 	device_create_info.pEnabledFeatures = &features;
 
 	return vkCreateDevice(physical_device, &device_create_info, nullptr, &device);
 }
 
-void __cvk::destroy_device(VkDevice device)
+void destroy_device(VkDevice device)
 {
 	vkDestroyDevice(device, nullptr);
 }
 
-void __cvk::get_all_device_queue_families(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties> &queue_families)
+void get_all_device_queue_families(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties> &queue_families)
 {
 	uint32_t count;
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &count, nullptr);
@@ -44,7 +49,7 @@ void __cvk::get_all_device_queue_families(VkPhysicalDevice device, std::vector<V
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &count, queue_families.data());
 }
 
-void __cvk::get_all_device_extensions(VkPhysicalDevice device, std::vector<std::string> &extensions)
+void get_all_device_extensions(VkPhysicalDevice device, std::vector<std::string> &extensions)
 {
 	uint32_t count = 0;
 	vkEnumerateDeviceExtensionProperties(device, nullptr, &count, nullptr);
@@ -61,17 +66,17 @@ void __cvk::get_all_device_extensions(VkPhysicalDevice device, std::vector<std::
 	}
 }
 
-void __cvk::get_device_queue(VkDevice device, uint32_t index, VkQueue& queue)
+void get_device_queue(VkDevice device, uint32_t index, VkQueue& queue)
 {
 	vkGetDeviceQueue(device, index, 0, &queue);
 }
 
-void __cvk::get_device_memory_properties(VkPhysicalDevice device, VkPhysicalDeviceMemoryProperties& properties)
+void get_device_memory_properties(VkPhysicalDevice device, VkPhysicalDeviceMemoryProperties& properties)
 {
 	vkGetPhysicalDeviceMemoryProperties(device, &properties);
 }
 
-void __cvk::get_all_device_queue_family_indices(VkPhysicalDevice device, QueueIndexType& queue_index)
+void get_all_device_queue_family_indices(VkPhysicalDevice device, QueueIndexType& queue_index)
 {
 	std::vector<VkQueueFlagBits> flags = {
 		VK_QUEUE_GRAPHICS_BIT,
@@ -96,7 +101,7 @@ void get_device_queue_create_info(uint32_t index, VkDeviceQueueCreateInfo& info)
 	info.pQueuePriorities = &default_priority;
 }
 
-void get_device_queue_create_infos(const __cvk::QueueIndexType& indices, uint32_t queue_flag, std::vector<VkDeviceQueueCreateInfo>& infos)
+void get_device_queue_create_infos(const QueueIndexType& indices, uint32_t queue_flag, std::vector<VkDeviceQueueCreateInfo>& infos)
 {
 	for (auto iter = indices.begin(); iter != indices.end(); ++iter) 
 	{
@@ -111,7 +116,7 @@ void get_device_queue_create_infos(const __cvk::QueueIndexType& indices, uint32_
 void get_device_queue_family(VkPhysicalDevice device, VkQueueFlagBits queue_flag, uint32_t &index)
 {
 	std::vector<VkQueueFamilyProperties> properties;
-	__cvk::get_all_device_queue_families(device, properties);
+	get_all_device_queue_families(device, properties);
 
 	// Dedicated queue for compute
 	// Try to find a queue family index that supports compute but not graphics
@@ -151,3 +156,5 @@ void get_device_queue_family(VkPhysicalDevice device, VkQueueFlagBits queue_flag
 		}
 	}
 }
+
+};

@@ -1,14 +1,21 @@
 #include "cvk/instance.h"
-
 #include "cvk/initialize/instance_initialize.h"
 
-cvk::Instance::Instance(const std::vector<std::string> &extensions_name, const std::vector<std::string> &layers_name)
+namespace cvk
+{
+
+
+cvk::Instance::Instance(const std::vector<std::string> &extensions_name, const std::vector<std::string> &layers_name) :
+    utils::BaseObj<VkInstance>()
 {
     __cvk::create_instance(extensions_name, layers_name, object());
 }
 
 cvk::Instance::~Instance()
 {
+    if (isolated()) {
+        release();
+    }
 }
 
 void cvk::Instance::release()
@@ -27,3 +34,5 @@ auto cvk::Instance::get_all_physical_device() const -> std::vector<VkPhysicalDev
     __cvk::get_all_devices(object(), physical_devices);
     return physical_devices;
 }
+
+};

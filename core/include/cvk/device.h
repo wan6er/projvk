@@ -11,7 +11,7 @@
 namespace cvk
 {
 
-    class Device : public utils::BaseObj<VkDevice>, public PhysicalDevice
+    class CVK_API Device : protected utils::BaseObj<VkDevice>, public PhysicalDevice
     {
     public:
         Device(VkPhysicalDevice physical_device, const std::vector<std::string> &extensions_name, const VkPhysicalDeviceFeatures& features, uint32_t queue_flag);
@@ -24,7 +24,7 @@ namespace cvk
         auto get_queue(VkQueueFlagBits flag) const -> VkQueue;
 
     protected:
-        virtual void release();
+        void release();
 
     private:
         typedef std::map<VkQueueFlagBits, uint32_t> DeviceQueueFamilyIndexType;

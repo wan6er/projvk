@@ -9,10 +9,10 @@
 
 namespace __cvk
 {
-    VkResult create_instance(const std::vector<std::string>& extensions_name, const std::vector<std::string>& layers_name, VkInstance& instance);
-    void destroy_instance(VkInstance instance);
+    CVK_API VkResult create_instance(std::vector<std::string> CONST_REFERENCE extensions_name, std::vector<std::string> CONST_REFERENCE layers_name, VkInstance& instance);
+    CVK_API void destroy_instance(VkInstance instance);
 
-    void get_all_devices(VkInstance instance, std::vector<VkPhysicalDevice>& devices);
-    void get_all_instance_extensions(std::vector<std::string>& supported_extensions);
-    void get_all_instance_layers(std::vector<std::string>& supported_layers);
+    CVK_API void get_all_devices(VkInstance instance, std::vector<VkPhysicalDevice>& devices);
+    CVK_API void get_all_instance_extensions(std::vector<std::string>& supported_extensions);
+    CVK_API void get_all_instance_layers(std::vector<std::string>& supported_layers);
 };

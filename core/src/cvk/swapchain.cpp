@@ -1,19 +1,80 @@
 #include "cvk/swapchain.h"
-
+#include "cvk/initialize/surface_initialize.h"
 #include "cvk/initialize/swapchain_initialize.h"
+#include "utils/vector_util.h"
 
-cvk::Swapchain::Swapchain(VkPhysicalDevice physical_device, VkDevice device, VkSurfaceKHR surface, VkPresentModeKHR present_mode) :
-    _device(device)
+
+
+namespace cvk
 {
-    __cvk::create_swapchain(physical_device, _device, surface, present_mode, object());
+
+
+Swapchain::Swapchain(VkPhysicalDevice physical_device, VkSurfaceKHR surface, std::vector<VkPresentModeKHR> CONST_REFERENCE present_modes, VkSurfaceFormatKHR surface_format) :
+    utils::BaseObj<VkSwapchainKHR>()
+{
+    init_info(physical_device, surface, present_modes, surface_format);
 }
 
-cvk::Swapchain::operator ObjType() const
+Swapchain::Swapchain(VkSwapchainCreateInfoKHR CONST_REFERENCE create_info)
 {
+    info() = create_info;
+}
+
+Swapchain::~Swapchain()
+{
+    if (isolated() && !is_cloned()) {
+        release();
+    }
+}
+
+void Swapchain::release()
+{
+    if (_device != VK_NULL_HANDLE && object() != VK_NULL_HANDLE) 
+    {
+        __cvk::destroy_swapchain(_device, object());
+    }
+}
+
+VkSwapchainCreateInfoKHR &Swapchain::info()
+{
+    return _create_info;
+}
+
+VkResult Swapchain::create(VkDevice device)
+{
+    _device = device;
+    VkResult result = __cvk::create_swapchain_by_info(_device, info(), object());
+    __cvk::get_swapchain_images(_device, object(), get_attachments());
+    return result;
+    // return VkResult();
+}
+
+auto Swapchain::get_images() const -> std::vector<VkImage> CONST_REFERENCE
+{
+    CVK_ASSERT(object() != VK_NULL_HANDLE);
+    return *this;
+}
+
+Swapchain::operator ObjType CONST_REFERENCE () const
+{
+    CVK_ASSERT(object() != VK_NULL_HANDLE);
     return object();
 }
 
-void cvk::Swapchain::release()
+void Swapchain::init_info(VkPhysicalDevice physical_device, VkSurfaceKHR surface, const std::vector<VkPresentModeKHR>& present_modes, VkSurfaceFormatKHR surface_format)
 {
-    __cvk::destroy_swapchain(_device, object());
+	VkResult result = VK_SUCCESS;
+	std::vector<VkPresentModeKHR> all_present_modes, best_present_modes;
+	result = __cvk::get_surface_present_modes(physical_device, surface, all_present_modes);
+	if (result != VK_SUCCESS) {
+		return;
+	}
+	utils::vector_filter(all_present_modes, present_modes, best_present_modes);
+	if (best_present_modes.size() == 0) {
+		return;
+	}
+
+    __cvk::get_default_swapchain_create_info(physical_device, surface, best_present_modes[0], surface_format, _create_info);
 }
+
+};

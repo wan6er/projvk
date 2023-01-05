@@ -38,10 +38,10 @@ Windows::~Windows()
     __win::unregister_cls(_name, _hInstance);
 }
 
-void Windows::run()
+void Windows::run(std::function<void()> process)
 {
     Windows::show();
-    while(!Windows::dispatch());
+    while(!Windows::dispatch(process));
 }
 
 void Windows::show()
@@ -50,14 +50,16 @@ void Windows::show()
     UpdateWindow(_hWnd);
 }
 
-int Windows::dispatch()
+int Windows::dispatch(std::function<void()> process)
 {
     MSG msg = {};
-    while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
+    if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
         if (msg.message == WM_QUIT)
             return -1;
         TranslateMessage(&msg);
         DispatchMessage(&msg);
+
+        process();
     }
     return 0;
 }

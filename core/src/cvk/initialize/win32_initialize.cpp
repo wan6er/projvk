@@ -1,6 +1,10 @@
 #include "cvk/initialize/win32_initialize.h"
 
-VkResult __cvk::create_win32_surface(VkInstance instance, HINSTANCE hInstance, HWND hWnd, VkSurfaceKHR& surface)
+namespace __cvk
+{
+
+
+VkResult create_win32_surface(VkInstance instance, HINSTANCE hInstance, HWND hWnd, VkSurfaceKHR& surface)
 {
 	VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {};
 	surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
@@ -8,3 +12,5 @@ VkResult __cvk::create_win32_surface(VkInstance instance, HINSTANCE hInstance, H
 	surfaceCreateInfo.hwnd = (HWND)hWnd;
 	return vkCreateWin32SurfaceKHR(instance, &surfaceCreateInfo, nullptr, &surface);
 }
+
+};

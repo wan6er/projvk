@@ -8,7 +8,7 @@
 
 namespace cvk
 {
-    class Instance : public utils::BaseObj<VkInstance>
+    class CVK_API Instance : protected utils::BaseObj<VkInstance>
     {
     public:
         Instance(const std::vector<std::string>& extensions_name, const std::vector<std::string>& layers_name);
@@ -19,6 +19,6 @@ namespace cvk
         operator VkInstance() const;
 
     protected:
-        virtual void release();
+        void release();
     };
 };

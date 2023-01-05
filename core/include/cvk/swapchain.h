@@ -1,20 +1,32 @@
 #pragma once
 
 #include "utils/base_obj.h"
+#include "utils/base_multi_attach.h"
 #include "cvk/vk_header.h"
 
 namespace cvk
 {
-    class Swapchain : public utils::BaseObj<VkSwapchainKHR>
+    class CVK_API Swapchain : 
+        protected utils::BaseObj<VkSwapchainKHR>,
+        protected utils::BaseMultipleAttaches<VkImage>
     {
     public:
-        Swapchain(VkPhysicalDevice physical_device, VkDevice device, VkSurfaceKHR surface, VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR);
+        Swapchain(VkPhysicalDevice physical_device, VkSurfaceKHR surface, std::vector<VkPresentModeKHR> CONST_REFERENCE present_modes, VkSurfaceFormatKHR surface_format);
+        Swapchain(VkSwapchainCreateInfoKHR CONST_REFERENCE create_info);
+        virtual ~Swapchain();
 
-        operator ObjType() const;
+        VkSwapchainCreateInfoKHR& info();
+        VkResult create(VkDevice device);
+        auto get_images() const -> std::vector<VkImage> CONST_REFERENCE;
+
+        operator ObjType CONST_REFERENCE () const;
 
     protected:
-        virtual void release();
+        void init_info(VkPhysicalDevice physical_device, VkSurfaceKHR surface, const std::vector<VkPresentModeKHR>& present_modes, VkSurfaceFormatKHR surface_format);
+
+        void release();
     private:
-        VkDevice _device;
+        VkSwapchainCreateInfoKHR _create_info;
+        VkDevice _device = VK_NULL_HANDLE;
     };
 };

@@ -1,0 +1,104 @@
+#include "test_header.h"
+
+#include "cvk/instance.h"
+#include "cvk/device.h"
+#include "cvk/surface.h"
+#include "cvk/memory.h"
+#include "cvk/swapchain.h"
+#include "cvk/image/image_view.h"
+#include "cvk/image/sampler.h"
+#include "cvk/pipe/descriptor_pool.h"
+#include "cvk/pipe/descriptor_set.h"
+#include "cvk/pipe/descriptor_set_layout.h"
+#include "cvk/initialize/command_initialize.h"
+#include "cvk/initialize/surface_initialize.h"
+#include "cvk/initialize/pipe_initialize.h"
+
+#ifdef WIN32
+#include "win32/surface_win32.h"
+#include "win32/win.h"
+#endif
+
+TEST_FUNC_BEGIN("descriptor")
+    std::vector<std::string> instance_extensions = {
+#ifdef WIN32
+        VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+#endif
+        VK_KHR_SURFACE_EXTENSION_NAME,
+        VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+    };
+    std::vector<std::string> instance_layers = {
+        "VK_LAYER_KHRONOS_validation"
+    };
+    std::vector<std::string> device_extensions = {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+        // VK_EXT_DEBUG_MARKER_EXTENSION_NAME
+    };
+
+    cvk::Instance instance(instance_extensions, instance_layers);
+    std::vector<VkPhysicalDevice>&& devices = instance.get_all_physical_device();
+    VkPhysicalDeviceFeatures device_features = {};
+    cvk::Device device(devices[0], device_extensions, {}, VK_QUEUE_GRAPHICS_BIT);
+   
+#ifdef WIN32
+    Windows win("descriptor", 1024, 720);
+    cvk::SurfaceWin32 surface(instance, win.instance(), win);
+#else
+#error unsupport platform
+#endif
+
+    std::vector<VkSurfaceFormatKHR> formats;
+    __cvk::get_surface_formats(device.get_physical_device(), surface, formats);
+    CHECK(formats.size() > 0);
+    cvk::Swapchain swapchain(device.get_physical_device(), surface, { VK_PRESENT_MODE_FIFO_KHR }, formats[0]);
+    swapchain.create(device);
+
+    uint32_t tex_width = 100, tex_height = 100;
+    // cvk::Image2D texture(device, VK_FORMAT_R8G8B8A8_UNORM, tex_width, tex_height, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_LINEAR);
+    cvk::ImageView2D texture(VK_IMAGE_ASPECT_COLOR_BIT, VK_FORMAT_R8G8B8A8_UNORM, tex_width, tex_height, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_LINEAR);
+    texture.image_info().initialLayout = VK_IMAGE_LAYOUT_PREINITIALIZED;
+    CHECK(texture.create_image(device) == VK_SUCCESS);
+    cvk::Memory tex_mem(device.get_memory_properties(), texture.get_memory_requirement(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    CHECK(tex_mem.allocate(device) == VK_SUCCESS);
+    tex_mem.bind(texture);
+    CHECK(texture.create_image_view(device) == VK_SUCCESS);
+
+    cvk::Sampler sampler;
+    sampler.create(device);
+
+    VkDescriptorImageInfo tex_copy_info;
+    __cvk::get_default_descriptor_image_info(sampler, texture, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, tex_copy_info);
+
+    cvk::WriteDescriptorSet copy_set(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 0);
+    copy_set.attaches(tex_copy_info);
+    cvk::WriteDescriptorSet copy_set1(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 2);
+    copy_set1.attaches(tex_copy_info);
+
+    VkDescriptorSetLayoutBinding tex0_binding = cvk::DescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, VK_SHADER_STAGE_FRAGMENT_BIT, 0);
+    VkDescriptorSetLayoutBinding tex1_binding = cvk::DescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, VK_SHADER_STAGE_FRAGMENT_BIT, 1);
+
+    cvk::DescriptorSetLayout tex_layout;
+    tex_layout.attaches(tex0_binding, tex1_binding);
+    CHECK(tex_layout.create(device) == VK_SUCCESS);
+    
+    VkDescriptorSetLayoutBinding tex2_binding = cvk::DescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, VK_SHADER_STAGE_FRAGMENT_BIT, 2);
+    VkDescriptorSetLayoutBinding tex3_binding = cvk::DescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, VK_SHADER_STAGE_FRAGMENT_BIT, 3);
+
+    cvk::DescriptorSetLayout tex_layout1;
+    tex_layout1.attaches(tex2_binding, tex3_binding);
+    CHECK(tex_layout1.create(device) == VK_SUCCESS);
+
+    cvk::DescriptorPool descriptor_pool(swapchain.get_images().size());
+    // descriptor_pool.attaches(tex_binding);
+    // descriptor_pool.set(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1);
+    descriptor_pool.set(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 2);
+    CHECK(descriptor_pool.create(device) == VK_SUCCESS);
+
+    cvk::DescriptorSet tex_set[2] = {{ descriptor_pool, tex_layout }, { descriptor_pool, tex_layout1 } };
+    CHECK(tex_set[0].allocate(device) == VK_SUCCESS);
+    CHECK(tex_set[1].allocate(device) == VK_SUCCESS);
+    copy_set.update(device, tex_set[0]);
+    copy_set1.update(device, tex_set[1]);
+
+
+TEST_FUNC_END

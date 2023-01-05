@@ -1,17 +1,18 @@
 #pragma once
 
-#include "cvk/image/image.h"
+#include "cvk/image/base_image.h"
 
 namespace cvk
 {
-    class Image2D : public Image
+    class CVK_API Image2D : public BaseImage
     {
     public:
-        Image2D(VkDevice device, VkFormat format, const VkExtent2D& extent, VkImageUsageFlags usage);
+        explicit Image2D(VkFormat format, uint32_t width, uint32_t height, VkImageUsageFlags usage, VkImageTiling tiling);  
+        explicit Image2D(VkImage image);
+        Image2D(Image2D CONST_REFERENCE image) = default;
+        // Image2D(VkDevice device);
         ~Image2D();
 
-    private:
-        constexpr static VkImageType ImageType = VK_IMAGE_TYPE_2D;
-        constexpr static uint32_t ImageLayers = 1;
+        // void setup(VkFormat format, uint32_t width, uint32_t height, VkImageUsageFlags usage);
     };
 };

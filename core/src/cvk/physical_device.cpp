@@ -1,6 +1,8 @@
 #include "cvk/physical_device.h"
-
 #include "cvk/initialize/device_initialize.h"
+
+namespace cvk
+{
 
 cvk::PhysicalDevice::PhysicalDevice(VkPhysicalDevice physical_device) :
     _physical_device(physical_device)
@@ -23,3 +25,5 @@ auto cvk::PhysicalDevice::get_physical_device() const -> VkPhysicalDevice
 {
     return _physical_device;
 }
+
+};

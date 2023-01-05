@@ -6,19 +6,20 @@ project(${PROJ_NAME})
 set(PROJ_BASE_DIR ${PROJECT_SOURCE_DIR})
 
 find_package(Vulkan)
-if (NOT Vulkan_FOUND)
-	message(FATAL_ERROR "Could not find Vulkan library!")
-endif()
 
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake")
 find_package(core)
 
-set(EXTERNAL_DIR ${PROJECT_SOURCE_DIR}/external/)
+# add_definitions(-DDLL_EXPORT)
 
 # glm
-set(glm_INCLUDE_DIR ${EXTERNAL_DIR}/glm)
+set(glm_INCLUDE_DIR external/glm)
+# vma
+# add_definitions(-DVMA_IMPLEMENTATION)
+# set(vma_INCLUDE_DIR external/VulkanMemoryAllocator)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
+
 # set(CMAKE_CXX_FLAGS "-Wall -g -O0")
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/core)

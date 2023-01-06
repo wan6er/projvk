@@ -13,11 +13,10 @@ BaseCommandBuffer<_CmdType>::~BaseCommandBuffer()
 }
 
 template<class _CmdType>
-VkResult BaseCommandBuffer<_CmdType>::create(VkDevice device, VkCommandPool pool)
+VkResult BaseCommandBuffer<_CmdType>::create()
 {
-    _device = device;
-    _pool = pool;
-    _allocate_info.commandPool = _pool;
+    CVK_ASSERT(_device != VK_NULL_HANDLE);
+    CVK_ASSERT(_pool != VK_NULL_HANDLE);
     return __cvk::alloc_command_buffer(_device, _allocate_info, object());
 }
 
@@ -38,6 +37,7 @@ void BaseCommandBuffer<_CmdType>::end()
 template<class _CmdType>
 auto BaseCommandBuffer<_CmdType>::cmd() const -> _CmdType CONST_REFERENCE
 {
+    CVK_ASSERT(object() != VK_NULL_HANDLE);
     return _cmd;
 }
 

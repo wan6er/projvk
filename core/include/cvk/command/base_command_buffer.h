@@ -10,10 +10,10 @@ namespace cvk
     class BaseCommandBuffer : public utils::BaseObj<VkCommandBuffer>
     {
     public:
-        BaseCommandBuffer();
+        BaseCommandBuffer(VkDevice device, VkCommandPool pool);
         virtual ~BaseCommandBuffer();
 
-        VkResult create(VkDevice device, VkCommandPool pool);
+        VkResult create();
 
         VkResult begin(VkCommandBufferUsageFlags usage);
         void end();

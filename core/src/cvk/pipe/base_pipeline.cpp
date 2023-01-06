@@ -4,7 +4,8 @@
 namespace cvk
 {
 
-BasePipeline::BasePipeline()
+BasePipeline::BasePipeline(VkDevice device) :
+    device(device)
 {
 }
 

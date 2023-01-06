@@ -8,9 +8,9 @@ namespace cvk
     class CVK_API Memory : protected utils::BaseObj<VkDeviceMemory>
     {
     public:
-        Memory(VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, VkMemoryRequirements CONST_REFERENCE requirements, VkMemoryPropertyFlags property);
-        Memory(uint32_t size, uint32_t type_index);
-        explicit Memory(VkDeviceMemory CONST_REFERENCE memory);
+        Memory(VkDevice device, VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, VkMemoryRequirements CONST_REFERENCE requirements, VkMemoryPropertyFlags property);
+        Memory(VkDevice device, uint32_t size, uint32_t type_index);
+        Memory(VkDeviceMemory CONST_REFERENCE memory);
         Memory(Memory CONST_REFERENCE) = default;
         ~Memory();
 
@@ -23,7 +23,7 @@ namespace cvk
         VkResult map(_Type&& data, uint32_t offset = 0);
         void unmap();
 
-        VkResult allocate(VkDevice device);
+        VkResult allocate();
         auto allocate_info() -> VkMemoryAllocateInfo&;
 
     protected:

@@ -81,15 +81,15 @@ TEST_FUNC_BEGIN("memory")
         // VkBufferCreateInfo info = {};
         // __cvk::get_default_buffer_create_info(65535, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, {}, info);
         // auto result = __cvk::create_buffer(device, info, buffer);
-        cvk::Buffer buffer(65535, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
-        auto result = buffer.create(device);
+        cvk::Buffer buffer(device, 65535, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+        auto result = buffer.create();
         CHECK(result == VK_SUCCESS);
 
         VkMemoryRequirements requirement;
         __cvk::get_memory_requirement(device, buffer, requirement);
 
-        cvk::Memory memory(device.get_memory_properties(), requirement, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-        result = memory.allocate(device);
+        cvk::Memory memory(device, device.get_memory_properties(), requirement, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        result = memory.allocate();
         CHECK(result == VK_SUCCESS);
         result = memory.bind(buffer);
         CHECK(result == VK_SUCCESS);

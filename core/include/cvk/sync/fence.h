@@ -12,11 +12,13 @@ namespace cvk
         public utils::BaseObj<VkFence>
     {
     public:
-        Fence(bool signaled = false);
+        Fence(VkDevice device, bool signaled = false);
         virtual ~Fence();
 
-        VkResult create(VkDevice device);
+        VkResult create();
         VkResult wait(uint32_t timeout = UINT32_MAX);
+        VkResult reset();
+        void set_create_signal(bool signaled);
 
         operator VkFence CONST_REFERENCE () const;
 

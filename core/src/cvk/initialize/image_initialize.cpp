@@ -28,7 +28,7 @@ VkResult create_image(VkDevice device, VkImageType type, VkFormat format, uint32
 	return create_image(device, image_create_info, image);
 }
 
-void get_default_image_create_info(VkFormat format, const VkExtent3D& extent, VkImageUsageFlags usage, VkImageTiling tiling, VkImageCreateInfo& create_info)
+void get_default_image_create_info(VkFormat format, const VkExtent3D& extent, VkImageLayout image_layout, VkImageUsageFlags usage, VkImageTiling tiling, VkImageCreateInfo& create_info)
 {
 	create_info = {
 		.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
@@ -39,7 +39,8 @@ void get_default_image_create_info(VkFormat format, const VkExtent3D& extent, Vk
 		.arrayLayers = 1,
 		.samples = VK_SAMPLE_COUNT_1_BIT,
 		.tiling = tiling,
-		.usage = usage
+		.usage = usage,
+		.initialLayout = image_layout,
 	};
 }
 

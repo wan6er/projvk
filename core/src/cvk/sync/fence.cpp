@@ -6,7 +6,8 @@
 namespace cvk
 {
 
-Fence::Fence(bool signaled) :
+Fence::Fence(VkDevice device, bool signaled) :
+    _device(device),
     _signaled(signaled)
 {
 }
@@ -18,16 +19,25 @@ Fence::~Fence()
     }
 }
 
-VkResult Fence::create(VkDevice device)
+VkResult Fence::create()
 {
-    _device = device;
     return __cvk::create_fence(_device, object(), _signaled);
+}
+
+void Fence::set_create_signal(bool signaled)
+{
+    _signaled = signaled;
 }
 
 VkResult Fence::wait(uint32_t timeout)
 {
     CVK_ASSERT(_device != VK_NULL_HANDLE);
-    return vkWaitForFences(_device, 1, &object(), VK_TRUE, timeout);
+    return __cvk::wait_fences(_device, { object() }, timeout);
+}
+
+VkResult Fence::reset()
+{
+    return __cvk::reset_fences(_device, { object() });
 }
 
 Fence::operator VkFence CONST_REFERENCE () const

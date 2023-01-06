@@ -157,46 +157,25 @@ VkResult get_swapchain_images(VkDevice device, VkSwapchainKHR swapchain, std::ve
 	return query_properties(vkGetSwapchainImagesKHR, images, device, swapchain);
 }
 
-// void check_queue_family_present_available(VkPhysicalDevice device, VkSurfaceKHR surface, uint32_t index, VkBool32 &available)
-// {
-// 	vkGetPhysicalDeviceSurfaceSupportKHR(device, index, surface, &available);
-// }
+CVK_API VkResult swapchain_acquire_next_image(VkDevice device, VkSwapchainKHR swapchain, uint32_t& next_index, VkSemaphore wait_semaphore, VkFence wait_fence)
+{
+	CVK_ASSERT(device != VK_NULL_HANDLE);
+	CVK_ASSERT(swapchain != VK_NULL_HANDLE);
+	return vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, wait_semaphore, wait_fence, &next_index);
+}
 
-// void get_all_device_formats(VkPhysicalDevice device, VkSurfaceKHR surface, std::vector<VkSurfaceFormatKHR> &formats)
-// {
-// 	uint32_t count;
-// 	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &count, nullptr);
-// 	formats.resize(count);
-// 	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &count, formats.data());
-// }
-
-// void get_all_present_modes(VkPhysicalDevice device, VkSurfaceKHR surface, std::vector<VkPresentModeKHR>& present_modes)
-// {
-// 	uint32_t count;
-// 	vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &count, NULL);
-// 	present_modes.resize(count);
-// 	vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &count, present_modes.data());
-// }
-
-// void get_device_format(VkPhysicalDevice device, VkSurfaceKHR surface, VkSurfaceFormatKHR &surface_format, VkFormat format)
-// {
-// 	std::vector<VkSurfaceFormatKHR> formats;
-// 	get_all_device_formats(device, surface, formats);
-
-// 	if ((formats.size() == 1) && (formats[0].format == VK_FORMAT_UNDEFINED))
-// 	{
-// 		surface_format.format = format;
-// 		surface_format.colorSpace = formats[0].colorSpace;
-// 		return;
-// 	}
-// 	for (auto &item : formats)
-// 	{
-// 		if (item.format == format) 
-// 		{
-// 			surface_format = item;
-// 			break;
-// 		}
-// 	}
-// }
+CVK_API VkResult swapchain_present(VkQueue queue, VkSwapchainKHR CONST_REFERENCE swapchain, std::vector<VkSemaphore> CONST_REFERENCE wait, uint32_t& next_index)
+{
+	CVK_ASSERT(queue != VK_NULL_HANDLE);
+	VkPresentInfoKHR present = {};
+	present.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	present.pNext = NULL;
+	present.swapchainCount = 1;
+	present.pSwapchains = &swapchain;
+	present.pImageIndices = &next_index;
+	present.pResults = NULL;
+	utils::vector_fill_info(wait, present.waitSemaphoreCount, present.pWaitSemaphores);
+	return vkQueuePresentKHR(queue, &present);
+}
 
 };

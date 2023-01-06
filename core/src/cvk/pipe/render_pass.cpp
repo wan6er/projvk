@@ -4,7 +4,8 @@
 namespace cvk
 {
 
-RenderPass::RenderPass()
+RenderPass::RenderPass(VkDevice device) :
+    _device(device)
 {
     setup_create_info();
 }
@@ -16,9 +17,8 @@ RenderPass::~RenderPass()
     }
 }
 
-VkResult RenderPass::create(VkDevice device)
+VkResult RenderPass::create()
 {
-    _device = device;
     setup_create_info();
     return __cvk::create_render_pass(_device, _info, object());
 }

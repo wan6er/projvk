@@ -34,23 +34,25 @@ TEST_FUNC_BEGIN("sync")
     CHECK(__cvk::create_semaphore(device, semaphore, true) == VK_SUCCESS);
     __cvk::destroy_semaphore(device, semaphore);
 
-    cvk::Semaphore s1(true);
-    CHECK(s1.create(device) == VK_SUCCESS);
-    cvk::Semaphore s2(false);
-    CHECK(s2.create(device) == VK_SUCCESS);
+    cvk::Semaphore s1(device, true);
+    CHECK(s1.create() == VK_SUCCESS);
+    cvk::Semaphore s2(device, false);
+    CHECK(s2.create() == VK_SUCCESS);
 
-    cvk::Fence f1(true);
-    CHECK(f1.create(device) == VK_SUCCESS);
-    cvk::Fence f2(false);
-    CHECK(f2.create(device) == VK_SUCCESS);
+    cvk::Fence f1(device, true);
+    CHECK(f1.create() == VK_SUCCESS);
+    cvk::Fence f2(device, false);
+    CHECK(f2.create() == VK_SUCCESS);
 
-    cvk::SemaphoreSet s_set = { true, true, false };
-    CHECK(s_set.create(device) == VK_SUCCESS);
-    cvk::SemaphoreSet s_set1(3);
-    CHECK(s_set1.create(device) == VK_SUCCESS);
+    cvk::SemaphoreSet s_set(device);
+    s_set = { true, true, false };
+    CHECK(s_set.create() == VK_SUCCESS);
+    cvk::SemaphoreSet s_set1(device, 3);
+    CHECK(s_set1.create() == VK_SUCCESS);
 
-    cvk::FenceSet f_set = { true, true };
-    CHECK(f_set.create(device) == VK_SUCCESS);
+    cvk::FenceSet f_set(device);
+    f_set = { true, true };
+    CHECK(f_set.create() == VK_SUCCESS);
     CHECK(f_set.wait() == VK_SUCCESS);
 
 TEST_FUNC_END

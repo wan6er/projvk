@@ -8,7 +8,8 @@ namespace cvk
     class CVK_API BaseSync
     {
     public:
-        virtual VkResult create(VkDevice device) = 0;
+        virtual VkResult create() = 0;
+        virtual void set_create_signal(bool signaled) = 0;
         virtual VkResult wait(uint32_t timeout);
 
     };

@@ -5,7 +5,8 @@
 namespace cvk
 {
 
-DescriptorSet::DescriptorSet(VkDescriptorPool pool, VkDescriptorSetLayout CONST_REFERENCE layout)
+DescriptorSet::DescriptorSet(VkDevice device, VkDescriptorPool pool, VkDescriptorSetLayout CONST_REFERENCE layout) :
+    _device(device)
 {
     __cvk::get_default_descriptor_set_allocate_info(pool, layout, _alloc_info);
 }
@@ -22,9 +23,8 @@ DescriptorSet::operator VkDescriptorSet CONST_REFERENCE () const
     return object();
 }
 
-VkResult DescriptorSet::allocate(VkDevice device)
+VkResult DescriptorSet::allocate()
 {
-    _device = device;
     return __cvk::alloc_descriptor_set(_device, _alloc_info, object());
 }
 

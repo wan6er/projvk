@@ -8,7 +8,7 @@ namespace cvk
     class CVK_API Buffer : protected utils::BaseObj<VkBuffer>
     {
     public:
-        Buffer(uint32_t size, VkBufferUsageFlags usage);
+        Buffer(VkDevice device, uint32_t size, VkBufferUsageFlags usage);
         Buffer(VkBuffer buffer);
         Buffer(Buffer CONST_REFERENCE buffer) = default;
         ~Buffer();
@@ -17,7 +17,7 @@ namespace cvk
         operator VkBuffer() const;
         auto info() -> VkBufferCreateInfo&;
 
-        VkResult create(VkDevice device);
+        VkResult create();
 
     protected:
         void release();

@@ -9,11 +9,11 @@ namespace cvk
     class CVK_API Shader : public utils::BaseObj<VkShaderModule>
     {
     public:
-        Shader(uint32_t size, void CONST_PTR code);
-        Shader(std::vector<char> CONST_REFERENCE code);
+        Shader(VkDevice device, uint32_t size, void CONST_PTR code);
+        Shader(VkDevice device, std::vector<char> CONST_REFERENCE code);
         virtual ~Shader();
 
-        VkResult create(VkDevice device);
+        VkResult create();
 
         operator VkShaderModule CONST_REFERENCE () const;
 

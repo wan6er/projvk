@@ -11,11 +11,11 @@ namespace cvk
         public utils::BaseMultipleAttaches<VkDescriptorSetLayout>
     {
     public:
-        explicit PipelineLayout();
+        explicit PipelineLayout(VkDevice device);
         PipelineLayout(const PipelineLayout&) = default;
         ~PipelineLayout();
 
-        VkResult create(VkDevice device);
+        VkResult create();
 
         operator VkPipelineLayout CONST_REFERENCE () const;
     

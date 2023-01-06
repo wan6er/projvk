@@ -179,4 +179,24 @@ CVK_API void cmd_end_renderpass(VkCommandBuffer buffer)
     vkCmdEndRenderPass(buffer);
 }
 
+CVK_API void get_queue(VkDevice device, uint32_t queue_index, VkQueue& queue)
+{
+    CVK_ASSERT(device != VK_NULL_HANDLE);
+    vkGetDeviceQueue(device, queue_index, 0, &queue);
+}
+
+CVK_API VkResult queue_submit(VkPipelineStageFlags wait_stage, std::vector<VkSemaphore> CONST_REFERENCE wait, std::vector<VkSemaphore> CONST_REFERENCE signal, VkFence finish_fence, std::vector<VkCommandBuffer> CONST_REFERENCE buffers, VkQueue queue)
+{
+    CVK_ASSERT(queue != VK_NULL_HANDLE);
+    CVK_ASSERT(buffers.size() > 0);
+    VkSubmitInfo submit_info = {};
+    submit_info.pNext = NULL;
+    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submit_info.pWaitDstStageMask = &wait_stage;
+    utils::vector_fill_info(wait, submit_info.waitSemaphoreCount, submit_info.pWaitSemaphores);
+    utils::vector_fill_info(signal, submit_info.signalSemaphoreCount, submit_info.pSignalSemaphores);
+    utils::vector_fill_info(buffers, submit_info.commandBufferCount, submit_info.pCommandBuffers);
+    return vkQueueSubmit(queue, 1, &submit_info, finish_fence);
+}
+
 };

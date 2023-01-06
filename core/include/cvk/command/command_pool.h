@@ -10,12 +10,12 @@ namespace cvk
         public utils::BaseObj<VkCommandPool>
     {
     public:
-        CommandPool(uint32_t queue_family);
+        CommandPool(VkDevice device, uint32_t queue_family);
         virtual ~CommandPool();
 
         CommandPool& transient();
 
-        VkResult create(VkDevice device);
+        VkResult create();
 
         operator VkCommandPool CONST_REFERENCE () const;
 

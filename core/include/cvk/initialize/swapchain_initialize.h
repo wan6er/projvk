@@ -27,6 +27,10 @@ namespace __cvk
     CVK_API void destroy_swapchain(VkDevice device, VkSwapchainKHR swapchain);
     CVK_API VkResult get_swapchain_images(VkDevice device, VkSwapchainKHR swapchain, std::vector<VkImage>& images);
 
+    // present
+    CVK_API VkResult swapchain_acquire_next_image(VkDevice device, VkSwapchainKHR swapchain, uint32_t& next_index, VkSemaphore wait_semaphore, VkFence wait_fence);
+    CVK_API VkResult swapchain_present(VkQueue queue, VkSwapchainKHR CONST_REFERENCE swapchain, std::vector<VkSemaphore> CONST_REFERENCE wait, uint32_t& next_index);
+
     // CVK_API void check_queue_family_present_available(VkPhysicalDevice device, VkSurfaceKHR surface, uint32_t index, VkBool32& available);
 
     // CVK_API void get_all_device_formats(VkPhysicalDevice device, VkSurfaceKHR surface, std::vector<VkSurfaceFormatKHR>& formats);

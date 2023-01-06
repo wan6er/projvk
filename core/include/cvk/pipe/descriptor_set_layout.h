@@ -1,6 +1,7 @@
 #pragma once 
 
 #include "cvk/vk_header.h"
+#include "cvk/pipe/descriptor_pool.h"
 #include "utils/base_obj.h"
 #include "utils/base_multi_attach.h"
 
@@ -19,11 +20,12 @@ namespace cvk
         public utils::BaseMultipleAttaches<VkDescriptorSetLayoutBinding>
     {
     public:
-        explicit DescriptorSetLayout();
+        DescriptorSetLayout(VkDevice device);
         DescriptorSetLayout(DescriptorSetLayout CONST_REFERENCE) = default;
         virtual ~DescriptorSetLayout();
 
-        VkResult create(VkDevice device);
+        VkResult create();
+        virtual DescriptorSetLayout& set(uint32_t binding, VkDescriptorType type, VkShaderStageFlags shader_stage, uint32_t num_of_descriptor);
 
         VkDescriptorSetLayout CONST_REFERENCE get_layout() const;
         operator VkDescriptorSetLayout CONST_REFERENCE () const;
@@ -32,6 +34,8 @@ namespace cvk
         void release();
 
     private:
+        friend class DescriptorPool;
+
         std::vector<VkDescriptorSetLayoutBinding> _temp_bindings;
         VkDescriptorSetLayoutCreateInfo _create_info;
         VkDevice _device = VK_NULL_HANDLE;

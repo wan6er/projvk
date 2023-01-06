@@ -4,7 +4,8 @@
 namespace cvk
 {
 
-Semaphore::Semaphore(bool signaled) :
+Semaphore::Semaphore(VkDevice device, bool signaled) :
+    _device(device),
     _signaled(signaled)
 {
 }
@@ -16,10 +17,14 @@ Semaphore::~Semaphore()
     }
 }
 
-VkResult Semaphore::create(VkDevice device)
+VkResult Semaphore::create()
 {
-    _device = device;
     return __cvk::create_semaphore(_device, object(), _signaled);
+}
+
+void Semaphore::set_create_signal(bool signaled)
+{
+    _signaled = signaled;
 }
 
 Semaphore::operator VkSemaphore CONST_REFERENCE () const

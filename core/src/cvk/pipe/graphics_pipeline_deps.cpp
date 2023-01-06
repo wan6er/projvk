@@ -1,11 +1,53 @@
-#include "cvk/pipe/pipeline_deps.h"
+#include "cvk/pipe/graphics_pipeline_deps.h"
 
 namespace cvk
 {
 
+
+VertexInputAttributes::VertexInputAttributes(VertexInputState& state, uint32_t binding) :
+    vertex_input(state),
+    binding(binding)
+{
+}
+
+VertexInputAttributes& VertexInputAttributes::add_attribute(uint32_t location, VkFormat format, uint32_t offset)
+{
+    VkVertexInputAttributeDescription attribute = {};
+    attribute.binding = binding;
+    attribute.location = location;
+    attribute.format = format;
+    attribute.offset = offset;
+    // attaches(attribute);
+    vertex_input.attaches(attribute);
+    return *this;
+}
+
 VertexInputState::VertexInputState() : VkPipelineVertexInputStateCreateInfo()
 {
     sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+}
+
+VertexInputAttributes& VertexInputState::add_binding(uint32_t binding, uint32_t stride)
+{
+    VkVertexInputBindingDescription vertex_input_binding = {
+        .binding = binding,
+        .stride = stride,
+        .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
+    };
+    attaches(vertex_input_binding);
+    std::vector<VertexInputAttributes>& attributes = *this;
+    return attributes.emplace_back(*this, binding);
+}
+
+VertexInputAttributes& VertexInputState::get_binding(uint32_t binding)
+{
+    std::vector<VertexInputAttributes>& attrs = *this;
+    for (auto& attr : attrs) {
+        if (attr.binding == binding) {
+            return attr;
+        }
+    }
+    throw std::out_of_range("Invalid binding");
 }
 
 InputAssemblyState::InputAssemblyState() : VkPipelineInputAssemblyStateCreateInfo()

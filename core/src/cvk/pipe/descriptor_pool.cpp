@@ -7,9 +7,10 @@
 namespace cvk
 {
 
-DescriptorPool::DescriptorPool(uint32_t max_sets)
+DescriptorPool::DescriptorPool(VkDevice device) :
+    _device(device)
 {
-    __cvk::get_default_descriptor_pool_create_info({}, max_sets, _create_info);
+    __cvk::get_default_descriptor_pool_create_info({}, 0, _create_info);
 }
 
 DescriptorPool::~DescriptorPool()
@@ -19,15 +20,10 @@ DescriptorPool::~DescriptorPool()
     }
 }
 
-VkResult DescriptorPool::create(VkDevice device)
+VkResult DescriptorPool::create(uint32_t max_sets)
 {
-    _device = device;
-    // std::vector<VkDescriptorPoolSize> temp_pool_size = *this;
-    // std::vector<VkDescriptorSetLayoutBinding> CONST_REFERENCE bindings = *this;
-    // std::function transitional = __cvk::get_descriptor_pool_size_by_binding;
-    // utils::vector_transition(bindings, temp_pool_size, transitional);
-
-    __cvk::get_default_descriptor_pool_create_info(*this, _create_info.maxSets, _create_info);
+    CVK_ASSERT(max_sets > 0);
+    __cvk::get_default_descriptor_pool_create_info(*this, max_sets, _create_info);
     return __cvk::create_descriptor_pool(_device, _create_info, object());
 }
 
@@ -45,9 +41,28 @@ void DescriptorPool::set(VkDescriptorType type, uint32_t num_of_descriptor)
     attaches(pool_size);
 }
 
+uint32_t& DescriptorPool::get(VkDescriptorType type)
+{
+    CVK_ASSERT(object() == VK_NULL_HANDLE);
+    std::vector<VkDescriptorPoolSize>& pool_sizes = *this;
+    for (auto& size : pool_sizes) {
+        if (size.type == type) {
+            return size.descriptorCount;
+        }
+    }
+
+    VkDescriptorPoolSize pool_size = { type, 0 };
+    return pool_sizes.emplace_back(pool_size).descriptorCount;
+}
+
 DescriptorPool::operator VkDescriptorPool CONST_REFERENCE () const
 {
     return object();
+}
+
+VkDevice DescriptorPool::get_device() const
+{
+    return _device;
 }
 
 void DescriptorPool::release()

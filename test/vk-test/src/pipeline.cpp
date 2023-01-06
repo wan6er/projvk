@@ -26,9 +26,17 @@
 
 void test_pipeline_attachment() 
 {
-    cvk::VertexInputState vi;
-    cvk::GraphicsPipeline test_pipeline(nullptr, nullptr);
-    test_pipeline.attach(vi);
+    // cvk::VertexInputState vi;
+    cvk::GraphicsPipeline test_pipeline(nullptr, nullptr, nullptr);
+    test_pipeline.vertex_input()
+        .add_binding(0, 32)
+            .add_attribute(0, VK_FORMAT_R32G32B32_SFLOAT, 0)
+            .add_attribute(1, VK_FORMAT_R32G32B32_SFLOAT, 12);
+    test_pipeline.vertex_input()
+        .add_binding(1, 32)
+            .add_attribute(0, VK_FORMAT_R32G32B32_SFLOAT, 0)
+            .add_attribute(1, VK_FORMAT_R32G32B32_SFLOAT, 12);
+    // test_pipeline.attach(vi);
     // test_pipeline.clear_all();
     test_pipeline.attaches(VkPipelineShaderStageCreateInfo(), VkPipelineShaderStageCreateInfo());
     CHECK((test_pipeline.get_attachments().size() == 2));
@@ -61,31 +69,32 @@ void test_renderpass(VkDevice device)
     __cvk::get_default_attachment_description(VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, color_attachment_desc);
     VkAttachmentDescription depth_attachment_desc;
     __cvk::get_default_attachment_description(VK_FORMAT_D16_UNORM, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, depth_attachment_desc);
-    cvk::RenderPass render_pass;
+    cvk::RenderPass render_pass(device);
     render_pass.attaches(color_attachment_desc, depth_attachment_desc, subpass.get_description());
     render_pass.clear_all();
     render_pass.attaches(color_attachment_desc, depth_attachment_desc, subpass.get_description());
-    VkResult result = render_pass.create(device);
+    VkResult result = render_pass.create();
     CHECK(result == VK_SUCCESS);
 
 }
 
 void test_descriptor(VkDevice device)
 {
-    cvk::DescriptorSetLayout dsl;
+    cvk::DescriptorSetLayout dsl(device);
     VkDescriptorSetLayoutBinding binding0 = cvk::DescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 0, 1);
     VkDescriptorSetLayoutBinding binding1 = cvk::DescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 1, 1);
     dsl.attaches(binding0, binding1);
-    VkResult result = dsl.create(device);
+    VkResult result = dsl.create();
     CHECK(result == VK_SUCCESS);
 
-    cvk::DescriptorPool dp(2);
+    cvk::DescriptorPool dp(device);
     dp.set(binding0);
-    result = dp.create(device);
+    result = dp.create(2);
     CHECK(result == VK_SUCCESS);
 
-    cvk::DescriptorSet set(dp, dsl);
-    result = set.allocate(device);
+    cvk::DescriptorSet set(device, dp, dsl);
+    result = set.allocate();
+    CHECK(result == VK_SUCCESS);
     // set.attaches()
 }
 
@@ -177,11 +186,11 @@ TEST_FUNC_BEGIN("graphics pipeline")
     __cvk::get_default_attachment_description(formats[0].format, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, color_attachment_desc);
     VkAttachmentDescription depth_attachment_desc;
     __cvk::get_default_attachment_description(VK_FORMAT_D16_UNORM, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, depth_attachment_desc);
-    cvk::RenderPass render_pass;
+    cvk::RenderPass render_pass(device);
     render_pass.attaches(color_attachment_desc, depth_attachment_desc, subpass.get_description());
     render_pass.clear_all();
     render_pass.attaches(color_attachment_desc, depth_attachment_desc, subpass.get_description());
-    VkResult result = render_pass.create(device);
+    VkResult result = render_pass.create();
     CHECK(result == VK_SUCCESS);
 
     struct Vertex {
@@ -189,53 +198,39 @@ TEST_FUNC_BEGIN("graphics pipeline")
         float color[3];
     };
 
-    VkVertexInputBindingDescription vertexInputBinding = {};
-    vertexInputBinding.binding = 0;
-    vertexInputBinding.stride = sizeof(Vertex);
-    vertexInputBinding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+    cvk::Shader vert_shader(device, utils::load_file("triangle.vert.spv"));
+    CHECK(vert_shader.create() == VK_SUCCESS);
+    cvk::Shader frag_shader(device, utils::load_file("triangle.frag.spv"));
+    CHECK(frag_shader.create() == VK_SUCCESS);
 
-    VkVertexInputAttributeDescription positionInputAttributs;
-    positionInputAttributs.binding = 0;
-    positionInputAttributs.location = 0;
-    positionInputAttributs.format = VK_FORMAT_R32G32B32_SFLOAT;
-    positionInputAttributs.offset = offsetof(Vertex, position);
-    // Attribute location 1: Color
-    VkVertexInputAttributeDescription colorInputAttributs;
-    colorInputAttributs.binding = 0;
-    colorInputAttributs.location = 1;
-    colorInputAttributs.format = VK_FORMAT_R32G32B32_SFLOAT;
-    colorInputAttributs.offset = offsetof(Vertex, color);
-
-    cvk::Shader vert_shader(utils::load_file("triangle.vert.spv"));
-    CHECK(vert_shader.create(device) == VK_SUCCESS);
-    cvk::Shader frag_shader(utils::load_file("triangle.frag.spv"));
-    CHECK(frag_shader.create(device) == VK_SUCCESS);
-
-    cvk::DescriptorSetLayout descriptor_layout;
+    cvk::DescriptorSetLayout descriptor_layout(device);
     VkDescriptorSetLayoutBinding binding0 = cvk::DescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 0, 1);
     VkDescriptorSetLayoutBinding binding1 = cvk::DescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 1, 1);
     descriptor_layout.attaches(binding0, binding1);
-    CHECK(descriptor_layout.create(device) == VK_SUCCESS);
+    CHECK(descriptor_layout.create() == VK_SUCCESS);
 
-    cvk::DescriptorPool descriptor_pool(2);
+    cvk::DescriptorPool descriptor_pool(device);
     descriptor_pool.set(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2);
-    result = descriptor_pool.create(device);
+    result = descriptor_pool.create(2);
     CHECK(result == VK_SUCCESS);
 
-    cvk::DescriptorSet set(descriptor_pool, descriptor_layout);
-    result = set.allocate(device);
-    cvk::PipelineLayout layout;
+    cvk::DescriptorSet set(device, descriptor_pool, descriptor_layout);
+    result = set.allocate();
+    cvk::PipelineLayout layout(device);
     layout.attaches(descriptor_layout.get_layout());
-    CHECK(layout.create(device) == VK_SUCCESS);
+    CHECK(layout.create() == VK_SUCCESS);
 
-    cvk::GraphicsPipeline pipeline(render_pass, layout);
-    pipeline.vertex_input().attaches(vertexInputBinding, positionInputAttributs, colorInputAttributs);
+
+    cvk::GraphicsPipeline pipeline(device, render_pass, layout);
+    pipeline.vertex_input().add_binding(0, sizeof(Vertex))
+        .add_attribute(0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position))
+        .add_attribute(1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color));
     pipeline.viewport().set_size(1, 1);
     pipeline.dynamic().attaches(VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR);
     pipeline.color_blend().attach(0xf, false);
     pipeline.shader()
         .attach(VK_SHADER_STAGE_VERTEX_BIT, vert_shader)
         .attach(VK_SHADER_STAGE_FRAGMENT_BIT, frag_shader);
-    CHECK(pipeline.create(device) == VK_SUCCESS);
+    CHECK(pipeline.create() == VK_SUCCESS);
     
 TEST_FUNC_END

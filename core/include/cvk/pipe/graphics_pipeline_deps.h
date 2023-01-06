@@ -5,14 +5,31 @@
 
 namespace cvk
 {
+    struct VertexInputState;
+
+    struct CVK_API VertexInputAttributes
+    {
+        VertexInputAttributes(VertexInputState& state, uint32_t binding);
+
+        VertexInputAttributes& add_attribute(uint32_t location, VkFormat format, uint32_t offset);
+
+        VertexInputState& vertex_input;
+        uint32_t binding;
+
+    };
+
     struct CVK_API VertexInputState : 
         public VkPipelineVertexInputStateCreateInfo,
-        public utils::BaseMultipleAttaches<VkVertexInputBindingDescription, VkVertexInputAttributeDescription>
+        public utils::BaseMultipleAttaches<VkVertexInputBindingDescription, VkVertexInputAttributeDescription, VertexInputAttributes>
     {
         VertexInputState();
 
+        VertexInputAttributes& add_binding(uint32_t binding, uint32_t stride);
+        VertexInputAttributes& get_binding(uint32_t binding);
+
         template<class...__Args>
         void attaches(__Args&&...args);
+
     };
 
     struct CVK_API InputAssemblyState : 
@@ -80,4 +97,4 @@ namespace cvk
     };
 };
 
-#include "pipeline_deps.inl"
+#include "graphics_pipeline_deps.inl"

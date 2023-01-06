@@ -5,12 +5,14 @@ namespace cvk
 {
 
 
-cvk::Memory::Memory(VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, VkMemoryRequirements CONST_REFERENCE requirements, VkMemoryPropertyFlags property)
+cvk::Memory::Memory(VkDevice device, VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, VkMemoryRequirements CONST_REFERENCE requirements, VkMemoryPropertyFlags property) :
+    _device(device)
 {
     __cvk::get_default_memory_allocate_info(_device, properties, requirements, property, allocate_info());
 }
 
-cvk::Memory::Memory(uint32_t size, uint32_t type_index)
+cvk::Memory::Memory(VkDevice device, uint32_t size, uint32_t type_index) :
+    _device(device)
 {
     __cvk::get_default_memory_allocate_info(_device, size, type_index, allocate_info());
 }
@@ -32,9 +34,8 @@ cvk::Memory::operator VkDeviceMemory CONST_REFERENCE () const
     return object();
 }
 
-VkResult cvk::Memory::allocate(VkDevice device)
+VkResult cvk::Memory::allocate()
 {
-    _device = device;
     return __cvk::alloc_memory(_device, _info, object());
 }
 

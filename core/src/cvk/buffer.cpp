@@ -7,7 +7,8 @@ namespace cvk
 {
 
 
-cvk::Buffer::Buffer(uint32_t size, VkBufferUsageFlags usage)
+cvk::Buffer::Buffer(VkDevice device, uint32_t size, VkBufferUsageFlags usage) :
+    _device(device)
 {
     __cvk::get_default_buffer_create_info(size, usage, {}, _info);
 }
@@ -43,9 +44,8 @@ auto cvk::Buffer::info() -> VkBufferCreateInfo&
     return _info;
 }
 
-VkResult cvk::Buffer::create(VkDevice device)
+VkResult cvk::Buffer::create()
 {
-    _device = device;
     return __cvk::create_buffer(_device, _info, object());
 }
 

@@ -6,7 +6,8 @@
 namespace cvk
 {
     
-CommandPool::CommandPool(uint32_t queue_family)
+CommandPool::CommandPool(VkDevice device, uint32_t queue_family) :
+    _device(device)
 {
     __cvk::get_default_command_pool_create_info(queue_family, _create_info);
 }
@@ -25,9 +26,8 @@ CommandPool& CommandPool::transient()
     return *this;
 }
 
-VkResult CommandPool::create(VkDevice device)
+VkResult CommandPool::create()
 {
-    _device = device;
     return __cvk::create_command_pool(_device, _create_info, object());
 }
 

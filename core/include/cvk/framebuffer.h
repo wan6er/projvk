@@ -12,10 +12,10 @@ namespace cvk
         public utils::BaseMultipleAttaches<VkImageView>
     {
     public:
-        Framebuffer(VkRenderPass renderpass, uint32_t width, uint32_t height);
+        Framebuffer(VkDevice device, VkRenderPass renderpass, uint32_t width, uint32_t height);
         virtual ~Framebuffer();
 
-        VkResult create(VkDevice device);
+        VkResult create();
 
         operator VkFramebuffer CONST_REFERENCE () const;
         

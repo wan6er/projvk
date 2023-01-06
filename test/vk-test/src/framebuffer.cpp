@@ -54,8 +54,8 @@ TEST_FUNC_BEGIN("framebuffer")
     std::vector<VkSurfaceFormatKHR> formats;
     __cvk::get_surface_formats(device.get_physical_device(), surface, formats);
 
-    cvk::Swapchain swapchain(device.get_physical_device(), surface, { VK_PRESENT_MODE_FIFO_KHR }, formats[0]);
-    swapchain.create(device);
+    cvk::Swapchain swapchain(device, device.get_physical_device(), surface, { VK_PRESENT_MODE_FIFO_KHR }, formats[0]);
+    swapchain.create();
 
     const VkAttachmentReference color_reference0 = {
         .attachment = 0,
@@ -74,24 +74,24 @@ TEST_FUNC_BEGIN("framebuffer")
     __cvk::get_default_attachment_description(formats[0].format, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, color_attachment_desc);
     VkAttachmentDescription depth_attachment_desc;
     __cvk::get_default_attachment_description(VK_FORMAT_D16_UNORM, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, depth_attachment_desc);
-    cvk::RenderPass render_pass;
+    cvk::RenderPass render_pass(device);
     render_pass.attaches(color_attachment_desc, depth_attachment_desc, subpass.get_description());
-    VkResult result = render_pass.create(device);
+    VkResult result = render_pass.create();
 
-    cvk::ImageView2D depth_attach(VK_IMAGE_ASPECT_DEPTH_BIT, VK_FORMAT_D16_UNORM, width, height, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
-    CHECK(depth_attach.create_image(device) == VK_SUCCESS);
-    cvk::Memory depth_mem(device.get_memory_properties(), depth_attach.get_memory_requirement(), VK_MEMORY_HEAP_DEVICE_LOCAL_BIT);
-    CHECK(depth_mem.allocate(device) == VK_SUCCESS);
+    cvk::ImageView2D depth_attach(device);
+    CHECK(depth_attach.create_image(VK_FORMAT_D16_UNORM, width, height, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL) == VK_SUCCESS);
+    cvk::Memory depth_mem(device, device.get_memory_properties(), depth_attach.get_memory_requirement(), VK_MEMORY_HEAP_DEVICE_LOCAL_BIT);
+    CHECK(depth_mem.allocate() == VK_SUCCESS);
     depth_mem.bind(depth_attach);
-    CHECK(depth_attach.create_image_view(device) == VK_SUCCESS);
+    CHECK(depth_attach.create_image_view(VK_IMAGE_ASPECT_DEPTH_BIT) == VK_SUCCESS);
 
     std::vector<cvk::Framebuffer> framebuffers;
     auto CONST_REFERENCE images = swapchain.get_images();
     std::vector<cvk::ImageView2D> image_views2d;
     for (auto i : images) {
-        CHECK(image_views2d.emplace_back(swapchain.info(), i).create_image_view(device) == VK_SUCCESS);
-        framebuffers.emplace_back(render_pass, width, height).attaches((VkImageView)image_views2d.back(), (VkImageView)depth_attach);
-        CHECK(framebuffers.back().create(device) == VK_SUCCESS);
+        CHECK(image_views2d.emplace_back(device, i).create_image_view(swapchain.info()) == VK_SUCCESS);
+        framebuffers.emplace_back(device, render_pass, width, height).attaches((VkImageView)image_views2d.back(), (VkImageView)depth_attach);
+        CHECK(framebuffers.back().create() == VK_SUCCESS);
     }
 
 

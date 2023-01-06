@@ -12,11 +12,12 @@ namespace cvk
         public utils::BaseObj<VkSemaphore>
     {
     public:
-        Semaphore(bool signaled = false);
+        Semaphore(VkDevice device, bool signaled = false);
         virtual ~Semaphore();
 
-        VkResult create(VkDevice device);
+        VkResult create();
         // VkResult wait(uint32_t timeout = UINT32_MAX);
+        void set_create_signal(bool signaled);
 
         operator VkSemaphore CONST_REFERENCE () const;
 

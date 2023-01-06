@@ -14,12 +14,15 @@ namespace cvk
         public std::enable_if_t<std::is_base_of_v<BaseImage, _BaseImage>, _BaseImage>
     {
     public:
+        // template<class...__Args>
+        // explicit ImageView(VkDevice device, VkImageAspectFlags aspect, __Args&&...args);
+        // template<class...__Args>
+        // explicit ImageView(VkDevice device, const VkImageViewCreateInfo& info, __Args&&...args);
+        // template<class...__Args>
+        // explicit ImageView(VkDevice device, const VkSwapchainCreateInfoKHR& info, __Args&&...args);
+
         template<class...__Args>
-        explicit ImageView(VkImageAspectFlags aspect, __Args&&...args);
-        template<class...__Args>
-        explicit ImageView(const VkImageViewCreateInfo& info, __Args&&...args);
-        template<class...__Args>
-        explicit ImageView(const VkSwapchainCreateInfoKHR& info, __Args&&...args);
+        explicit ImageView(VkDevice device, __Args&&...args);
 
         // ImageView(VkDevice device);
         // ImageView(const ImageView& image_view) = default;
@@ -28,7 +31,10 @@ namespace cvk
 
         operator VkImageView CONST_REFERENCE () const;
 
-        VkResult create_image_view(VkDevice device);
+        VkResult create_image_view(VkImageAspectFlags aspect);
+        VkResult create_image_view(VkImageViewCreateInfo CONST_REFERENCE info);
+        VkResult create_image_view(VkSwapchainCreateInfoKHR CONST_REFERENCE info);
+
         auto image_view_info() -> VkImageViewCreateInfo&;
 
     protected:

@@ -11,13 +11,16 @@ namespace cvk
         protected utils::BaseMultipleAttaches<VkImage>
     {
     public:
-        Swapchain(VkPhysicalDevice physical_device, VkSurfaceKHR surface, std::vector<VkPresentModeKHR> CONST_REFERENCE present_modes, VkSurfaceFormatKHR surface_format);
-        Swapchain(VkSwapchainCreateInfoKHR CONST_REFERENCE create_info);
+        Swapchain(VkDevice device, VkPhysicalDevice physical_device, VkSurfaceKHR surface, std::vector<VkPresentModeKHR> CONST_REFERENCE present_modes, VkSurfaceFormatKHR surface_format);
+        Swapchain(VkDevice device, VkSwapchainCreateInfoKHR CONST_REFERENCE create_info);
         virtual ~Swapchain();
 
         VkSwapchainCreateInfoKHR& info();
-        VkResult create(VkDevice device);
+        VkResult create();
         auto get_images() const -> std::vector<VkImage> CONST_REFERENCE;
+
+        uint32_t acquire(VkSemaphore signal_semaphore, VkFence signal_fence = VK_NULL_HANDLE);
+        VkResult present(VkQueue queue, std::vector<VkSemaphore> CONST_REFERENCE wait);
 
         operator ObjType CONST_REFERENCE () const;
 
@@ -28,5 +31,6 @@ namespace cvk
     private:
         VkSwapchainCreateInfoKHR _create_info;
         VkDevice _device = VK_NULL_HANDLE;
+        uint32_t _cur_present_index = UINT32_MAX;
     };
 };

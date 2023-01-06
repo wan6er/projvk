@@ -65,8 +65,8 @@ TEST_FUNC_BEGIN("swapchain")
     }   
 
     {
-        cvk::Swapchain swapchain(device.get_physical_device(), surface, { VK_PRESENT_MODE_FIFO_KHR }, formats[0]);
-        swapchain.create(device);
+        cvk::Swapchain swapchain(device, device.get_physical_device(), surface, { VK_PRESENT_MODE_FIFO_KHR }, formats[0]);
+        swapchain.create();
         
         std::vector<VkImage> images;
         __cvk::get_swapchain_images(device, swapchain, images);
@@ -89,8 +89,8 @@ TEST_FUNC_BEGIN("swapchain")
         }
     }
     {
-        cvk::Swapchain swapchain(device.get_physical_device(), surface, { VK_PRESENT_MODE_FIFO_KHR }, formats[0]);
-        VkResult result = swapchain.create(device);
+        cvk::Swapchain swapchain(device, device.get_physical_device(), surface, { VK_PRESENT_MODE_FIFO_KHR }, formats[0]);
+        VkResult result = swapchain.create();
         CHECK(result == VK_SUCCESS);
         
         std::vector<VkImage> images;
@@ -100,7 +100,7 @@ TEST_FUNC_BEGIN("swapchain")
         __cvk::get_swapchain_image_view_create_info(swapchain.info(), image_view_create_info);
         std::vector<cvk::ImageView2D> image_views;
         for (auto image : images) {
-            result = image_views.emplace_back(image_view_create_info, image).create_image_view(device);
+            result = image_views.emplace_back(device, image).create_image_view(image_view_create_info);
             CHECK(result == VK_SUCCESS);
         }
     }

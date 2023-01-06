@@ -38,6 +38,13 @@ BaseMultipleAttachWrapper<_Type>::operator std::vector<_Type> CONST_REFERENCE ()
     return _attachments;
 }
 
+template<class _Type>
+BaseMultipleAttachWrapper<_Type>::operator std::vector<_Type>& ()
+{
+    return _attachments;
+}
+
+
 template<class... _Type>
 template<class __Type>
 void BaseMultipleAttaches<_Type...>::attaches(__Type&& obj)

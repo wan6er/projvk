@@ -11,17 +11,19 @@ namespace cvk
         protected utils::BaseMultipleAttaches<VkDescriptorPoolSize>
     {
     public:
-        explicit DescriptorPool(uint32_t max_sets);
+        DescriptorPool(VkDevice device);
         DescriptorPool(DescriptorPool CONST_REFERENCE) = default;
         virtual ~DescriptorPool();
 
-        VkResult create(VkDevice device);
+        virtual VkResult create(uint32_t max_sets);
         void set(VkDescriptorSetLayoutBinding CONST_REFERENCE layout_binding);
         void set(VkDescriptorType type, uint32_t num_of_descriptor);
+        uint32_t& get(VkDescriptorType type);
 
         operator VkDescriptorPool CONST_REFERENCE () const;
 
     protected:
+        VkDevice get_device() const;
         void release();
 
     private:

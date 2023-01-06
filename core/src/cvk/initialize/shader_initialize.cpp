@@ -7,6 +7,9 @@ namespace __cvk
 
 CVK_API void get_default_shader_module_create_info(uint32_t size, void CONST_PTR code, VkShaderModuleCreateInfo& create_info) 
 {
+    CVK_ASSERT(code != nullptr);
+    CVK_ASSERT(size > 0);
+    CVK_ASSERT(size % 4 == 0);
     create_info = {
         .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
         .codeSize = size,
@@ -16,6 +19,8 @@ CVK_API void get_default_shader_module_create_info(uint32_t size, void CONST_PTR
 
 CVK_API void get_default_shader_module_create_info(std::vector<char> CONST_REFERENCE code, VkShaderModuleCreateInfo& create_info) 
 {
+    CVK_ASSERT(code.size() > 0);
+    CVK_ASSERT(code.size() % 4 == 0);
     create_info = {
         .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
         .codeSize = static_cast<uint32_t>(code.size()),

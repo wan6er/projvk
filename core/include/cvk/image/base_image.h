@@ -10,9 +10,9 @@ namespace cvk
     {
     public:
         // Image(VkDevice device, VkImageType type, VkFormat format, uint32_t layers, const VkExtent2D& extent, VkImageUsageFlags usage);
-        explicit BaseImage(VkImageCreateInfo CONST_REFERENCE info);        
-        explicit BaseImage(VkImage image);
-        explicit BaseImage();
+        // BaseImage(VkDevice device, VkImageCreateInfo CONST_REFERENCE info);        
+        BaseImage(VkDevice device, VkImage image);
+        BaseImage(VkDevice device);
         BaseImage(BaseImage CONST_REFERENCE image) = default;
         // Image(VkDevice device, VkFormat format, const VkExtent2D& extent, VkImageUsageFlags usage);
         virtual ~BaseImage();
@@ -20,11 +20,10 @@ namespace cvk
         operator VkImage CONST_REFERENCE () const;
 
         auto get_memory_requirement() const -> VkMemoryRequirements;
-        VkResult create_image(VkDevice device);
-        auto image_info() -> VkImageCreateInfo&;
+        auto get_image_info() -> VkImageCreateInfo&;
     
     protected:
-        // auto get_device() const -> VkDevice;
+        auto get_device() const -> VkDevice;
         void release();
     
     private:

@@ -4,7 +4,8 @@
 namespace cvk
 {
 
-Sampler::Sampler()
+Sampler::Sampler(VkDevice device) :
+    _device(device)
 {
     __cvk::get_default_sampler_create_info(_create_info);
 }
@@ -16,9 +17,8 @@ Sampler::~Sampler()
     }
 }
 
-VkResult Sampler::create(VkDevice device)
+VkResult Sampler::create()
 {
-    _device = device;
     return __cvk::create_sampler(_device, _create_info, object());
 }
 

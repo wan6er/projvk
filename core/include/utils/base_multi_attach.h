@@ -17,6 +17,7 @@ namespace utils
         void clear();
         virtual auto get_attachments() -> std::vector<_Type>& final;
         operator std::vector<_Type> CONST_REFERENCE () const;
+        operator std::vector<_Type>& ();
 
     protected:
         void _attach(_Type CONST_REFERENCE attachment);

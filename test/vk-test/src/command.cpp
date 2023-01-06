@@ -35,23 +35,23 @@ TEST_FUNC_BEGIN("command")
     __cvk::get_queue_family_index(device.get_physical_device(), VK_QUEUE_GRAPHICS_BIT, graphics_index);
 
     {
-        cvk::CommandPool pool(graphics_index);
-        CHECK(pool.create(device) == VK_SUCCESS);
-        cvk::CommandBuffer cmd_buf;
-        CHECK(cmd_buf.create(device, pool) == VK_SUCCESS);
-        cvk::CommandBufferSecondary cmd_buf2;
-        CHECK(cmd_buf2.create(device, pool) == VK_SUCCESS);
+        cvk::CommandPool pool(device, graphics_index);
+        CHECK(pool.create() == VK_SUCCESS);
+        cvk::CommandBuffer cmd_buf(device, pool);
+        CHECK(cmd_buf.create() == VK_SUCCESS);
+        cvk::CommandBufferSecondary cmd_buf2(device, pool);
+        CHECK(cmd_buf2.create() == VK_SUCCESS);
         
     }
 
     {
-        cvk::CommandPool tpool(graphics_index);
-        CHECK(tpool.transient().create(device) == VK_SUCCESS);
-        cvk::CommandBuffer tcmd_buf;
-        CHECK(tcmd_buf.create(device, tpool) == VK_SUCCESS);
-        cvk::CommandBufferSecondary tcmd_buf2;
+        cvk::CommandPool tpool(device, graphics_index);
+        CHECK(tpool.transient().create() == VK_SUCCESS);
+        cvk::CommandBuffer tcmd_buf(device, tpool);
+        CHECK(tcmd_buf.create() == VK_SUCCESS);
+        cvk::CommandBufferSecondary tcmd_buf2(device, tpool);
         // CHECK(tcmd_buf2.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) == VK_SUCCESS);
-        CHECK(tcmd_buf2.create(device, tpool) == VK_SUCCESS);
+        CHECK(tcmd_buf2.create() == VK_SUCCESS);
     }
 
 TEST_FUNC_END

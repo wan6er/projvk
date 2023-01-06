@@ -4,7 +4,8 @@
 namespace cvk
 {
 
-PipelineLayout::PipelineLayout()
+PipelineLayout::PipelineLayout(VkDevice device) :
+    _device(device)
 {
     __cvk::get_default_pipeline_layout_create_info({}, _create_info);
 }
@@ -16,9 +17,8 @@ PipelineLayout::~PipelineLayout()
     }
 }
 
-VkResult PipelineLayout::create(VkDevice device)
+VkResult PipelineLayout::create()
 {
-    _device = device;
     __cvk::get_default_pipeline_layout_create_info(*this, _create_info);
     return __cvk::create_pipeline_layout(_device, _create_info, object());
 }

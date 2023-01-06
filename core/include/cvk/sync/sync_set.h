@@ -14,17 +14,20 @@ namespace cvk
         public utils::BaseMultipleAttaches<std::enable_if_t<std::is_base_of_v<BaseSync, _BaseType>, _BaseType>>
     {
     public:
-        constexpr SyncSet() = default;
-        constexpr SyncSet(uint32_t size, bool signaled = false);
-        constexpr SyncSet(std::initializer_list<bool> CONST_REFERENCE signaled);
+        // constexpr SyncSet() = default;
+        constexpr SyncSet(VkDevice device, uint32_t size, bool signaled = false);
+        constexpr SyncSet(VkDevice device);
 
-        VkResult create(VkDevice device);
+        VkResult create();
         VkResult wait(uint32_t timeout = UINT32_MAX);
 
-        constexpr auto operator[](uint32_t i) -> _BaseType&;
+        constexpr auto operator[](size_t i) -> _BaseType&;
+        constexpr auto operator=(std::initializer_list<bool> CONST_REFERENCE signaled);
 
     private:
         VkDevice _device;
+        bool _is_created = false;
+
     };
 
     typedef SyncSet<Semaphore> SemaphoreSet;

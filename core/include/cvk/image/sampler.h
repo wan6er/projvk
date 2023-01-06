@@ -9,10 +9,10 @@ namespace cvk
         protected utils::BaseObj<VkSampler>
     {
     public:
-        Sampler();
+        Sampler(VkDevice device);
         virtual ~Sampler();
 
-        VkResult create(VkDevice device);
+        VkResult create();
 
         operator VkSampler CONST_REFERENCE () const;
 

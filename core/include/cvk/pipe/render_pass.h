@@ -12,11 +12,11 @@ namespace cvk
         public utils::BaseMultipleAttaches<VkAttachmentDescription, VkSubpassDescription, VkSubpassDependency>
     {
     public:
-        RenderPass();
+        RenderPass(VkDevice device);
         RenderPass(RenderPass CONST_REFERENCE) = default;
         ~RenderPass();
 
-        VkResult create(VkDevice device);
+        VkResult create();
         operator VkRenderPass() const;
 
         auto info() -> VkRenderPassCreateInfo&;

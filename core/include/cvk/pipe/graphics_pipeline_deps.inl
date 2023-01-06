@@ -8,7 +8,7 @@ namespace cvk
 template<class...__Args>
 void VertexInputState::attaches(__Args&&...args)
 {
-    utils::BaseMultipleAttaches<VkVertexInputBindingDescription, VkVertexInputAttributeDescription>::attaches(std::forward<__Args>(args)...);
+    utils::BaseMultipleAttaches<VkVertexInputBindingDescription, VkVertexInputAttributeDescription, VertexInputAttributes>::attaches(std::forward<__Args>(args)...);
     
     std::vector<VkVertexInputBindingDescription> CONST_REFERENCE bindings = *this;
     utils::vector_fill_info(bindings, vertexBindingDescriptionCount, pVertexBindingDescriptions);

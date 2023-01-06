@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cvk/vk_header.h"
-#include "cvk/pipe/pipeline_deps.h"
+#include "cvk/pipe/graphics_pipeline_deps.h"
 #include "cvk/pipe/base_pipeline.h"
 #include "utils/base_obj.h"
 #include "utils/base_multi_attach.h"
@@ -26,9 +26,9 @@ namespace cvk
     {
     public:
         // explicit GraphicsPipeline();
-        explicit GraphicsPipeline(VkRenderPass renderpass, VkPipelineLayout layout);
+        explicit GraphicsPipeline(VkDevice device, VkRenderPass renderpass, VkPipelineLayout layout);
 
-        virtual VkResult create(VkDevice device);
+        virtual VkResult create();
 
         void set_renderpass(VkRenderPass renderpass);
         void set_layout(VkPipelineLayout layout);

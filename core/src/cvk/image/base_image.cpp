@@ -14,18 +14,20 @@ namespace cvk
 //     __cvk::create_image(device, type, format, layers, extent, usage, object());
 // }
 
-BaseImage::BaseImage(VkImageCreateInfo CONST_REFERENCE info) :
-    utils::BaseObj<VkImage>(),
-    _create_info(info)
-{
-}
+// BaseImage::BaseImage(VkDevice device, VkImageCreateInfo CONST_REFERENCE info) :
+//     utils::BaseObj<VkImage>(),
+//     _create_info(info),
+//     _device(device)
+// {
+// }
 
-BaseImage::BaseImage(VkImage image) :
+BaseImage::BaseImage(VkDevice device, VkImage image) :
     utils::BaseObj<VkImage>(image)
 {
 }
 
-BaseImage::BaseImage()
+BaseImage::BaseImage(VkDevice device) :
+    _device(device)
 {
 }
 
@@ -57,15 +59,14 @@ void BaseImage::release()
     }
 }
 
-VkResult BaseImage::create_image(VkDevice device)
-{
-    _device = device;
-    return __cvk::create_image(_device, _create_info, object());
-}
-
-auto BaseImage::image_info() -> VkImageCreateInfo&
+auto BaseImage::get_image_info() -> VkImageCreateInfo&
 {
     return _create_info;
+}
+
+auto BaseImage::get_device() const -> VkDevice
+{
+    return _device;
 }
 
 auto BaseImage::get_memory_requirement() const -> VkMemoryRequirements

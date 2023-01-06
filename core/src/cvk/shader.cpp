@@ -4,12 +4,14 @@
 namespace cvk
 {
     
-Shader::Shader(uint32_t size, void CONST_PTR code)
+Shader::Shader(VkDevice device, uint32_t size, void CONST_PTR code) :
+    _device(device)
 {
     __cvk::get_default_shader_module_create_info(size, code, _create_info);
 }
 
-Shader::Shader(std::vector<char> CONST_REFERENCE code) :
+Shader::Shader(VkDevice device, std::vector<char> CONST_REFERENCE code) :
+    _device(device),
     _code(code)
 {
     __cvk::get_default_shader_module_create_info(_code, _create_info);
@@ -22,9 +24,8 @@ Shader::~Shader()
     }
 }
 
-VkResult Shader::create(VkDevice device)
+VkResult Shader::create()
 {
-    _device = device;
     return __cvk::create_shader_module(_device, _create_info, object());
 }
 

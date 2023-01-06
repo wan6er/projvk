@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cvk/vk_header.h"
+#include "utils/vector_util.h"
 
 #include <vector>
 
@@ -36,5 +37,9 @@ namespace __cvk
     CVK_API void get_default_begin_renderpass_info(VkRenderPass renderpass, VkFramebuffer framebuffer, std::vector<VkClearValue> CONST_REFERENCE clear_values, VkRect2D CONST_REFERENCE render_area, VkRenderPassBeginInfo& info);
     CVK_API void cmd_begin_renderpass(VkCommandBuffer buffer, VkRenderPassBeginInfo CONST_REFERENCE info, VkSubpassContents contents);
     CVK_API void cmd_end_renderpass(VkCommandBuffer buffer);
+
+    // queue
+    CVK_API void get_queue(VkDevice device, uint32_t queue_index, VkQueue& queue);
+    CVK_API VkResult queue_submit(VkPipelineStageFlags wait_stage, std::vector<VkSemaphore> CONST_REFERENCE wait, std::vector<VkSemaphore> CONST_REFERENCE signal, VkFence finish_fence, std::vector<VkCommandBuffer> CONST_REFERENCE buffers, VkQueue queue);
     
 };

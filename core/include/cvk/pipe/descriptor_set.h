@@ -14,12 +14,12 @@ namespace cvk
         // public utils::BaseMultipleAttaches<VkWriteDescriptorSet, WriteDescriptorSet>
     {
     public:
-        DescriptorSet(VkDescriptorPool pool, VkDescriptorSetLayout CONST_REFERENCE layout);
+        DescriptorSet(VkDevice device, VkDescriptorPool pool, VkDescriptorSetLayout CONST_REFERENCE layout);
         virtual ~DescriptorSet();
 
         operator VkDescriptorSet CONST_REFERENCE () const;
 
-        VkResult allocate(VkDevice device);
+        VkResult allocate();
         // void update();
 
     protected:

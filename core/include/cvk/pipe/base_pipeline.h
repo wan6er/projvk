@@ -10,7 +10,7 @@ namespace cvk
         protected utils::BaseObj<VkPipeline>
     {
     public:
-        explicit BasePipeline();
+        explicit BasePipeline(VkDevice device);
         BasePipeline(BasePipeline CONST_REFERENCE) = default;
         ~BasePipeline();
 

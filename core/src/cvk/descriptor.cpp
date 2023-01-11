@@ -1,4 +1,4 @@
-#include "cvk/pipe/descriptor.h"
+#include "cvk/descriptor.h"
 
 namespace cvk
 {

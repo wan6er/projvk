@@ -48,14 +48,20 @@ namespace cvk
     public:
         explicit Subpass(VkPipelineBindPoint bind_point);
 
-        virtual auto color() -> ColorAttachment& final;
-        virtual auto depth() -> DepthAttachment& final;
-        virtual auto input() -> InputAttachment& final;
+        // virtual auto color() -> ColorAttachment& final;
+        // virtual auto depth() -> DepthAttachment& final;
+        // virtual auto input() -> InputAttachment& final;
 
-        VkSubpassDescription CONST_REFERENCE get_description();
-        operator VkSubpassDescription CONST_REFERENCE();
+        virtual auto add_color(uint32_t attachment, VkImageLayout layout) -> Subpass& final;
+        virtual auto add_input(uint32_t attachment, VkImageLayout layout) -> Subpass& final;
+        virtual auto set_depth(uint32_t attachment, VkImageLayout layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) -> Subpass& final;
+
+        VkSubpassDescription CONST_REFERENCE get_description() const;
+        operator VkSubpassDescription CONST_REFERENCE() const;
 
     private:
+        void update_description();
+
         VkPipelineBindPoint _bind_point;
         VkSubpassDescription _description;
     };

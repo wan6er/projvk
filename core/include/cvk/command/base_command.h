@@ -13,7 +13,8 @@ namespace cvk
 
         void bind_pipeline(VkPipelineBindPoint bind_point, VkPipeline pipeline) const;
         void bind_descriptor_sets(VkPipelineBindPoint bind_point, VkPipelineLayout layout, std::vector<VkDescriptorSet> CONST_REFERENCE sets) const;
-        void bind_vertex_buffers(std::vector<VkBuffer> CONST_REFERENCE vertex_buffers) const;
+        void bind_vertex_buffers(std::vector<VkBuffer> CONST_REFERENCE vertex_buffers, std::vector<VkDeviceSize> CONST_REFERENCE offsets) const;
+        void bind_vertex_buffer(VkBuffer CONST_REFERENCE vertex_buffer) const;
         void bind_index_buffer(VkIndexType type, VkBuffer index_buffer) const;
         void set_viewport(std::vector<VkViewport> CONST_REFERENCE viewports) const;
         void set_scissor(std::vector<VkRect2D> CONST_REFERENCE scissors) const;

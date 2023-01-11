@@ -100,12 +100,11 @@ CVK_API void cmd_bind_descriptor_sets(VkCommandBuffer buffer, VkPipelineBindPoin
     vkCmdBindDescriptorSets(buffer, bind_point, layout, 0, static_cast<uint32_t>(sets.size()), sets.data(), 0, nullptr);
 }
 
-CVK_API void cmd_bind_vertex_buffers(VkCommandBuffer buffer, std::vector<VkBuffer> CONST_REFERENCE vertex_buffers)
+CVK_API void cmd_bind_vertex_buffers(VkCommandBuffer buffer, std::vector<VkBuffer> CONST_REFERENCE vertex_buffers, std::vector<VkDeviceSize> CONST_REFERENCE offsets)
 {
     CVK_ASSERT(buffer != VK_NULL_HANDLE);
-    CVK_ASSERT(vertex_buffers.size() > 0);
-    VkDeviceSize offset = 0;
-    vkCmdBindVertexBuffers(buffer, 0, static_cast<uint32_t>(vertex_buffers.size()), vertex_buffers.data(), &offset);
+    CVK_ASSERT(vertex_buffers.size() > 0 && vertex_buffers.size() == offsets.size());
+    vkCmdBindVertexBuffers(buffer, 0, static_cast<uint32_t>(vertex_buffers.size()), vertex_buffers.data(), offsets.data());
 }
 
 CVK_API void cmd_bind_index_buffer(VkCommandBuffer buffer, VkIndexType type, VkBuffer index_buffer)

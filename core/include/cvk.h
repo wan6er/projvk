@@ -8,7 +8,7 @@
 
 #include "cvk/image/image2d.h"
 
-#include "cvk/pipe/render_pass.h"
+#include "cvk/pipe/base_render_pass.h"
 
 // #include "cvk/initialize/instance_initialize.h"
 #include "cvk/initialize/device_initialize.h"

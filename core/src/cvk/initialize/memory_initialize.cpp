@@ -17,11 +17,11 @@ CVK_API void get_default_memory_allocate_info(VkDevice device, VkPhysicalDeviceM
     CVK_ASSERT(memory_type_index < all_properties.memoryTypeCount);
 
     // VkMemoryAllocateInfo info = {};
-    get_default_memory_allocate_info(device, size, memory_type_index, info);
+    get_default_memory_allocate_info(size, memory_type_index, info);
 }
 
 
-CVK_API void get_default_memory_allocate_info(VkDevice device, uint32_t size, uint32_t type_index, VkMemoryAllocateInfo& info)
+CVK_API void get_default_memory_allocate_info(uint32_t size, uint32_t type_index, VkMemoryAllocateInfo& info)
 {
 	info = {
         .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
@@ -119,7 +119,7 @@ CVK_API void get_memory_type(VkPhysicalDeviceMemoryProperties CONST_REFERENCE al
 {
     for (uint32_t i = 0; i < all_properties.memoryTypeCount; i++)
     {
-        if ((type & 1) == 1)
+        if (((type >> i) & 1) == 1)
         {
             if ((all_properties.memoryTypes[i].propertyFlags & properties) == properties)
             {
@@ -127,7 +127,7 @@ CVK_API void get_memory_type(VkPhysicalDeviceMemoryProperties CONST_REFERENCE al
                 break;
             }
         }
-        type >>= 1;
+        // type >>= 1;
     }
 }
 

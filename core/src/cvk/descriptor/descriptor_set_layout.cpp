@@ -1,4 +1,4 @@
-#include "cvk/pipe/descriptor_set_layout.h"
+#include "cvk/descriptor/descriptor_set_layout.h"
 #include "cvk/initialize/pipe_initialize.h"
 
 namespace cvk

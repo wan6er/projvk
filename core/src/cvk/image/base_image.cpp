@@ -64,6 +64,16 @@ auto BaseImage::get_image_info() -> VkImageCreateInfo&
     return _create_info;
 }
 
+auto BaseImage::get_image_format() const -> VkFormat CONST_REFERENCE
+{
+    return _create_info.format;
+}
+
+auto BaseImage::get_image_extent() const -> VkExtent3D CONST_REFERENCE
+{
+    return _create_info.extent;
+}
+
 auto BaseImage::get_device() const -> VkDevice
 {
     return _device;

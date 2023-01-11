@@ -7,16 +7,16 @@
 
 namespace cvk
 {
-    class CVK_API RenderPass : 
+    class CVK_API BaseRenderPass : 
         protected utils::BaseObj<VkRenderPass>, 
         public utils::BaseMultipleAttaches<VkAttachmentDescription, VkSubpassDescription, VkSubpassDependency>
     {
     public:
-        RenderPass(VkDevice device);
-        RenderPass(RenderPass CONST_REFERENCE) = default;
-        ~RenderPass();
+        BaseRenderPass(VkDevice device);
+        BaseRenderPass(BaseRenderPass CONST_REFERENCE) = default;
+        ~BaseRenderPass();
 
-        VkResult create();
+        virtual VkResult create();
         operator VkRenderPass() const;
 
         auto info() -> VkRenderPassCreateInfo&;
@@ -24,13 +24,13 @@ namespace cvk
     protected:
         void setup_create_info();
         void release();
+        VkDevice get_device();
 
     private:
         VkDevice _device = VK_NULL_HANDLE;
         VkRenderPassCreateInfo _info;
-        std::vector<VkSubpassDescription> _subpass;
 
     };
 };
 
-#include "render_pass.inl"
+#include "base_render_pass.inl"

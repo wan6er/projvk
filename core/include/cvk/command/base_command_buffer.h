@@ -25,8 +25,8 @@ namespace cvk
     protected:
         void release();
         VkCommandBufferAllocateInfo _allocate_info = {};
-        VkCommandPool _pool = VK_NULL_HANDLE;
-        VkDevice _device = VK_NULL_HANDLE;
+        VkDevice _device;
+        VkCommandPool _pool;
         _CmdType _cmd;
 
     };

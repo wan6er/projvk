@@ -1,8 +1,8 @@
 #pragma once
 
 #include "cvk/vk_header.h"
-#include "base_command.h"
-#include "base_command_buffer.h"
+#include "cvk/command/base_command.h"
+#include "cvk/command/base_command_buffer.h"
 
 namespace cvk
 {

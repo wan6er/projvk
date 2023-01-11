@@ -3,9 +3,8 @@
 #include "cvk/instance.h"
 #include "cvk/device.h"
 #include "cvk/memory.h"
-#include "cvk/sync/fence.h"
-#include "cvk/sync/semaphore.h"
-#include "cvk/sync/sync_set.h"
+#include "cvk/fence.h"
+#include "cvk/semaphore.h"
 #include "cvk/initialize/sync_initialize.h"
 
 TEST_FUNC_BEGIN("sync")

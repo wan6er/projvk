@@ -24,7 +24,7 @@ namespace __cvk
     // cmd
     CVK_API void cmd_bind_pipeline(VkCommandBuffer buffer, VkPipelineBindPoint bind_point, VkPipeline pipeline);
     CVK_API void cmd_bind_descriptor_sets(VkCommandBuffer buffer, VkPipelineBindPoint bind_point, VkPipelineLayout layout, std::vector<VkDescriptorSet> CONST_REFERENCE sets);
-    CVK_API void cmd_bind_vertex_buffers(VkCommandBuffer buffer, std::vector<VkBuffer> CONST_REFERENCE vertex_buffers);
+    CVK_API void cmd_bind_vertex_buffers(VkCommandBuffer buffer, std::vector<VkBuffer> CONST_REFERENCE vertex_buffers, std::vector<VkDeviceSize> CONST_REFERENCE offsets);
     CVK_API void cmd_bind_index_buffer(VkCommandBuffer buffer, VkIndexType type, VkBuffer index_buffer);
     CVK_API void cmd_set_viewport(VkCommandBuffer buffer, std::vector<VkViewport> CONST_REFERENCE viewports);
     CVK_API void cmd_set_scissor(VkCommandBuffer buffer, std::vector<VkRect2D> CONST_REFERENCE scissors);

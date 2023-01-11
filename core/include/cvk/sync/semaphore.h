@@ -25,8 +25,8 @@ namespace cvk
         void release();
 
     private:
+        VkDevice _device;
         bool _signaled;
-        VkDevice _device = VK_NULL_HANDLE;
 
     };
 

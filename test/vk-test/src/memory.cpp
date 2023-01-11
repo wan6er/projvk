@@ -4,6 +4,7 @@
 #include "cvk/device.h"
 #include "cvk/buffer.h"
 #include "cvk/memory.h"
+#include "cvk/memorized_buffer.h"
 #include "cvk/initialize/memory_initialize.h"
 
 TEST_FUNC_BEGIN("memory")
@@ -75,26 +76,36 @@ TEST_FUNC_BEGIN("memory")
         __cvk::free_memory(device, memory);
     }
 
-    
     {
-        // VkBuffer buffer;
-        // VkBufferCreateInfo info = {};
-        // __cvk::get_default_buffer_create_info(65535, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, {}, info);
-        // auto result = __cvk::create_buffer(device, info, buffer);
-        cvk::Buffer buffer(device, 65535, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
-        auto result = buffer.create();
+        cvk::Buffer buffer(device);
+        auto result = buffer.create(65535, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
         CHECK(result == VK_SUCCESS);
 
-        VkMemoryRequirements requirement;
-        __cvk::get_memory_requirement(device, buffer, requirement);
-
-        cvk::Memory memory(device, device.get_memory_properties(), requirement, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-        result = memory.allocate();
+        cvk::Memory memory(device);
+        result = memory.allocate(device.get_memory_properties(), buffer.get_memory_requirement(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
         CHECK(result == VK_SUCCESS);
         result = memory.bind(buffer);
         CHECK(result == VK_SUCCESS);
-
     }
 
+    {
+        cvk::Buffer buffer(device);
+        auto result = buffer.create(65535, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+        CHECK(result == VK_SUCCESS);
+
+        cvk::Buffer buffer1(device);
+        result = buffer1.create(65535, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+        CHECK(result == VK_SUCCESS);
+        
+        cvk::Memory memory(device);
+        result = memory.allocate(device.get_memory_properties(), buffer1.get_memory_requirement(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        CHECK(result == VK_SUCCESS);
+        result = memory.bind(buffer);
+        CHECK(result == VK_SUCCESS);
+    }
+    {
+        cvk::MemorizedBuffer mem_buffer(device);
+        CHECK(mem_buffer.create(device.get_memory_properties(), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 512, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) == VK_SUCCESS);
+    }
 
 TEST_FUNC_END

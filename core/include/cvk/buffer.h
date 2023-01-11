@@ -1,23 +1,26 @@
 #pragma once
 
 #include "utils/base_obj.h"
+#include "utils/base_multi_attach.h"
 #include "vk_header.h"
 
 namespace cvk
 {
-    class CVK_API Buffer : protected utils::BaseObj<VkBuffer>
+    class CVK_API Buffer : 
+        protected utils::BaseObj<VkBuffer>,
+        public utils::BaseMultipleAttaches<uint32_t>
     {
     public:
-        Buffer(VkDevice device, uint32_t size, VkBufferUsageFlags usage);
+        Buffer(VkDevice device);
         Buffer(VkBuffer buffer);
         Buffer(Buffer CONST_REFERENCE buffer) = default;
-        ~Buffer();
+        virtual ~Buffer();
 
         auto get_memory_requirement() const -> VkMemoryRequirements;
         operator VkBuffer() const;
         auto info() -> VkBufferCreateInfo&;
 
-        VkResult create();
+        virtual VkResult create(uint32_t size, VkBufferUsageFlags usage);
 
     protected:
         void release();
@@ -26,4 +29,5 @@ namespace cvk
         VkDevice _device = VK_NULL_HANDLE;
         VkBufferCreateInfo _info;
     };
+
 };

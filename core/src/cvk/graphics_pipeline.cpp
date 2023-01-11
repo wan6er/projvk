@@ -1,4 +1,4 @@
-#include "cvk/pipe/graphics_pipeline.h"
+#include "cvk/graphics_pipeline.h"
 #include "cvk/initialize/pipe_initialize.h"
 
 

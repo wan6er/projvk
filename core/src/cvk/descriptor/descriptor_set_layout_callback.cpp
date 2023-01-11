@@ -1,4 +1,4 @@
-#include "cvk/pipe/descriptor_set_layout_callback.h"
+#include "cvk/descriptor/descriptor_set_layout_callback.h"
 
 namespace cvk
 {

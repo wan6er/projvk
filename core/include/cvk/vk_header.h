@@ -28,7 +28,7 @@
 
 extern "C" __declspec(dllimport) void DebugBreak();
 
-#define CVK_PRINT_FILE_LINE(msg, ...) printf("%s:%d error:" msg "\n", __FILE__, __LINE__, __VA_ARGS__)
+#define CVK_PRINT_FILE_LINE(msg, ...) printf("%s:%d error %s :" msg "\n", __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
 #define CVK_ASSERT(expression) do { if (!(expression)) { CVK_PRINT_FILE_LINE("%s", #expression); DebugBreak(); } } while (false)
 
 #endif

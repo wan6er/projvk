@@ -40,28 +40,66 @@ Subpass::Subpass(VkPipelineBindPoint bind_point) :
     __cvk::get_default_subpass_description(bind_point, {}, {}, nullptr, _description);
 }
 
-auto Subpass::color() -> ColorAttachment&
+// auto Subpass::color() -> ColorAttachment&
+// {
+//     return *this;
+// }
+
+// auto Subpass::depth() -> DepthAttachment&
+// {
+//     return *this;
+// }
+
+// auto Subpass::input() -> InputAttachment&
+// {
+//     return *this;
+// }
+
+auto Subpass::add_color(uint32_t attachment, VkImageLayout layout) -> Subpass&
 {
+    VkAttachmentReference color = { 
+        .attachment = attachment,
+        .layout = layout,
+    };
+    ColorAttachment::attaches(color);
+    update_description();
     return *this;
 }
 
-auto Subpass::depth() -> DepthAttachment&
+auto Subpass::add_input(uint32_t attachment, VkImageLayout layout) -> Subpass&
 {
+    
+    VkAttachmentReference input = { 
+        .attachment = attachment,
+        .layout = layout,
+    };
+    InputAttachment::attaches(input);
+    update_description();
     return *this;
 }
 
-auto Subpass::input() -> InputAttachment&
+auto Subpass::set_depth(uint32_t attachment, VkImageLayout layout) -> Subpass&
 {
+    VkAttachmentReference depth = { 
+        .attachment = attachment,
+        .layout = layout,
+    };
+    DepthAttachment::attach(depth);
+    update_description();
     return *this;
 }
 
-VkSubpassDescription CONST_REFERENCE Subpass::get_description()
+void Subpass::update_description()
 {
     __cvk::get_default_subpass_description(_bind_point, color_attachments(), input_attachments(), (is_attached() ? &depth_attachments() : nullptr), _description);
+}
+
+VkSubpassDescription CONST_REFERENCE Subpass::get_description() const
+{
     return _description;
 }
 
-Subpass::operator VkSubpassDescription CONST_REFERENCE()
+Subpass::operator VkSubpassDescription CONST_REFERENCE() const
 {
     return get_description();
 }

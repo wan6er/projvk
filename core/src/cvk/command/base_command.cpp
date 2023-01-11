@@ -47,9 +47,14 @@ void BaseCommand::bind_descriptor_sets(VkPipelineBindPoint bind_point, VkPipelin
     __cvk::cmd_bind_descriptor_sets(buffer, bind_point, layout, sets);
 }
 
-void BaseCommand::bind_vertex_buffers(std::vector<VkBuffer> CONST_REFERENCE vertex_buffers) const
+void BaseCommand::bind_vertex_buffers(std::vector<VkBuffer> CONST_REFERENCE vertex_buffers, std::vector<VkDeviceSize> CONST_REFERENCE offsets) const
 {
-    __cvk::cmd_bind_vertex_buffers(buffer, vertex_buffers);
+    __cvk::cmd_bind_vertex_buffers(buffer, vertex_buffers, offsets);
+}
+
+void BaseCommand::bind_vertex_buffer(VkBuffer CONST_REFERENCE vertex_buffer) const
+{
+    __cvk::cmd_bind_vertex_buffers(buffer, { vertex_buffer }, { 0 });
 }
 
 void BaseCommand::bind_index_buffer(VkIndexType type, VkBuffer index_buffer) const

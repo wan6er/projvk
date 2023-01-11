@@ -1,4 +1,4 @@
-#include "cvk/command/command_buffer.h"
+#include "cvk/command_buffer.h"
 
 namespace cvk
 {

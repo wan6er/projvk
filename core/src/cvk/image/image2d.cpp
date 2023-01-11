@@ -20,7 +20,7 @@ Image2D::~Image2D()
 
 }
 
-VkResult Image2D::create_image(VkFormat format, uint32_t width, uint32_t height, VkImageLayout image_layout, VkImageUsageFlags usage, VkImageTiling tiling)
+VkResult Image2D::create(VkFormat format, uint32_t width, uint32_t height, VkImageLayout image_layout, VkImageUsageFlags usage, VkImageTiling tiling)
 {
     __cvk::get_default_image_create_info(format, { width, height, 1 }, image_layout, usage, tiling, get_image_info());
     return __cvk::create_image(get_device(), get_image_info(), object());

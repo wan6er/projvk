@@ -3,9 +3,9 @@
 namespace utils
 {
 
-static void __wrapper(...) 
-{
-}
+// static void __wrapper(...) 
+// {
+// }
 
 // template<class _Type>
 // template<class __Type>

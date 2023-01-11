@@ -3,8 +3,8 @@
 #include "cvk/instance.h"
 #include "cvk/device.h"
 #include "cvk/surface.h"
-#include "cvk/command/command_pool.h"
-#include "cvk/command/command_buffer.h"
+#include "cvk/command_pool.h"
+#include "cvk/command_buffer.h"
 #include "cvk/initialize/command_initialize.h"
 #include "cvk/initialize/surface_initialize.h"
 

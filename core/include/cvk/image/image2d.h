@@ -13,7 +13,7 @@ namespace cvk
         // Image2D(VkDevice device);
         ~Image2D();
 
-        VkResult create_image(VkFormat format, uint32_t width, uint32_t height, VkImageLayout image_layout, VkImageUsageFlags usage, VkImageTiling tiling);
+        VkResult create(VkFormat format, uint32_t width, uint32_t height, VkImageLayout image_layout, VkImageUsageFlags usage, VkImageTiling tiling);
         // void setup(VkFormat format, uint32_t width, uint32_t height, VkImageUsageFlags usage);
     };
 };

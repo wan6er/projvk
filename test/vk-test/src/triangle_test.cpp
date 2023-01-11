@@ -11,18 +11,18 @@
 #include "cvk/sync/sync_set.h"
 
 #include "cvk/command/queue.h"
-#include "cvk/command/command_pool.h"
-#include "cvk/command/command_buffer.h"
+#include "cvk/command_pool.h"
+#include "cvk/command_buffer.h"
 
 #include "cvk/image/image_view.h"
 #include "cvk/image/sampler.h"
 
-// #include "cvk/pipe/descriptor_set_layout.h"
-// #include "cvk/pipe/descriptor_set.h"
-// #include "cvk/pipe/descriptor_pool.h"
-#include "cvk/pipe/descriptor.h"
-#include "cvk/pipe/render_pass.h"
-#include "cvk/pipe/graphics_pipeline.h"
+// #include "cvk/descriptor/descriptor_set_layout.h"
+// #include "cvk/descriptor/descriptor_set.h"
+// #include "cvk/descriptor/descriptor_pool.h"
+#include "cvk/descriptor.h"
+#include "cvk/render_pass.h"
+#include "cvk/graphics_pipeline.h"
 #include "cvk/pipe/pipeline_layout.h"
 #include "cvk/pipe/subpass.h"
 
@@ -42,7 +42,7 @@
 #include "win32/win.h"
 #endif
 
-TEST_FUNC_BEGIN("triangle_test")
+TEST_FUNC_BEGIN("triangle test")
 
     std::vector<std::string> instance_extensions = {
         VK_KHR_SURFACE_EXTENSION_NAME,
@@ -65,7 +65,7 @@ TEST_FUNC_BEGIN("triangle_test")
     uint32_t width = 1024;
     uint32_t height = 720;
 #ifdef WIN32
-    Windows win("system_test", width, height);
+    Windows win("triangle_test", width, height);
     cvk::SurfaceWin32 surface(instance, win.instance(), win);
 #else
 #error unsupport platform
@@ -84,35 +84,29 @@ TEST_FUNC_BEGIN("triangle_test")
     CHECK(present_index != UINT32_MAX);
 
     cvk::ImageView2D depth(device);
-    CHECK(depth.create_image(VK_FORMAT_D16_UNORM, width, height, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL) == VK_SUCCESS);
-    cvk::Memory depth_mem(device, device.get_memory_properties(), depth.get_memory_requirement(), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-    CHECK(depth_mem.allocate() == VK_SUCCESS);
+    CHECK(depth.create(VK_FORMAT_D16_UNORM, width, height, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL) == VK_SUCCESS);
+    cvk::Memory depth_mem(device);
+    CHECK(depth_mem.allocate(device.get_memory_properties(), depth.get_memory_requirement(), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) == VK_SUCCESS);
     depth_mem.bind(depth);
     CHECK(depth.create_image_view(VK_IMAGE_ASPECT_DEPTH_BIT) == VK_SUCCESS);
 
     cvk::Sampler sampler(device);
     sampler.create();
 
-    const VkAttachmentReference color_reference0 = {
-        .attachment = 0,
-        .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-    };
-    const VkAttachmentReference depth_reference = {
-        .attachment = 1,
-        .layout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL,
-    };
-    cvk::Subpass subpass(VK_PIPELINE_BIND_POINT_GRAPHICS);
-    subpass.color().attaches(color_reference0);
-    subpass.depth().attach(depth_reference);
-
-    VkAttachmentDescription color_attachment_desc;
-    __cvk::get_default_attachment_description(formats[0].format, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, color_attachment_desc);
-    VkAttachmentDescription depth_attachment_desc;
-    __cvk::get_default_attachment_description(VK_FORMAT_D16_UNORM, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL, depth_attachment_desc);
     cvk::RenderPass render_pass(device);
-    render_pass.attaches(color_attachment_desc, depth_attachment_desc, subpass.get_description());
-    VkResult result = render_pass.create();
-    CHECK(result == VK_SUCCESS);
+    render_pass.add_subpass(VK_PIPELINE_BIND_POINT_GRAPHICS)
+        .add_color(0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+        .set_depth(1);
+    render_pass.add_subpass_dependency(VK_SUBPASS_EXTERNAL, 0)
+        .set_src(VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0)
+        .set_dst(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
+    render_pass.add_subpass_dependency(0, VK_SUBPASS_EXTERNAL)
+        .set_src(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)
+        .set_dst(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0);
+    render_pass
+        .add_attachment(VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+        .add_attachment(VK_FORMAT_D16_UNORM, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+    CHECK(render_pass.create() == VK_SUCCESS);
 
     std::vector<cvk::Framebuffer> framebuffers;
     auto CONST_REFERENCE images = swapchain.get_images();
@@ -174,20 +168,20 @@ TEST_FUNC_BEGIN("triangle_test")
     };
     uint32_t ubo_size = sizeof(glm::mat4) * ubo.size();
 
-    cvk::Buffer vertex_buffer(device, vertex_size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-    CHECK(vertex_buffer.create() == VK_SUCCESS);
-    cvk::Memory vertex_buffer_mem(device, device.get_memory_properties(), vertex_buffer.get_memory_requirement(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-    CHECK(vertex_buffer_mem.allocate() == VK_SUCCESS);
+    cvk::Buffer vertex_buffer(device);
+    CHECK(vertex_buffer.create(vertex_size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT) == VK_SUCCESS);
+    cvk::Memory vertex_buffer_mem(device);
+    CHECK(vertex_buffer_mem.allocate(device.get_memory_properties(), vertex_buffer.get_memory_requirement(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == VK_SUCCESS);
     CHECK(vertex_buffer_mem.bind(vertex_buffer) == VK_SUCCESS);
     char* ptr = nullptr;
     CHECK(vertex_buffer_mem.map(ptr) == VK_SUCCESS);
     memcpy(ptr, vertex.data(), vertex_size);
     vertex_buffer_mem.unmap();
 
-    cvk::Buffer uniform_buffer(device, ubo_size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
-    CHECK(uniform_buffer.create() == VK_SUCCESS);
-    cvk::Memory uniform_buffer_mem(device, device.get_memory_properties(), uniform_buffer.get_memory_requirement(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-    CHECK(uniform_buffer_mem.allocate() == VK_SUCCESS);
+    cvk::Buffer uniform_buffer(device);
+    CHECK(uniform_buffer.create(ubo_size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) == VK_SUCCESS);
+    cvk::Memory uniform_buffer_mem(device);
+    CHECK(uniform_buffer_mem.allocate(device.get_memory_properties(), uniform_buffer.get_memory_requirement(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == VK_SUCCESS);
     CHECK(uniform_buffer_mem.bind(uniform_buffer) == VK_SUCCESS);
     CHECK(uniform_buffer_mem.map(ptr) == VK_SUCCESS);
     memcpy(ptr, ubo.data(), ubo_size);
@@ -224,7 +218,7 @@ TEST_FUNC_BEGIN("triangle_test")
 
     cvk::Queue graphics_queue(device, graphics_index);
 
-    win.run([&]{ 
+    // win.run([&]{ 
         uint32_t cur_index = swapchain.acquire(acquire_semaphore);
 
         CHECK(command_buffer.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) == VK_SUCCESS);
@@ -235,7 +229,7 @@ TEST_FUNC_BEGIN("triangle_test")
 
         command_buffer.cmd().bind_pipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
         command_buffer.cmd().bind_descriptor_sets(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, { descriptor[0] });
-        command_buffer.cmd().bind_vertex_buffers({ vertex_buffer });
+        command_buffer.cmd().bind_vertex_buffer(vertex_buffer);
         command_buffer.cmd().set_viewport({ viewport });
         command_buffer.cmd().set_scissor({ render_area });
         command_buffer.cmd().draw(3);
@@ -252,6 +246,6 @@ TEST_FUNC_BEGIN("triangle_test")
 
         swapchain.present(graphics_queue, {});
 
-    });
+    // });
 
 TEST_FUNC_END

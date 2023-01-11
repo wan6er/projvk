@@ -6,7 +6,7 @@ namespace __cvk
 {
     CVK_API void get_default_memory_allocate_info(VkDevice device, VkPhysicalDeviceMemoryProperties CONST_REFERENCE all_properties, VkMemoryRequirements CONST_REFERENCE requirements, VkMemoryPropertyFlags properties, VkMemoryAllocateInfo& info);
     CVK_API void get_default_memory_allocate_info(VkDevice device, VkPhysicalDeviceMemoryProperties CONST_REFERENCE all_properties, uint32_t size, uint32_t memory_type, VkMemoryPropertyFlags properties, VkMemoryAllocateInfo& info);
-    CVK_API void get_default_memory_allocate_info(VkDevice device, uint32_t size, uint32_t type_index, VkMemoryAllocateInfo& info);
+    CVK_API void get_default_memory_allocate_info(uint32_t size, uint32_t type_index, VkMemoryAllocateInfo& info);
     CVK_API VkResult alloc_memory(VkDevice device, VkPhysicalDeviceMemoryProperties CONST_REFERENCE all_properties, VkMemoryRequirements CONST_REFERENCE requirements, VkMemoryPropertyFlags properties, VkDeviceMemory &memory);
     CVK_API VkResult alloc_memory(VkDevice device, VkMemoryAllocateInfo CONST_REFERENCE info, VkDeviceMemory &memory);
     CVK_API void free_memory(VkDevice device, VkDeviceMemory memory);

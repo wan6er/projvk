@@ -1,9 +1,9 @@
 #pragma once
 
 #include "cvk/vk_header.h"
-#include "cvk/pipe/descriptor_pool.h"
-#include "cvk/pipe/descriptor_set_layout_callback.h"
-#include "cvk/pipe/descriptor_set.h"
+#include "cvk/descriptor/descriptor_pool.h"
+#include "cvk/descriptor/descriptor_set_layout_callback.h"
+#include "cvk/descriptor/descriptor_set.h"
 #include "utils/base_multi_attach.h"
 
 namespace cvk

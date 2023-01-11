@@ -1,7 +1,7 @@
 #pragma once 
 
 #include "cvk/vk_header.h"
-#include "cvk/pipe/descriptor_pool.h"
+#include "descriptor_pool.h"
 #include "utils/base_obj.h"
 #include "utils/base_multi_attach.h"
 

@@ -100,7 +100,7 @@ DepthStencilState::DepthStencilState() : VkPipelineDepthStencilStateCreateInfo()
 
 ViewportState::ViewportState() : VkPipelineViewportStateCreateInfo()
 {
-    memset(this, 0, sizeof(VkPipelineViewportStateCreateInfo));
+    // memset(this, 0, sizeof(VkPipelineViewportStateCreateInfo));
     sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 }
 

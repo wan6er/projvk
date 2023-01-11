@@ -30,11 +30,7 @@ namespace cvk
 
     };
 
-    typedef SyncSet<Semaphore> SemaphoreSet;
-    typedef SyncSet<Fence> FenceSet;
     
-    template<>
-    CVK_API VkResult FenceSet::wait(uint32_t timeout);
 
 }; // namespace cvk
 

@@ -45,12 +45,12 @@ CVK_API VkResult get_surface_info(VkPhysicalDevice physical_device, VkSurfaceKHR
             *image_count = std::max(capabilities.minImageCount, std::min(capabilities.maxImageCount, *image_count));
         }
         if (composite_alpha != nullptr) {
-            if (!capabilities.supportedCompositeAlpha & *composite_alpha) {
+            if (~capabilities.supportedCompositeAlpha & *composite_alpha) {
                 *composite_alpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
             }
         }
         if (transform != nullptr) {
-            if (!capabilities.supportedTransforms & *transform) {
+            if (~capabilities.supportedTransforms & *transform) {
                 *transform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
             }
         }
@@ -75,7 +75,7 @@ void get_queue_family_index(VkPhysicalDevice physical_device, VkSurfaceKHR surfa
     present_index = UINT32_MAX;
     
     // std::vector<VkBool32> supports(properties.size());
-    for (int i = 0; i < properties.size(); ++i) {
+    for (uint32_t i = 0; i < properties.size(); ++i) {
         if (properties[i].queueFlags & queue_flag) {
             index = i;
             VkBool32 both_support = false;
@@ -87,7 +87,7 @@ void get_queue_family_index(VkPhysicalDevice physical_device, VkSurfaceKHR surfa
         }
     }
     if (present_index == UINT32_MAX) {
-        for (int i = 0; i < properties.size(); ++i) {
+        for (uint32_t i = 0; i < properties.size(); ++i) {
             VkBool32 present_support = false;
             vkGetPhysicalDeviceSurfaceSupportKHR(physical_device, i, surface, &present_support);
             if (present_support == VK_TRUE) {
@@ -102,7 +102,7 @@ void get_queue_family_index(std::vector<VkQueueFamilyProperties> CONST_REFERENCE
 {    
     index = UINT32_MAX;
     
-    for (int i = offset; i < properties.size(); ++i) {
+    for (uint32_t i = offset; i < properties.size(); ++i) {
         if (properties[i].queueFlags & queue_flag) {
             index = i;
             break;

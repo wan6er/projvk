@@ -1,5 +1,6 @@
 #pragma once
 #include "doctest.h"
+#include <iostream>
 // #define TEST_FUNC(name) TEST_CASE(__FILE__ name)
 
 #define TEST_FUNC_BEGIN(name) \

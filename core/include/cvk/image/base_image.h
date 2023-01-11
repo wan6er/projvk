@@ -9,8 +9,6 @@ namespace cvk
     class CVK_API BaseImage : protected utils::BaseObj<VkImage>
     {
     public:
-        // Image(VkDevice device, VkImageType type, VkFormat format, uint32_t layers, const VkExtent2D& extent, VkImageUsageFlags usage);
-        // BaseImage(VkDevice device, VkImageCreateInfo CONST_REFERENCE info);        
         BaseImage(VkDevice device, VkImage image);
         BaseImage(VkDevice device);
         BaseImage(BaseImage CONST_REFERENCE image) = default;
@@ -21,6 +19,8 @@ namespace cvk
 
         auto get_memory_requirement() const -> VkMemoryRequirements;
         auto get_image_info() -> VkImageCreateInfo&;
+        auto get_image_format() const -> VkFormat CONST_REFERENCE;
+        auto get_image_extent() const -> VkExtent3D CONST_REFERENCE;
     
     protected:
         auto get_device() const -> VkDevice;

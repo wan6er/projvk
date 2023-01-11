@@ -1,4 +1,4 @@
-#include "cvk/pipe/descriptor_pool.h"
+#include "cvk/descriptor/descriptor_pool.h"
 #include "cvk/initialize/pipe_initialize.h"
 #include "utils/vector_util.h"
 

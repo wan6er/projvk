@@ -7,10 +7,10 @@
 #include "cvk/swapchain.h"
 #include "cvk/image/image_view.h"
 #include "cvk/image/sampler.h"
-#include "cvk/pipe/descriptor.h"
-#include "cvk/pipe/descriptor_pool.h"
-#include "cvk/pipe/descriptor_set.h"
-#include "cvk/pipe/descriptor_set_layout.h"
+#include "cvk/descriptor.h"
+#include "cvk/descriptor/descriptor_pool.h"
+#include "cvk/descriptor/descriptor_set.h"
+#include "cvk/descriptor/descriptor_set_layout.h"
 #include "cvk/initialize/command_initialize.h"
 #include "cvk/initialize/surface_initialize.h"
 #include "cvk/initialize/pipe_initialize.h"
@@ -57,9 +57,9 @@ TEST_FUNC_BEGIN("descriptor")
     uint32_t tex_width = 100, tex_height = 100;
     // cvk::Image2D texture(device, VK_FORMAT_R8G8B8A8_UNORM, tex_width, tex_height, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_LINEAR);
     cvk::ImageView2D texture(device);
-    CHECK(texture.create_image(VK_FORMAT_R8G8B8A8_UNORM, tex_width, tex_height, VK_IMAGE_LAYOUT_PREINITIALIZED, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_LINEAR) == VK_SUCCESS);
-    cvk::Memory tex_mem(device, device.get_memory_properties(), texture.get_memory_requirement(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-    CHECK(tex_mem.allocate() == VK_SUCCESS);
+    CHECK(texture.create(VK_FORMAT_R8G8B8A8_UNORM, tex_width, tex_height, VK_IMAGE_LAYOUT_PREINITIALIZED, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_LINEAR) == VK_SUCCESS);
+    cvk::Memory tex_mem(device);
+    CHECK(tex_mem.allocate(device.get_memory_properties(), texture.get_memory_requirement(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == VK_SUCCESS);
     tex_mem.bind(texture);
     CHECK(texture.create_image_view(VK_IMAGE_ASPECT_COLOR_BIT) == VK_SUCCESS);
 

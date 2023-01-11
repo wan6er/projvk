@@ -6,12 +6,13 @@
 #include "cvk/buffer.h"
 #include "cvk/shader.h"
 #include "cvk/pipe/subpass.h"
-#include "cvk/pipe/render_pass.h"
-#include "cvk/pipe/descriptor_set_layout.h"
-#include "cvk/pipe/descriptor_pool.h"
-#include "cvk/pipe/descriptor_set.h"
+#include "cvk/pipe/base_render_pass.h"
+#include "cvk/descriptor/descriptor_set_layout.h"
+#include "cvk/descriptor/descriptor_pool.h"
+#include "cvk/descriptor/descriptor_set.h"
 #include "cvk/pipe/pipeline_layout.h"
-#include "cvk/pipe/graphics_pipeline.h"
+#include "cvk/render_pass.h"
+#include "cvk/graphics_pipeline.h"
 #include "cvk/image/image_view.h"
 #include "cvk/initialize/pipe_initialize.h"
 #include "cvk/initialize/surface_initialize.h"
@@ -50,32 +51,42 @@ void test_pipeline_attachment()
     CHECK((test_pipeline.color_blend().attachmentCount == 1));
 }
 
-void test_renderpass(VkDevice device)
+void test_base_renderpass(VkDevice device)
 {
-    const VkAttachmentReference color_reference0 = {
-        .attachment = 0,
-        .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-    };
-    const VkAttachmentReference depth_reference = {
-        .attachment = 1,
-        .layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-    };
     
     cvk::Subpass subpass(VK_PIPELINE_BIND_POINT_GRAPHICS);
-    subpass.color().attaches(color_reference0);
-    subpass.depth().attach(depth_reference);
+    subpass.add_color(0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+        .set_depth(1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
     VkAttachmentDescription color_attachment_desc;
     __cvk::get_default_attachment_description(VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, color_attachment_desc);
     VkAttachmentDescription depth_attachment_desc;
     __cvk::get_default_attachment_description(VK_FORMAT_D16_UNORM, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, depth_attachment_desc);
-    cvk::RenderPass render_pass(device);
+    cvk::BaseRenderPass render_pass(device);
     render_pass.attaches(color_attachment_desc, depth_attachment_desc, subpass.get_description());
     render_pass.clear_all();
     render_pass.attaches(color_attachment_desc, depth_attachment_desc, subpass.get_description());
     VkResult result = render_pass.create();
     CHECK(result == VK_SUCCESS);
+}
 
+
+void test_renderpass(VkDevice device)
+{
+    cvk::RenderPass renderpass(device);
+    renderpass.add_subpass(VK_PIPELINE_BIND_POINT_GRAPHICS)
+        .add_color(0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+        .set_depth(1);
+    renderpass.add_subpass_dependency(VK_SUBPASS_EXTERNAL, 0)
+        .set_src(VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0)
+        .set_dst(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
+    renderpass.add_subpass_dependency(0, VK_SUBPASS_EXTERNAL)
+        .set_src(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)
+        .set_dst(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0);
+    renderpass
+        .add_attachment(VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+        .add_attachment(VK_FORMAT_D16_UNORM, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+    CHECK(renderpass.create() == VK_SUCCESS);
 }
 
 void test_descriptor(VkDevice device)
@@ -131,6 +142,7 @@ TEST_FUNC_BEGIN("render_pass")
 
     test_pipeline_attachment();
     test_descriptor(device);
+    test_base_renderpass(device);
     test_renderpass(device);
 
 TEST_FUNC_END
@@ -169,24 +181,15 @@ TEST_FUNC_BEGIN("graphics pipeline")
     std::vector<VkSurfaceFormatKHR> formats;
     __cvk::get_surface_formats(device.get_physical_device(), surface, formats);
     
-    const VkAttachmentReference color_reference0 = {
-        .attachment = 0,
-        .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-    };
-    const VkAttachmentReference depth_reference = {
-        .attachment = 1,
-        .layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-    };
-    
     cvk::Subpass subpass(VK_PIPELINE_BIND_POINT_GRAPHICS);
-    subpass.color().attaches(color_reference0);
-    subpass.depth().attach(depth_reference);
+    subpass.add_color(0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+        .set_depth(1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
     VkAttachmentDescription color_attachment_desc;
     __cvk::get_default_attachment_description(formats[0].format, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, color_attachment_desc);
     VkAttachmentDescription depth_attachment_desc;
     __cvk::get_default_attachment_description(VK_FORMAT_D16_UNORM, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, depth_attachment_desc);
-    cvk::RenderPass render_pass(device);
+    cvk::BaseRenderPass render_pass(device);
     render_pass.attaches(color_attachment_desc, depth_attachment_desc, subpass.get_description());
     render_pass.clear_all();
     render_pass.attaches(color_attachment_desc, depth_attachment_desc, subpass.get_description());

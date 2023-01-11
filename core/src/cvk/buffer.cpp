@@ -1,31 +1,27 @@
 #include "cvk/buffer.h"
 #include "cvk/initialize/memory_initialize.h"
 
-
-
 namespace cvk
 {
 
-
-cvk::Buffer::Buffer(VkDevice device, uint32_t size, VkBufferUsageFlags usage) :
+Buffer::Buffer(VkDevice device) :
     _device(device)
 {
-    __cvk::get_default_buffer_create_info(size, usage, {}, _info);
 }
 
-cvk::Buffer::Buffer(VkBuffer buffer) :
+Buffer::Buffer(VkBuffer buffer) :
     utils::BaseObj<VkBuffer>(buffer)
 {
 }
 
-cvk::Buffer::~Buffer()
+Buffer::~Buffer()
 {
     if (isolated() && !is_cloned()) {
         release();
     }
 }
 
-auto cvk::Buffer::get_memory_requirement() const -> VkMemoryRequirements
+auto Buffer::get_memory_requirement() const -> VkMemoryRequirements
 {
     CVK_ASSERT(object() != VK_NULL_HANDLE);
     VkMemoryRequirements requirement;
@@ -33,23 +29,24 @@ auto cvk::Buffer::get_memory_requirement() const -> VkMemoryRequirements
     return requirement;
 }
 
-cvk::Buffer::operator VkBuffer() const
+Buffer::operator VkBuffer() const
 {
     CVK_ASSERT(object() != VK_NULL_HANDLE);
     return object();
 }
 
-auto cvk::Buffer::info() -> VkBufferCreateInfo&
+auto Buffer::info() -> VkBufferCreateInfo&
 {
     return _info;
 }
 
-VkResult cvk::Buffer::create()
+VkResult Buffer::create(uint32_t size, VkBufferUsageFlags usage)
 {
+    __cvk::get_default_buffer_create_info(size, usage, *this, _info);
     return __cvk::create_buffer(_device, _info, object());
 }
 
-void cvk::Buffer::release()
+void Buffer::release()
 {
     if (_device != VK_NULL_HANDLE && object() != VK_NULL_HANDLE) {
         __cvk::destroy_buffer(_device, object());

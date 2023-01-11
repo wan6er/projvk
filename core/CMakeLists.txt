@@ -16,10 +16,12 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 file(GLOB PROJ_SRC 
     ${PROJECT_SOURCE_DIR}/src/*.cpp
     ${PROJECT_SOURCE_DIR}/src/cvk/*.cpp
+    ${PROJECT_SOURCE_DIR}/src/cvk/base/*.cpp
     ${PROJECT_SOURCE_DIR}/src/cvk/image/*.cpp
     ${PROJECT_SOURCE_DIR}/src/cvk/pipe/*.cpp
     ${PROJECT_SOURCE_DIR}/src/cvk/sync/*.cpp
     ${PROJECT_SOURCE_DIR}/src/cvk/command/*.cpp
+    ${PROJECT_SOURCE_DIR}/src/cvk/descriptor/*.cpp
     ${PROJECT_SOURCE_DIR}/src/cvk/initialize/*.cpp
     ${PROJECT_SOURCE_DIR}/src/utils/*.cpp
 )
@@ -33,6 +35,8 @@ add_library(${PROJ_NAME} SHARED ${PROJ_SRC})
 # target_include_directories(${PROJ_NAME_STATIC} PRIVATE ${vma_INCLUDE_DIR})
 target_include_directories(${PROJ_NAME} PRIVATE ${Vulkan_INCLUDE_DIR})
 target_link_libraries(${PROJ_NAME} ${Vulkan_LIBRARY})
+
+message("${Vulkan_LIBRARY}")
 
 target_compile_definitions(${PROJ_NAME} PRIVATE BUILD_CVK)
 

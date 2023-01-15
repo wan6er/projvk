@@ -33,9 +33,8 @@ TEST_FUNC_BEGIN("memory")
     // cvk::Memory memory(device, 10, 0);
     {
         VkBuffer buffer;
-        VkBufferCreateInfo bufferCreateInfo = { 
-            .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO
-        };
+        VkBufferCreateInfo bufferCreateInfo = {};
+        bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         bufferCreateInfo.size = 65536;
         bufferCreateInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 

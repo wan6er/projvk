@@ -30,14 +30,18 @@ VkResult DescriptorPool::create(uint32_t max_sets)
 void DescriptorPool::set(VkDescriptorSetLayoutBinding CONST_REFERENCE layout_binding)
 {
     CVK_ASSERT(object() == VK_NULL_HANDLE);
-    VkDescriptorPoolSize pool_size = { .type = layout_binding.descriptorType, .descriptorCount = layout_binding.descriptorCount };
+    VkDescriptorPoolSize pool_size = {};
+    pool_size.type = layout_binding.descriptorType;
+    pool_size.descriptorCount = layout_binding.descriptorCount;
     attaches(pool_size);
 }
 
 void DescriptorPool::set(VkDescriptorType type, uint32_t num_of_descriptor)
 {
     CVK_ASSERT(object() == VK_NULL_HANDLE);
-    VkDescriptorPoolSize pool_size = { .type = type, .descriptorCount = num_of_descriptor };
+    VkDescriptorPoolSize pool_size = {};
+    pool_size.type = type;
+    pool_size.descriptorCount = num_of_descriptor;
     attaches(pool_size);
 }
 

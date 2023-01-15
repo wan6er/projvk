@@ -1,6 +1,5 @@
 #include "cvk/initialize/memory_initialize.h"
-
-
+#include "utils/vector_util.h"
 
 namespace __cvk
 {
@@ -23,11 +22,10 @@ CVK_API void get_default_memory_allocate_info(VkDevice device, VkPhysicalDeviceM
 
 CVK_API void get_default_memory_allocate_info(uint32_t size, uint32_t type_index, VkMemoryAllocateInfo& info)
 {
-	info = {
-        .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-        .allocationSize = size,
-        .memoryTypeIndex = type_index
-    };
+	info = {};
+    info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    info.allocationSize = size;
+    info.memoryTypeIndex = type_index;
 	// return vkAllocateMemory(device, &memory_allocate_info, nullptr, &memory);
 }
 
@@ -53,16 +51,17 @@ CVK_API void free_memory(VkDevice device, VkDeviceMemory memory)
 }
 
 CVK_API void get_default_buffer_create_info(uint32_t size, VkBufferUsageFlags usage, std::vector<uint32_t> CONST_REFERENCE queue_families, VkBufferCreateInfo& info) {
-    info = {
-        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-        .pNext = NULL,
-        .flags = 0,
-        .size = size,
-        .usage = usage,
-        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
-        .queueFamilyIndexCount = static_cast<uint32_t>(queue_families.size()),
-        .pQueueFamilyIndices = queue_families.size() == 0 ? nullptr : queue_families.data()
-    };
+    info = {};
+    
+    info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    info.pNext = NULL;
+    info.flags = 0;
+    info.size = size;
+    info.usage = usage;
+    info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    utils::vector_fill_info(queue_families, info.queueFamilyIndexCount, info.pQueueFamilyIndices);
+        // .queueFamilyIndexCount = static_cast<uint32_t>(queue_families.size()),
+        // .pQueueFamilyIndices = queue_families.size() == 0 ? nullptr : queue_families.data()
 }
 
 CVK_API void get_memory_requirement(VkDevice device, VkBuffer buffer, VkMemoryRequirements& requirement)

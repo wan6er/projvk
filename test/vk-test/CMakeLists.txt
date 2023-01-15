@@ -7,6 +7,8 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
 else()
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJ_BASE_DIR}/bin32)
 endif()
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 aux_source_directory(${PROJECT_SOURCE_DIR}/src PROJ_SRC)
 
@@ -14,9 +16,11 @@ add_executable(${PROJ_NAME} ${PROJ_SRC})
 
 set(PROJ_LIBS "core")
 set(PROJ_INCLUDE_DIR "${core_INCLUDE_DIR};${tinygltf_INCLUDE_DIR}")
+set(PROJ_DEFS PRIVATE TINYGLTF_IMPLEMENTATION PRIVATE STB_IMAGE_IMPLEMENTATION PRIVATE TINYGLTF_NO_STB_IMAGE_WRITE)
 
 target_link_libraries(${PROJ_NAME} ${PROJ_LIBS})
 target_include_directories(${PROJ_NAME} PRIVATE ${PROJ_INCLUDE_DIR})
+target_compile_definitions(${PROJ_NAME} ${PROJ_DEFS})
 
 set_target_properties(${PROJ_NAME} PROPERTIES DEBUG_POSTFIX "_d")
 
@@ -37,5 +41,6 @@ foreach(example ${example_files})
     add_executable(${example_name} ${example})
     target_link_libraries(${example_name} ${PROJ_LIBS})
     target_include_directories(${example_name} PRIVATE ${PROJ_INCLUDE_DIR})
+    target_compile_definitions(${example_name} ${PROJ_DEFS})
     message("add execute ${example_name}")
 endforeach()

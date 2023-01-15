@@ -7,9 +7,8 @@ namespace __cvk
 VkResult create_fence(VkDevice device, VkFence& fence, bool signaled) 
 {
     CVK_ASSERT(device != VK_NULL_HANDLE);
-    VkFenceCreateInfo fence_info = {
-        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO
-    };
+    VkFenceCreateInfo fence_info = {};
+    fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     if (signaled) {
         fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
     }
@@ -40,9 +39,8 @@ CVK_API VkResult reset_fences(VkDevice device, std::vector<VkFence> CONST_REFERE
 VkResult create_semaphore(VkDevice device, VkSemaphore& semaphore, bool signaled)
 {
     CVK_ASSERT(device != VK_NULL_HANDLE);
-    VkSemaphoreCreateInfo semaphore_info = {
-        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
-    };
+    VkSemaphoreCreateInfo semaphore_info = {};
+    semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
     if (signaled) {
         semaphore_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
     }

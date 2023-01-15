@@ -9,6 +9,8 @@ else()
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/bin32)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/lib32)
 endif()
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -33,7 +35,7 @@ endif()
 
 add_library(${PROJ_NAME} SHARED ${PROJ_SRC})
 # target_include_directories(${PROJ_NAME_STATIC} PRIVATE ${vma_INCLUDE_DIR})
-target_include_directories(${PROJ_NAME} PRIVATE ${Vulkan_INCLUDE_DIR})
+target_include_directories(${PROJ_NAME} PUBLIC ${Vulkan_INCLUDE_DIR})
 target_link_libraries(${PROJ_NAME} ${Vulkan_LIBRARY})
 
 message("${Vulkan_LIBRARY}")

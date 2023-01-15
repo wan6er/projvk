@@ -30,30 +30,31 @@ VkResult create_image(VkDevice device, VkImageType type, VkFormat format, uint32
 
 void get_default_image_create_info(VkFormat format, const VkExtent3D& extent, VkImageLayout image_layout, VkImageUsageFlags usage, VkImageTiling tiling, VkImageCreateInfo& create_info)
 {
-	create_info = {
-		.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-		.imageType = VK_IMAGE_TYPE_2D,
-		.format = format,
-		.extent = extent,
-		.mipLevels = 1,
-		.arrayLayers = 1,
-		.samples = VK_SAMPLE_COUNT_1_BIT,
-		.tiling = tiling,
-		.usage = usage,
-		.initialLayout = image_layout,
-	};
+    create_info = {};
+    create_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    create_info.imageType = VK_IMAGE_TYPE_2D;
+    create_info.format = format;
+    create_info.extent = extent;
+    create_info.mipLevels = 1;
+    create_info.arrayLayers = 1;
+    create_info.samples = VK_SAMPLE_COUNT_1_BIT;
+    create_info.tiling = tiling;
+    create_info.usage = usage;
+    create_info.initialLayout = image_layout;
 }
 
 void get_default_image_view_create_info(VkFormat format, VkImageViewType type, VkImageAspectFlags aspect, VkImage image, VkImageViewCreateInfo& create_info)
 {
-	create_info = {
-        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-        .image = image,
-        .viewType = type,
-        .format = format,
-        .subresourceRange =
-            {.aspectMask = aspect, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1},
-	};
+    create_info = {};
+    create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    create_info.image = image;
+    create_info.viewType = type;
+    create_info.format = format;
+    create_info.subresourceRange.aspectMask = aspect;
+    create_info.subresourceRange.baseMipLevel = 0;
+    create_info.subresourceRange.levelCount = 1;
+    create_info.subresourceRange.baseArrayLayer = 0;
+    create_info.subresourceRange.layerCount = 1;
 }
 
 VkResult create_image2d(VkDevice device, VkFormat format, const VkExtent2D& extent, VkImageUsageFlags usage, VkImage& image)
@@ -112,24 +113,24 @@ void destroy_image_view(VkDevice device, VkImageView image_view)
 
 CVK_API void get_default_sampler_create_info(VkSamplerCreateInfo& create_info)
 {
-	create_info = {
-		.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-		.pNext = NULL,
-		.magFilter = VK_FILTER_NEAREST,
-		.minFilter = VK_FILTER_NEAREST,
-		.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST,
-		.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-		.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-		.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-		.mipLodBias = 0.0f,
-		.anisotropyEnable = VK_FALSE,
-		.maxAnisotropy = 1,
-		.compareOp = VK_COMPARE_OP_NEVER,
-		.minLod = 0.0f,
-		.maxLod = 0.0f,
-		.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE,
-		.unnormalizedCoordinates = VK_FALSE,
-	};
+    create_info = {};
+
+    create_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    create_info.pNext = NULL;
+    create_info.magFilter = VK_FILTER_NEAREST;
+    create_info.minFilter = VK_FILTER_NEAREST;
+    create_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    create_info.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    create_info.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    create_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    create_info.mipLodBias = 0.0f;
+    create_info.anisotropyEnable = VK_FALSE;
+    create_info.maxAnisotropy = 1;
+    create_info.compareOp = VK_COMPARE_OP_NEVER;
+    create_info.minLod = 0.0f;
+    create_info.maxLod = 0.0f;
+    create_info.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+    create_info.unnormalizedCoordinates = VK_FALSE;
 }
 
 CVK_API VkResult create_sampler(VkDevice device, VkSamplerCreateInfo CONST_REFERENCE create_info, VkSampler& sampler)

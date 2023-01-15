@@ -8,14 +8,13 @@ namespace __cvk
 
 CVK_API void get_default_framebuffer_create_info(VkRenderPass renderpass, std::vector<VkImageView> CONST_REFERENCE attachments, uint32_t width, uint32_t height, VkFramebufferCreateInfo& create_info)
 {
-    create_info = {
-        .sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-        .pNext = NULL,
-        .renderPass = renderpass,
-        .width = width,
-        .height = height,
-        .layers = 1,
-    };
+    create_info = {};
+    create_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    create_info.pNext = NULL;
+    create_info.renderPass = renderpass;
+    create_info.width = width;
+    create_info.height = height;
+    create_info.layers = 1;
     utils::vector_fill_info(attachments, create_info.attachmentCount, create_info.pAttachments);
 }
 

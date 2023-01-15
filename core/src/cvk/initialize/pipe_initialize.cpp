@@ -28,25 +28,23 @@ CVK_API void destroy_render_pass(VkDevice device, VkRenderPass render_pass)
 
 CVK_API void get_default_attachment_description(VkFormat format, VkImageLayout final_layout, VkAttachmentDescription& description)
 {
-    description = {
-        .flags = 0,
-        .format = format,
-        .samples = VK_SAMPLE_COUNT_1_BIT,
-        .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-        .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-        .stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-        .stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-        .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-        .finalLayout = final_layout
-    };
+    description = {};
+    description.flags = 0;
+    description.format = format;
+    description.samples = VK_SAMPLE_COUNT_1_BIT;
+    description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    description.finalLayout = final_layout;
 }
 
 CVK_API void get_default_attachment_reference(uint32_t attachment, VkImageLayout attachment_layout, VkAttachmentReference& reference)
 {
-    reference = {
-        .attachment = attachment,
-        .layout = attachment_layout,
-    };
+    reference = {};
+    reference.attachment = attachment;
+    reference.layout = attachment_layout;
 }
 
 CVK_API void get_default_subpass_description(VkPipelineBindPoint bind_point, std::vector<VkAttachmentReference> CONST_REFERENCE color, std::vector<VkAttachmentReference> CONST_REFERENCE input, VkAttachmentReference CONST_PTR depth, VkSubpassDescription& description)
@@ -60,25 +58,23 @@ CVK_API void get_default_subpass_description(VkPipelineBindPoint bind_point, std
 
 CVK_API void get_default_subpass_dependency(uint32_t src, uint32_t dst, VkPipelineStageFlags src_stage, VkPipelineStageFlags dst_stage, VkAccessFlags src_access, VkAccessFlags dst_access, VkSubpassDependency& dependency)
 {
-    dependency = {
-        .srcSubpass = src,
-        .dstSubpass = dst,
-        .srcStageMask = src_stage,
-        .dstStageMask = dst_stage,
-        .srcAccessMask = src_access,
-        .dstAccessMask = dst_access,
-    };
+    dependency = {};
+    dependency.srcSubpass = src;
+    dependency.dstSubpass = dst;
+    dependency.srcStageMask = src_stage;
+    dependency.dstStageMask = dst_stage;
+    dependency.srcAccessMask = src_access;
+    dependency.dstAccessMask = dst_access;
 }
 
 CVK_API void get_default_descriptor_set_layout_binding(VkDescriptorType type, VkShaderStageFlags shader_stage, uint32_t binding, uint32_t size, VkDescriptorSetLayoutBinding& layout_binding)
 {
-    layout_binding = {
-        .binding = binding,
-        .descriptorType = type,
-        .descriptorCount = size,
-        .stageFlags = shader_stage,
-        .pImmutableSamplers = nullptr,
-    };
+    layout_binding = {};
+    layout_binding.binding = binding;
+    layout_binding.descriptorType = type;
+    layout_binding.descriptorCount = size;
+    layout_binding.stageFlags = shader_stage;
+    layout_binding.pImmutableSamplers = nullptr;
 }
 
 CVK_API void get_default_descriptor_set_layout_create_info(std::vector<VkDescriptorSetLayoutBinding> CONST_REFERENCE bindings, VkDescriptorSetLayoutCreateInfo& create_info)
@@ -116,12 +112,12 @@ CVK_API void get_default_descriptor_image_info(VkSampler sampler, VkImageView im
 
 CVK_API void get_default_descriptor_set_allocate_info(VkDescriptorPool pool, VkDescriptorSetLayout CONST_REFERENCE set_layout, VkDescriptorSetAllocateInfo& alloc_info)
 {
-    alloc_info = {
-        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-        .descriptorPool = pool,
-        .descriptorSetCount = 1,
-        .pSetLayouts = &set_layout,
-    };
+    alloc_info = {};
+    
+    alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    alloc_info.descriptorPool = pool;
+    alloc_info.descriptorSetCount = 1;
+    alloc_info.pSetLayouts = &set_layout;
 }
 
 CVK_API void update_descriptor_set(VkDevice device, std::vector<VkWriteDescriptorSet> CONST_REFERENCE write_info)
@@ -146,14 +142,14 @@ CVK_API void free_descriptor_set(VkDevice device, VkDescriptorPool pool, VkDescr
 
 CVK_API void get_descriptor_pool_size_by_binding(VkDescriptorSetLayoutBinding CONST_REFERENCE binding, VkDescriptorPoolSize& pool_size)
 {
-    pool_size = { 
-        .type = binding.descriptorType, 
-        .descriptorCount = binding.descriptorCount 
-    };
+    pool_size = {};
+    pool_size.type = binding.descriptorType;
+    pool_size.descriptorCount = binding.descriptorCount;
 }
 
 CVK_API void get_descriptor_pool_size(VkDescriptorType type, uint32_t count, VkDescriptorPoolSize& pool_size)
 {
+    pool_size = {};
     pool_size.type = type;
     pool_size.descriptorCount = count;
 }
@@ -201,9 +197,8 @@ CVK_API void destroy_pipeline_layout(VkDevice device, VkPipelineLayout layout)
 
 CVK_API void get_default_graphics_pipeline_create_info(VkGraphicsPipelineCreateInfo& create_info)
 {
-    create_info = {
-        .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO
-    };
+    create_info = {};
+    create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 }
 
 CVK_API VkResult create_graphics_pipeline(VkDevice device, VkGraphicsPipelineCreateInfo CONST_REFERENCE create_info, VkPipeline& pipeline, VkPipelineCache cache)

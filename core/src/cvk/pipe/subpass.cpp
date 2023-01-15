@@ -57,10 +57,9 @@ Subpass::Subpass(VkPipelineBindPoint bind_point) :
 
 auto Subpass::add_color(uint32_t attachment, VkImageLayout layout) -> Subpass&
 {
-    VkAttachmentReference color = { 
-        .attachment = attachment,
-        .layout = layout,
-    };
+    VkAttachmentReference color = {};
+    color.attachment = attachment;
+    color.layout = layout;
     ColorAttachment::attaches(color);
     update_description();
     return *this;
@@ -69,10 +68,9 @@ auto Subpass::add_color(uint32_t attachment, VkImageLayout layout) -> Subpass&
 auto Subpass::add_input(uint32_t attachment, VkImageLayout layout) -> Subpass&
 {
     
-    VkAttachmentReference input = { 
-        .attachment = attachment,
-        .layout = layout,
-    };
+    VkAttachmentReference input = {};
+    input.attachment = attachment;
+    input.layout = layout;
     InputAttachment::attaches(input);
     update_description();
     return *this;
@@ -80,10 +78,9 @@ auto Subpass::add_input(uint32_t attachment, VkImageLayout layout) -> Subpass&
 
 auto Subpass::set_depth(uint32_t attachment, VkImageLayout layout) -> Subpass&
 {
-    VkAttachmentReference depth = { 
-        .attachment = attachment,
-        .layout = layout,
-    };
+    VkAttachmentReference depth = {};
+    depth.attachment = attachment;
+    depth.layout = layout;
     DepthAttachment::attach(depth);
     update_description();
     return *this;

@@ -5,7 +5,14 @@ project(${PROJ_NAME})
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake")
 set(CMAKE_CXX_STANDARD 17)
-# set(CMAKE_CXX_FLAGS "-Wall -g")
+
+if(MSVC)
+set(CMAKE_CXX_FLAGS_DEBUG "/Zi /Od /MT /MP")
+set(CMAKE_CXX_FLAGS_RELEASE "/MT /MP")
+else()
+set(CMAKE_CXX_FLAGS "-Wall -g")
+endif()
+
 set(PROJ_BASE_DIR ${PROJECT_SOURCE_DIR})
 
 find_package(Vulkan)

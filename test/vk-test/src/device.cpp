@@ -15,8 +15,6 @@ TEST_FUNC_BEGIN("instance")
         // VK_EXT_DEBUG_MARKER_EXTENSION_NAME
     };
 
-    VkResult result;
-
     cvk::Instance instance(instance_extensions, instance_layers);
     CHECK(static_cast<VkInstance>(instance) != nullptr);
     
@@ -31,8 +29,6 @@ TEST_FUNC_BEGIN("device")
     };
     std::vector<std::string> device_extensions = {
     };
-
-    VkResult result;
 
     {
         VkInstance instance;

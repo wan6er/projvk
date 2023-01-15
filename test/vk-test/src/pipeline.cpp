@@ -46,7 +46,8 @@ void test_pipeline_attachment()
     CHECK((test_pipeline.viewport().scissorCount == 1));
     test_pipeline.dynamic().attaches(VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR);
     CHECK((test_pipeline.dynamic().dynamicStateCount == 2));
-    VkPipelineColorBlendAttachmentState att_state = { .colorWriteMask = 0xf, };
+    VkPipelineColorBlendAttachmentState att_state = {};
+    att_state.colorWriteMask = 0xf;
     test_pipeline.color_blend().attaches(att_state);
     CHECK((test_pipeline.color_blend().attachmentCount == 1));
 }
@@ -130,7 +131,7 @@ TEST_FUNC_BEGIN("render_pass")
     cvk::Instance instance(instance_extensions, instance_layers);
     std::vector<VkPhysicalDevice>&& devices = instance.get_all_physical_device();
     VkPhysicalDeviceFeatures device_features = {};
-    cvk::Device device(devices[0], device_extensions, {}, VK_QUEUE_GRAPHICS_BIT);
+    cvk::Device device(devices[0], device_extensions, device_features, VK_QUEUE_GRAPHICS_BIT);
 
     uint32_t width = 1024, height = 720;
 #ifdef WIN32
@@ -168,7 +169,7 @@ TEST_FUNC_BEGIN("graphics pipeline")
     cvk::Instance instance(instance_extensions, instance_layers);
     std::vector<VkPhysicalDevice>&& devices = instance.get_all_physical_device();
     VkPhysicalDeviceFeatures device_features = {};
-    cvk::Device device(devices[0], device_extensions, {}, VK_QUEUE_GRAPHICS_BIT);
+    cvk::Device device(devices[0], device_extensions, device_features, VK_QUEUE_GRAPHICS_BIT);
 
     uint32_t width = 1024, height = 720;
 #ifdef WIN32

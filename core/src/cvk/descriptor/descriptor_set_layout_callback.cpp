@@ -9,6 +9,12 @@ DescriptorSetLayoutCallback::DescriptorSetLayoutCallback(DescriptorPool& pool, V
 {
 }
 
+DescriptorSetLayoutCallback& DescriptorSetLayoutCallback::operator=(DescriptorSetLayoutCallback CONST_REFERENCE callback)
+{
+    _descriptor = callback._descriptor;
+    return *this;
+}
+
 DescriptorSetLayout& DescriptorSetLayoutCallback::set(uint32_t binding, VkDescriptorType type, VkShaderStageFlags shader_stage, uint32_t num_of_descriptor)
 {
     _descriptor.get(type)++;

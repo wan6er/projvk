@@ -6,11 +6,10 @@ namespace __cvk
 
 CVK_API void get_default_command_pool_create_info(uint32_t queue_index, VkCommandPoolCreateInfo& create_info)
 {
-    create_info = {
-        .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-        .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,        
-        .queueFamilyIndex = queue_index,
-    };
+    create_info = {};
+    create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    create_info.queueFamilyIndex = queue_index;
 }
 
 VkResult create_command_pool(VkDevice device, VkCommandPoolCreateInfo CONST_REFERENCE create_info, VkCommandPool& command_pool)
@@ -58,24 +57,20 @@ CVK_API void free_command_buffers(VkDevice device, VkCommandPool command_pool, s
 VkResult begin_command_buffer(VkCommandBuffer command_buffer, VkCommandBufferUsageFlags usage)
 {
     CVK_ASSERT(command_buffer != VK_NULL_HANDLE);
-    VkCommandBufferBeginInfo cmd_buf_info = {
-        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-        .pNext = NULL,
-        .flags = usage,
-        .pInheritanceInfo = NULL,
-    };
+    VkCommandBufferBeginInfo cmd_buf_info = {};
+    cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    cmd_buf_info.flags = usage;
+    cmd_buf_info.pInheritanceInfo = NULL;
     return vkBeginCommandBuffer(command_buffer, &cmd_buf_info);
 }
 
 VkResult begin_command_buffer_secondary(VkCommandBuffer command_buffer, VkCommandBufferInheritanceInfo CONST_REFERENCE inheritance_info, VkCommandBufferUsageFlags usage)
 {
     CVK_ASSERT(command_buffer != VK_NULL_HANDLE);
-    VkCommandBufferBeginInfo cmd_buf_info = {
-        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-        .pNext = NULL,
-        .flags = usage,
-        .pInheritanceInfo = &inheritance_info,
-    };
+    VkCommandBufferBeginInfo cmd_buf_info = {};
+    cmd_buf_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    cmd_buf_info.flags = usage;
+    cmd_buf_info.pInheritanceInfo = &inheritance_info;
     return vkBeginCommandBuffer(command_buffer, &cmd_buf_info);
 }
 
@@ -157,12 +152,11 @@ CVK_API void cmd_execute_command(VkCommandBuffer buffer, std::vector<VkCommandBu
 
 CVK_API void get_default_begin_renderpass_info(VkRenderPass renderpass, VkFramebuffer framebuffer, std::vector<VkClearValue> CONST_REFERENCE clear_values, VkRect2D CONST_REFERENCE render_area, VkRenderPassBeginInfo& info)
 {
-    info = {
-        .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-        .renderPass = renderpass,
-        .framebuffer = framebuffer,
-        .renderArea = render_area,
-    };
+    info = {};
+    info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    info.renderPass = renderpass;
+    info.framebuffer = framebuffer;
+    info.renderArea = render_area;
     utils::vector_fill_info(clear_values, info.clearValueCount, info.pClearValues);
 }
 

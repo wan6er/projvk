@@ -49,23 +49,22 @@ VkResult create_swapchain(VkPhysicalDevice physical_device, VkDevice device, VkS
 		return result;
 	}
 
-    VkSwapchainCreateInfoKHR swapchain_create_info = {
-		.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
-		.surface = surface,
-		.minImageCount = image_count,
-		.imageFormat = surface_format.format,
-		.imageColorSpace = surface_format.colorSpace,
-		.imageExtent = { width, height },
-		.imageArrayLayers = image_array_layers,
-		.imageUsage = usage,
-		.imageSharingMode = sharing_mode,
-		.queueFamilyIndexCount = queue_family_count,
-		.preTransform = transform,
-		.compositeAlpha = composite_alpha,
-		.presentMode = best_present_modes[0],
-		.clipped = VK_TRUE,
-		.oldSwapchain = old_swapchain
-	};
+    VkSwapchainCreateInfoKHR swapchain_create_info = {};
+    swapchain_create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    swapchain_create_info.surface = surface;
+    swapchain_create_info.minImageCount = image_count;
+    swapchain_create_info.imageFormat = surface_format.format;
+    swapchain_create_info.imageColorSpace = surface_format.colorSpace;
+    swapchain_create_info.imageExtent = { width, height };
+    swapchain_create_info.imageArrayLayers = image_array_layers;
+    swapchain_create_info.imageUsage = usage;
+    swapchain_create_info.imageSharingMode = sharing_mode;
+    swapchain_create_info.queueFamilyIndexCount = queue_family_count;
+    swapchain_create_info.preTransform = transform;
+    swapchain_create_info.compositeAlpha = composite_alpha;
+    swapchain_create_info.presentMode = best_present_modes[0];
+    swapchain_create_info.clipped = VK_TRUE;
+    swapchain_create_info.oldSwapchain = old_swapchain;
 	return vkCreateSwapchainKHR(device, &swapchain_create_info, nullptr, &swapchain);
 }
 
@@ -100,35 +99,37 @@ VkResult get_default_swapchain_create_info(VkPhysicalDevice physical_device, VkS
 		return result;
 	}
 
-    create_info = {
-		.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
-		.surface = surface,
-		.minImageCount = image_count,
-		.imageFormat = surface_format.format,
-		.imageColorSpace = surface_format.colorSpace,
-		.imageExtent = { width, height },
-		.imageArrayLayers = image_array_layers,
-		.imageUsage = usage,
-		.imageSharingMode = sharing_mode,
-		.queueFamilyIndexCount = queue_family_count,
-		.preTransform = transform,
-		.compositeAlpha = composite_alpha,
-		.presentMode = present_mode,
-		.clipped = VK_TRUE,
-		.oldSwapchain = old_swapchain
-	};
+    create_info = {};
+    create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    create_info.surface = surface;
+    create_info.minImageCount = image_count;
+    create_info.imageFormat = surface_format.format;
+    create_info.imageColorSpace = surface_format.colorSpace;
+    create_info.imageExtent = { width, height };
+    create_info.imageArrayLayers = image_array_layers;
+    create_info.imageUsage = usage;
+    create_info.imageSharingMode = sharing_mode;
+    create_info.queueFamilyIndexCount = queue_family_count;
+    create_info.preTransform = transform;
+    create_info.compositeAlpha = composite_alpha;
+    create_info.presentMode = present_mode;
+    create_info.clipped = VK_TRUE;
+    create_info.oldSwapchain = old_swapchain;
 	return result;
 }
 
 void get_swapchain_image_view_create_info(const VkSwapchainCreateInfoKHR &swapchain_create_info, VkImageViewCreateInfo& view_create_info)
 {
-	view_create_info = {
-		.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-		.viewType = VK_IMAGE_VIEW_TYPE_2D,
-        .format = swapchain_create_info.imageFormat,
-		.subresourceRange =
-			{.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1}
-	};
+    view_create_info = {};
+    view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+    view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D,
+    view_create_info.format = swapchain_create_info.imageFormat,
+    view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    view_create_info.subresourceRange.baseMipLevel = 0;
+    view_create_info.subresourceRange.levelCount = 1;
+    view_create_info.subresourceRange.baseArrayLayer = 0;
+    view_create_info.subresourceRange.layerCount = 1;
+
 }
 
 VkResult create_swapchain_by_info(VkDevice device, const VkSwapchainCreateInfoKHR &create_info, VkSwapchainKHR &swapchain)

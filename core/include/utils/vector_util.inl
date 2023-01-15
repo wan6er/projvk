@@ -20,7 +20,7 @@ void vector_filter(const std::vector<Type> &src_vec, const std::vector<Type> &tr
         }
         else 
         {
-#if defined(__cplusplus) and __cplusplus >= 201703L
+#if defined(__cplusplus) && __cplusplus >= 201703L
             if constexpr (std::is_same_v<Type, std::string>) {
                 CLogE("Filter %s failed.", item.c_str());
             }

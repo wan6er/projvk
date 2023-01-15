@@ -6,7 +6,6 @@
 template<class _Func, class _Properties, class..._Args>
 VkResult query_properties(_Func func, std::vector<_Properties>& properties, _Args&&... args)
 {
-    C_ASSERT(func);
     uint32_t count = 0;
     
     constexpr bool no_ret = std::is_same<decltype(func(std::forward<_Args>(args)..., &count, nullptr)), void>::value;

@@ -13,6 +13,8 @@ namespace cvk
 
         VertexInputAttributes& add_attribute(uint32_t location, VkFormat format, uint32_t offset);
 
+        VertexInputAttributes& operator=(VertexInputAttributes CONST_REFERENCE);
+
         VertexInputState& vertex_input;
         uint32_t binding;
 

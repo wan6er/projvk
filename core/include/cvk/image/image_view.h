@@ -38,6 +38,8 @@ namespace cvk
         auto image_view_info() -> VkImageViewCreateInfo&;
 
     protected:
+        using utils::BaseObj<VkImageView>::object;
+        using utils::BaseObj<VkImageView>::isolated;
         void release();
         
     private:

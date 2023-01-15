@@ -22,6 +22,13 @@ VertexInputAttributes& VertexInputAttributes::add_attribute(uint32_t location, V
     return *this;
 }
 
+VertexInputAttributes& VertexInputAttributes::operator=(VertexInputAttributes CONST_REFERENCE attrs)
+{
+    binding = attrs.binding;
+    vertex_input = attrs.vertex_input;
+    return *this;
+}
+
 VertexInputState::VertexInputState() : VkPipelineVertexInputStateCreateInfo()
 {
     sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -29,11 +36,10 @@ VertexInputState::VertexInputState() : VkPipelineVertexInputStateCreateInfo()
 
 VertexInputAttributes& VertexInputState::add_binding(uint32_t binding, uint32_t stride)
 {
-    VkVertexInputBindingDescription vertex_input_binding = {
-        .binding = binding,
-        .stride = stride,
-        .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
-    };
+    VkVertexInputBindingDescription vertex_input_binding = {};
+    vertex_input_binding.binding = binding;
+    vertex_input_binding.stride = stride;
+    vertex_input_binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
     attaches(vertex_input_binding);
     std::vector<VertexInputAttributes>& attributes = *this;
     return attributes.emplace_back(*this, binding);

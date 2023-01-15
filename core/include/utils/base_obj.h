@@ -12,6 +12,7 @@ namespace utils
     {
     public:
         typedef Obj ObjType;
+        typedef BaseObj<Obj> BaseType;
 
         constexpr BaseObj();
         constexpr explicit BaseObj(const Obj& obj);

@@ -27,9 +27,11 @@
 #include "cvk/initialize/pipe_initialize.h"
 
 #include "utils/file.h"
+#include "utils/vertex_data.h"
 
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
+#include "tiny_gltf.h"
 
 #ifdef WIN32
 #include "win32/surface_win32.h"
@@ -55,7 +57,7 @@ int main()
     cvk::Instance instance(instance_extensions, instance_layers);
     std::vector<VkPhysicalDevice>&& devices = instance.get_all_physical_device();
     VkPhysicalDeviceFeatures device_features = {};
-    cvk::Device device(devices[0], device_extensions, {}, VK_QUEUE_GRAPHICS_BIT);
+    cvk::Device device(devices[0], device_extensions, device_features, VK_QUEUE_GRAPHICS_BIT);
 
     uint32_t width = 1024;
     uint32_t height = 720;
@@ -104,14 +106,38 @@ int main()
         CVK_ASSERT(framebuffers.back().create() == VK_SUCCESS);
     }
 
-    struct Vertex {
-        float position[3];
-        float color[3];
-    };
+    
+    std::string filename = "../test/vk-test/models/samplebuilding.gltf";
+    std::string error, warning;
+    tinygltf::TinyGLTF gltfContext;
+    tinygltf::Model gltfModel;
+    // gltfContext.SetImageLoader(loadImageDataFunc, nullptr);
+    gltfContext.LoadASCIIFromFile(&gltfModel, &error, &warning, filename);
 
-    cvk::Shader vert_shader(device, utils::load_file("triangle.vert.spv"));
+    struct Vertex
+    {
+        glm::vec3 POSITION;
+        glm::vec3 NORMAL;
+        glm::vec2 TEXCOORD_0;
+    };
+    utils::VectexData<Vertex> vertexes(VERTEX_DATA_REG_MEMBERS(Vertex, POSITION, NORMAL, TEXCOORD_0));
+
+    uint32_t vertex_index = 0;
+    for (auto& mesh : gltfModel.meshes) {
+        for (auto& primitive : mesh.primitives) {
+            vertexes.resize(vertex_index + 1);
+            for (auto& attr : primitive.attributes) {
+                auto& accessor = gltfModel.accessors[attr.second];
+                auto& buffer_view = gltfModel.bufferViews[accessor.bufferView];
+                vertexes.set(vertex_index, attr.first, &gltfModel.buffers[buffer_view.buffer].data[buffer_view.byteOffset + accessor.byteOffset]);
+            }
+            vertex_index++;
+        }
+    }
+
+    cvk::Shader vert_shader(device, utils::load_file("texture.vert.spv"));
     CVK_ASSERT(vert_shader.create() == VK_SUCCESS);
-    cvk::Shader frag_shader(device, utils::load_file("triangle.frag.spv"));
+    cvk::Shader frag_shader(device, utils::load_file("texture.frag.spv"));
     CVK_ASSERT(frag_shader.create() == VK_SUCCESS);
 
     cvk::Descriptor descriptor(device);
@@ -125,8 +151,9 @@ int main()
 
     cvk::GraphicsPipeline pipeline(device, render_pass, layout);
     pipeline.vertex_input().add_binding(0, sizeof(Vertex))
-        .add_attribute(0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position))
-        .add_attribute(1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color));
+        .add_attribute(0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, POSITION))
+        .add_attribute(1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, NORMAL))
+        .add_attribute(2, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, TEXCOORD_0));
     pipeline.viewport().set_size(1, 1);
     pipeline.dynamic().attaches(VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR);
     pipeline.color_blend().attach(0xf, false);
@@ -134,20 +161,6 @@ int main()
         .attach(VK_SHADER_STAGE_VERTEX_BIT, vert_shader)
         .attach(VK_SHADER_STAGE_FRAGMENT_BIT, frag_shader);
     CVK_ASSERT(pipeline.create() == VK_SUCCESS);
-
-    // Setup vertices
-    std::vector<Vertex> vertex =
-    {
-        { {  1.0f,  1.0f, 0.5f }, { 1.0f, 0.0f, 0.0f } },
-        { { -1.0f,  1.0f, 0.5f }, { 0.0f, 1.0f, 0.0f } },
-        { {  0.0f, -1.0f, 0.5f }, { 0.0f, 0.0f, 1.0f } }
-    };
-    uint32_t vertex_size = static_cast<uint32_t>(vertex.size()) * sizeof(Vertex);
-
-    // Setup indices
-    std::vector<uint32_t> index = { 0, 1, 2 };
-    uint32_t indices_count = static_cast<uint32_t>(index.size());
-    uint32_t index_size = indices_count * sizeof(uint32_t);
 
     std::vector<glm::mat4> ubo = {
         glm::lookAt(glm::vec3(-5, 3, -10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)),
@@ -158,10 +171,10 @@ int main()
     cvk::MemorizedBuffer vertex_buffer(device);
     CVK_ASSERT(vertex_buffer.create(
         device.get_memory_properties(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        vertex_size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT) == VK_SUCCESS);
+        vertexes.get_size(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT) == VK_SUCCESS);
     char* ptr = nullptr;
     CVK_ASSERT(vertex_buffer.map(ptr) == VK_SUCCESS);
-    memcpy(ptr, vertex.data(), vertex_size);
+    memcpy(ptr, vertexes.get_data(), vertexes.get_size());
     vertex_buffer.unmap();
 
     cvk::MemorizedBuffer uniform_buffer(device);
@@ -217,7 +230,7 @@ int main()
         command_buffer.cmd().bind_vertex_buffer(vertex_buffer);
         command_buffer.cmd().set_viewport({ viewport });
         command_buffer.cmd().set_scissor({ render_area });
-        command_buffer.cmd().draw(3);
+        command_buffer.cmd().draw(vertexes.get_num_vertex());
 
         command_buffer.cmd().end_renderpass();
         command_buffer.end();

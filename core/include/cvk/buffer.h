@@ -17,6 +17,7 @@ namespace cvk
         virtual ~Buffer();
 
         auto get_memory_requirement() const -> VkMemoryRequirements;
+        auto get_descriptor_info() const -> VkDescriptorBufferInfo;
         operator VkBuffer() const;
         auto info() -> VkBufferCreateInfo&;
 
@@ -28,6 +29,24 @@ namespace cvk
     private:
         VkDevice _device = VK_NULL_HANDLE;
         VkBufferCreateInfo _info;
+    };
+
+    template<VkBufferUsageFlags _Usage>
+    class BaseTypeBuffer : public Buffer
+    {
+    public:
+        BaseTypeBuffer(VkDevice device) : Buffer(device) {}
+        BaseTypeBuffer(VkBuffer buffer) : Buffer(buffer) {}
+        BaseTypeBuffer(BaseTypeBuffer CONST_REFERENCE buffer) = default;
+        virtual ~BaseTypeBuffer() = default;
+
+        virtual VkResult create(uint32_t size) 
+        {
+            return Buffer::create(size, _Usage);
+        }
+
+    protected:
+        using Buffer::create;
     };
 
 };

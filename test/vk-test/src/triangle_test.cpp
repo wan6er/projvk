@@ -30,6 +30,7 @@
 #include "cvk/initialize/memory_initialize.h"
 #include "cvk/initialize/swapchain_initialize.h"
 #include "cvk/initialize/surface_initialize.h"
+#include "cvk/initialize/descriptor_initialize.h"
 #include "cvk/initialize/pipe_initialize.h"
 
 #include "utils/file.h"
@@ -122,9 +123,9 @@ TEST_FUNC_BEGIN("triangle test")
         float color[3];
     };
 
-    cvk::Shader vert_shader(device, utils::load_file("triangle.vert.spv"));
+    cvk::Shader vert_shader(device, utils::load_file("shader/triangle.vert.spv"));
     CHECK(vert_shader.create() == VK_SUCCESS);
-    cvk::Shader frag_shader(device, utils::load_file("triangle.frag.spv"));
+    cvk::Shader frag_shader(device, utils::load_file("shader/triangle.frag.spv"));
     CHECK(frag_shader.create() == VK_SUCCESS);
 
     cvk::Descriptor descriptor(device);
@@ -133,7 +134,7 @@ TEST_FUNC_BEGIN("triangle test")
     CHECK(descriptor.create() == VK_SUCCESS);
 
     cvk::PipelineLayout layout(device);
-    layout.attaches(static_cast<VkDescriptorSetLayout>(descriptor.get_layout(0)));
+    layout.attaches(descriptor[0].get_layout());
     CHECK(layout.create() == VK_SUCCESS);
 
     cvk::GraphicsPipeline pipeline(device, render_pass, layout);

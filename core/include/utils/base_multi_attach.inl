@@ -56,7 +56,6 @@ template<class... _Type>
 template<class __Type, class...__Args>
 void BaseMultipleAttaches<_Type...>::attaches(__Type&& obj, __Args&&...args)
 {
-    
     this->BaseMultipleAttachWrapper<decltype(remove_clr<__Type>())>::_attach(obj);
     attaches(std::forward<__Args>(args)...);
 }

@@ -5,25 +5,11 @@
 namespace cvk
 {
 
-template class CVK_API BaseCommandBuffer<CommandPrimary>;
-template class CVK_API BaseCommandBuffer<CommandSecondary>;
+template class CVK_API BaseCommandBuffer<BaseCommandPrimary>;
+template class CVK_API BaseCommandBuffer<BaseCommandSecondary>;
 
-template<>
-CVK_API BaseCommandBuffer<CommandPrimary>::BaseCommandBuffer(VkDevice device, VkCommandPool pool) :
-    _device(device),
-    _pool(pool),
-    _cmd(object())
-{
-    __cvk::get_default_command_buffers_allocate_info(_pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1, _allocate_info);
-}
+template class CVK_API BaseCommandBufferPrimary<BaseCommandPrimary>;
+template class CVK_API BaseCommandBufferSecondary<BaseCommandSecondary>;
 
-template<>
-CVK_API BaseCommandBuffer<CommandSecondary>::BaseCommandBuffer(VkDevice device, VkCommandPool pool) :
-    _device(device),
-    _pool(pool),
-    _cmd(object())
-{
-    __cvk::get_default_command_buffers_allocate_info(_pool, VK_COMMAND_BUFFER_LEVEL_SECONDARY, 1, _allocate_info);
-}
 
 } // namespace cvk

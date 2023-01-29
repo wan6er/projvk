@@ -141,7 +141,7 @@ TEST_FUNC_BEGIN("image")
         mem_image.unmap();
 
         cvk::MemorizedImageView2D mem_image_view(device);
-        CHECK(mem_image_view.create_view(device.get_memory_properties(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+        CHECK(mem_image_view.create(device.get_memory_properties(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
             VK_IMAGE_ASPECT_COLOR_BIT,
             VK_FORMAT_R8G8B8A8_UNORM, 1000, 700 , VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_LINEAR) == VK_SUCCESS);
         

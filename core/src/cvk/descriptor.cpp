@@ -19,11 +19,11 @@ DescriptorSetLayout& Descriptor::add_layout()
     return layouts.emplace_back(*this, get_device());
 }
 
-DescriptorSetLayout& Descriptor::get_layout(size_t index)
-{
-    std::vector<DescriptorSetLayoutCallback>& layouts = *this;
-    return layouts[index];
-}
+// DescriptorSetLayout& Descriptor::get_layout(size_t index)
+// {
+//     std::vector<DescriptorSetLayoutCallback>& layouts = *this;
+//     return layouts[index];
+// }
 
 VkResult Descriptor::create()
 {
@@ -44,15 +44,15 @@ __RESULT:
     return result;
 }
 
-DescriptorSet& Descriptor::operator[](size_t set)
+DescriptorSetLayoutCallback& Descriptor::operator[](size_t set)
 {
-    std::vector<DescriptorSet>& sets = *this;
+    std::vector<DescriptorSetLayoutCallback>& sets = *this;
     return sets[set];
 }
 
-DescriptorSet CONST_REFERENCE Descriptor::operator[](size_t set) const
+DescriptorSetLayoutCallback CONST_REFERENCE Descriptor::operator[](size_t set) const
 {
-    std::vector<DescriptorSet> CONST_REFERENCE sets = *this;
+    std::vector<DescriptorSetLayoutCallback> CONST_REFERENCE sets = *this;
     return sets[set];
 }
 
@@ -66,15 +66,11 @@ VkResult Descriptor::create_pool()
 VkResult Descriptor::create_sets()
 {
     VkResult result = VK_SUCCESS;
-    std::vector<DescriptorSet>& sets = *this;
+    // std::vector<DescriptorSet>& sets = *this;
     std::vector<DescriptorSetLayoutCallback>& layouts = *this;
     CVK_ASSERT(layouts.size() > 0);
     for (auto& layout : layouts) {
-        result = layout.create();
-        if (result != VK_SUCCESS) {
-            break;
-        }
-        result = sets.emplace_back(get_device(), object(), layout).allocate();
+        result = layout.create(DescriptorPool::object());
         if (result != VK_SUCCESS) {
             break;
         }

@@ -92,20 +92,17 @@ void test_renderpass(VkDevice device)
 
 void test_descriptor(VkDevice device)
 {
-    cvk::DescriptorSetLayout dsl(device);
     VkDescriptorSetLayoutBinding binding0 = cvk::DescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 0, 1);
     VkDescriptorSetLayoutBinding binding1 = cvk::DescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 1, 1);
-    dsl.attaches(binding0, binding1);
-    VkResult result = dsl.create();
-    CHECK(result == VK_SUCCESS);
 
     cvk::DescriptorPool dp(device);
     dp.set(binding0);
-    result = dp.create(2);
+    VkResult result = dp.create(2);
     CHECK(result == VK_SUCCESS);
 
-    cvk::DescriptorSet set(device, dp, dsl);
-    result = set.allocate();
+    cvk::DescriptorSet set(device, dp);
+    set.attaches(binding0, binding1);
+    result = set.create();
     CHECK(result == VK_SUCCESS);
     // set.attaches()
 }
@@ -202,26 +199,24 @@ TEST_FUNC_BEGIN("graphics pipeline")
         float color[3];
     };
 
-    cvk::Shader vert_shader(device, utils::load_file("triangle.vert.spv"));
+    cvk::Shader vert_shader(device, utils::load_file("shader/triangle.vert.spv"));
     CHECK(vert_shader.create() == VK_SUCCESS);
-    cvk::Shader frag_shader(device, utils::load_file("triangle.frag.spv"));
+    cvk::Shader frag_shader(device, utils::load_file("shader/triangle.frag.spv"));
     CHECK(frag_shader.create() == VK_SUCCESS);
 
-    cvk::DescriptorSetLayout descriptor_layout(device);
     VkDescriptorSetLayoutBinding binding0 = cvk::DescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 0, 1);
     VkDescriptorSetLayoutBinding binding1 = cvk::DescriptorSetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 1, 1);
-    descriptor_layout.attaches(binding0, binding1);
-    CHECK(descriptor_layout.create() == VK_SUCCESS);
 
     cvk::DescriptorPool descriptor_pool(device);
     descriptor_pool.set(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2);
     result = descriptor_pool.create(2);
     CHECK(result == VK_SUCCESS);
 
-    cvk::DescriptorSet set(device, descriptor_pool, descriptor_layout);
-    result = set.allocate();
+    cvk::DescriptorSet set(device, descriptor_pool);
+    set.attaches(binding0, binding1);
+    result = set.create();
     cvk::PipelineLayout layout(device);
-    layout.attaches(descriptor_layout.get_layout());
+    layout.attaches(set.get_layout());
     CHECK(layout.create() == VK_SUCCESS);
 
 

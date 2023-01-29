@@ -2,45 +2,53 @@ set(PROJ_NAME "vk-test")
 project(${PROJ_NAME})
 
 
-if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJ_BASE_DIR}/bin)
-else()
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJ_BASE_DIR}/bin32)
-endif()
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-
 aux_source_directory(${PROJECT_SOURCE_DIR}/src PROJ_SRC)
 
 add_executable(${PROJ_NAME} ${PROJ_SRC})
 
 set(PROJ_LIBS "core")
-set(PROJ_INCLUDE_DIR "${core_INCLUDE_DIR};${tinygltf_INCLUDE_DIR}")
-set(PROJ_DEFS PRIVATE TINYGLTF_IMPLEMENTATION PRIVATE STB_IMAGE_IMPLEMENTATION PRIVATE TINYGLTF_NO_STB_IMAGE_WRITE)
+set(PROJ_INCLUDE_DIR "${core_INCLUDE_DIR}")
+# set(PROJ_EXT_LIBS ${SDL2_LIBRARIES})
+# set(PROJ_EXT_INCLUDE_DIR ${SDL2_INCLUDE_DIR})
+set(PROJ_EXT_LIBS)
+set(PROJ_EXT_INCLUDE_DIR)
 
 target_link_libraries(${PROJ_NAME} ${PROJ_LIBS})
 target_include_directories(${PROJ_NAME} PRIVATE ${PROJ_INCLUDE_DIR})
-target_compile_definitions(${PROJ_NAME} ${PROJ_DEFS})
 
 set_target_properties(${PROJ_NAME} PROPERTIES DEBUG_POSTFIX "_d")
 
-file(GLOB shader_files 
-    ${PROJECT_SOURCE_DIR}/shader/*.vert
-    ${PROJECT_SOURCE_DIR}/shader/*.frag
-)
-foreach(shader_file ${shader_files})
-    string(REGEX REPLACE ".+/(.+)" "\\1" shader_filename ${shader_file})
-    execute_process(COMMAND glslangValidator -V ${shader_file} -o "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${shader_filename}.spv" -g OUTPUT_QUIET)
-    message("compiled shader ${shader_filename}.spv")
-endforeach()
+function(install_resource src_dir dst_dir res_postfix)
+    file(GLOB RES_FILES "${src_dir}/${res_postfix}")
+    file(COPY ${RES_FILES} DESTINATION ${dst_dir})
+endfunction()
+
+function(install_shaders src_dir dst_dir)
+    install_resource(${src_dir} ${dst_dir} *.vert)
+    install_resource(${src_dir} ${dst_dir} *.frag)
+    file(GLOB shader_files 
+        ${dst_dir}/*.vert
+        ${dst_dir}/*.frag
+    )
+    foreach(shader_file ${shader_files})
+        string(REGEX REPLACE ".+/(.+)" "\\1" shader_filename ${shader_file})
+        execute_process(COMMAND glslangValidator -V ${shader_file} -o "${dst_dir}/${shader_filename}.spv" -g)
+        # message("compiled shader ${shader_filename}.spv")
+    endforeach()
+    file(REMOVE ${shader_files})
+endfunction()
+
+install_shaders(${PROJECT_SOURCE_DIR}/shader ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/shader )
+install_resource(${PROJECT_SOURCE_DIR}/texture ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/texture *.ktx)
+install_resource(${PROJECT_SOURCE_DIR}/models ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/model *.gltf)
+install_resource(${PROJECT_SOURCE_DIR}/models ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/model *.gltf)
 
 file(GLOB example_files ${PROJECT_SOURCE_DIR}/examples/*.cpp)
 foreach(example ${example_files})
     STRING(REGEX REPLACE ".*/(.*)\\..*" "\\1" example_name ${example})
     # project(${example_name})
     add_executable(${example_name} ${example})
-    target_link_libraries(${example_name} ${PROJ_LIBS})
-    target_include_directories(${example_name} PRIVATE ${PROJ_INCLUDE_DIR})
-    target_compile_definitions(${example_name} ${PROJ_DEFS})
+    target_link_libraries(${example_name} ${PROJ_LIBS} ${PROJ_EXT_LIBS})
+    target_include_directories(${example_name} PRIVATE ${PROJ_INCLUDE_DIR} ${PROJ_EXT_INCLUDE_DIR})
     message("add execute ${example_name}")
 endforeach()

@@ -24,7 +24,7 @@ auto DepthAttachment::depth_attachments() const -> VkAttachmentReference CONST_R
 
 auto DepthAttachment::is_attached() const -> bool
 {
-    return _attached;    
+    return _attached;
 }
 
 // InputAttachment
@@ -38,6 +38,15 @@ Subpass::Subpass(VkPipelineBindPoint bind_point) :
     _bind_point(bind_point)
 {
     __cvk::get_default_subpass_description(bind_point, {}, {}, nullptr, _description);
+}
+
+Subpass::Subpass(Subpass CONST_REFERENCE subpass) :
+    ColorAttachment(subpass),
+    InputAttachment(subpass),
+    DepthAttachment(subpass),
+    _bind_point(subpass._bind_point)
+{
+    update_description();
 }
 
 // auto Subpass::color() -> ColorAttachment&
@@ -93,6 +102,7 @@ void Subpass::update_description()
 
 VkSubpassDescription CONST_REFERENCE Subpass::get_description() const
 {
+    // update_description();
     return _description;
 }
 

@@ -27,18 +27,17 @@
 #include "cvk/initialize/pipe_initialize.h"
 
 #include "utils/file.h"
-#include "utils/vertex_data.h"
+#include "utils/timer.h"
 
-#include "glm/glm.hpp"
-#include "glm/ext.hpp"
-#include "tiny_gltf.h"
+#include "load_texture.h"
+#include "load_model.h"
 
 #ifdef WIN32
 #include "win32/surface_win32.h"
 #include "win32/win.h"
 #endif
 
-int main()
+int main(int argc, char *argv[])
 {
 
     std::vector<std::string> instance_extensions = {
@@ -61,17 +60,25 @@ int main()
 
     uint32_t width = 1024;
     uint32_t height = 720;
+
 #ifdef WIN32
-    Windows win("triangle", width, height);
+    Windows win("model", width, height);
     cvk::SurfaceWin32 surface(instance, win.instance(), win);
 #else
 #error unsupport platform
 #endif
 
+    std::vector<VkClearValue> clear_values(5);
+    clear_values[4].depthStencil.depth = 1.0f;
+    clear_values[4].depthStencil.stencil = 0;
+
+    VkRect2D render_area = {{0, 0}, {width, height}};
+    VkViewport viewport = { 0.0f, 0.0f, (float)width, (float)height, 0.0f, 1.0f };
+
     std::vector<VkSurfaceFormatKHR> formats;
     __cvk::get_surface_formats(device.get_physical_device(), surface, formats);
     CVK_ASSERT(formats.size() > 0);
-    cvk::Swapchain swapchain(device, device.get_physical_device(), surface, { VK_PRESENT_MODE_FIFO_KHR }, formats[0]);
+    cvk::Swapchain swapchain(device, device.get_physical_device(), surface, { VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_FIFO_KHR }, formats[0]);
     swapchain.create();
 
     uint32_t graphics_index = UINT32_MAX, present_index = UINT32_MAX;
@@ -80,10 +87,15 @@ int main()
     CVK_ASSERT(graphics_index != UINT32_MAX);
     CVK_ASSERT(present_index != UINT32_MAX);
 
-    cvk::MemorizedImageView2D depth(device);
-    CVK_ASSERT(depth.create_view(
-        device.get_memory_properties(), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_ASPECT_DEPTH_BIT, 
-        VK_FORMAT_D16_UNORM, width, height, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL) == VK_SUCCESS);
+    cvk::StandardInputAttachment2D position_attachment(device);
+    CVK_ASSERT(position_attachment.create(device.get_memory_properties(), VK_FORMAT_R16G16B16A16_SFLOAT, width, height) == VK_SUCCESS);
+    cvk::StandardInputAttachment2D normal_attachment(device);
+    CVK_ASSERT(normal_attachment.create(device.get_memory_properties(), VK_FORMAT_R16G16B16A16_SFLOAT, width, height) == VK_SUCCESS);
+    cvk::StandardInputAttachment2D albedo_attachment(device);
+    CVK_ASSERT(albedo_attachment.create(device.get_memory_properties(), VK_FORMAT_R8G8B8A8_UNORM, width, height) == VK_SUCCESS);
+
+    cvk::StandardDepthAttachment2D depth(device);
+    CVK_ASSERT(depth.create(device.get_memory_properties(), VK_FORMAT_D16_UNORM, width, height) == VK_SUCCESS);
 
     cvk::Sampler sampler(device);
     sampler.create();
@@ -91,8 +103,23 @@ int main()
     cvk::RenderPass render_pass(device);
     render_pass.add_subpass(VK_PIPELINE_BIND_POINT_GRAPHICS)
         .add_color(0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
-        .set_depth(1);
+        .add_color(1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+        .add_color(2, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+        .set_depth(4);
+    render_pass.add_subpass(VK_PIPELINE_BIND_POINT_GRAPHICS)
+        .add_input(0, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+        .add_input(1, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+        .add_input(2, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+        .add_color(3, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+        .set_depth(4);
+    render_pass.add_subpass_dependency(0, 1)
+        .set_src(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)
+        .set_dst(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_ACCESS_SHADER_READ_BIT);
     render_pass
+        .add_attachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+        .add_attachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+        .add_attachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+
         .add_attachment(VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
         .add_attachment(VK_FORMAT_D16_UNORM, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
     CVK_ASSERT(render_pass.create() == VK_SUCCESS);
@@ -102,94 +129,121 @@ int main()
     std::vector<cvk::ImageView2D> image_views2d;
     for (auto i : images) {
         CVK_ASSERT(image_views2d.emplace_back(device, i).create_image_view(swapchain.info()) == VK_SUCCESS);
-        framebuffers.emplace_back(device, render_pass, width, height).attaches((VkImageView)image_views2d.back(), (VkImageView)depth);
+        framebuffers.emplace_back(device, render_pass, width, height).attaches(
+            (VkImageView)position_attachment,
+            (VkImageView)normal_attachment,
+            (VkImageView)albedo_attachment,
+            (VkImageView)image_views2d.back(),
+            (VkImageView)depth);
         CVK_ASSERT(framebuffers.back().create() == VK_SUCCESS);
     }
 
-    
-    std::string filename = "../test/vk-test/models/samplebuilding.gltf";
-    std::string error, warning;
-    tinygltf::TinyGLTF gltfContext;
-    tinygltf::Model gltfModel;
-    // gltfContext.SetImageLoader(loadImageDataFunc, nullptr);
-    gltfContext.LoadASCIIFromFile(&gltfModel, &error, &warning, filename);
-
-    struct Vertex
-    {
-        glm::vec3 POSITION;
-        glm::vec3 NORMAL;
-        glm::vec2 TEXCOORD_0;
-    };
-    utils::VectexData<Vertex> vertexes(VERTEX_DATA_REG_MEMBERS(Vertex, POSITION, NORMAL, TEXCOORD_0));
-
-    uint32_t vertex_index = 0;
-    for (auto& mesh : gltfModel.meshes) {
-        for (auto& primitive : mesh.primitives) {
-            vertexes.resize(vertex_index + 1);
-            for (auto& attr : primitive.attributes) {
-                auto& accessor = gltfModel.accessors[attr.second];
-                auto& buffer_view = gltfModel.bufferViews[accessor.bufferView];
-                vertexes.set(vertex_index, attr.first, &gltfModel.buffers[buffer_view.buffer].data[buffer_view.byteOffset + accessor.byteOffset]);
-            }
-            vertex_index++;
-        }
-    }
-
-    cvk::Shader vert_shader(device, utils::load_file("texture.vert.spv"));
-    CVK_ASSERT(vert_shader.create() == VK_SUCCESS);
-    cvk::Shader frag_shader(device, utils::load_file("texture.frag.spv"));
-    CVK_ASSERT(frag_shader.create() == VK_SUCCESS);
-
-    cvk::Descriptor descriptor(device);
-    descriptor.add_layout()
-        .set(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1);
-    CVK_ASSERT(descriptor.create() == VK_SUCCESS);
-
-    cvk::PipelineLayout layout(device);
-    layout.attaches(static_cast<VkDescriptorSetLayout>(descriptor.get_layout(0)));
-    CVK_ASSERT(layout.create() == VK_SUCCESS);
-
-    cvk::GraphicsPipeline pipeline(device, render_pass, layout);
-    pipeline.vertex_input().add_binding(0, sizeof(Vertex))
-        .add_attribute(0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, POSITION))
-        .add_attribute(1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, NORMAL))
-        .add_attribute(2, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, TEXCOORD_0));
-    pipeline.viewport().set_size(1, 1);
-    pipeline.dynamic().attaches(VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR);
-    pipeline.color_blend().attach(0xf, false);
-    pipeline.shader()
-        .attach(VK_SHADER_STAGE_VERTEX_BIT, vert_shader)
-        .attach(VK_SHADER_STAGE_FRAGMENT_BIT, frag_shader);
-    CVK_ASSERT(pipeline.create() == VK_SUCCESS);
-
+    glm::vec3 view_pos = glm::vec3(0, 20, -20);
     std::vector<glm::mat4> ubo = {
-        glm::lookAt(glm::vec3(-5, 3, -10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)),
-        glm::perspective(glm::radians(60.f), static_cast<float>(width / height), 0.1f, 256.0f)
+        glm::scale(glm::mat4(1.0f), glm::vec3(1.0)),
+        glm::lookAt(view_pos, glm::vec3(0, 0, 0), glm::vec3(0, -1, 0)),
+        glm::perspective(glm::radians(60.f), static_cast<float>(width / height), 0.1f, 100.0f)
     };
     uint32_t ubo_size = sizeof(glm::mat4) * ubo.size();
 
-    cvk::MemorizedBuffer vertex_buffer(device);
-    CVK_ASSERT(vertex_buffer.create(
-        device.get_memory_properties(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        vertexes.get_size(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT) == VK_SUCCESS);
-    char* ptr = nullptr;
-    CVK_ASSERT(vertex_buffer.map(ptr) == VK_SUCCESS);
-    memcpy(ptr, vertexes.get_data(), vertexes.get_size());
-    vertex_buffer.unmap();
+    cvk::WritableUniformBuffer uniform_buffer(device);
+    CVK_ASSERT(uniform_buffer.create(device.get_memory_properties(), ubo_size) == VK_SUCCESS);
+    CVK_ASSERT(uniform_buffer.upload(ubo.data(), ubo_size) == VK_SUCCESS);
 
-    cvk::MemorizedBuffer uniform_buffer(device);
-    CVK_ASSERT(uniform_buffer.create(
-        device.get_memory_properties(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        ubo_size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) == VK_SUCCESS);
-    CVK_ASSERT(uniform_buffer.map(ptr) == VK_SUCCESS);
-    memcpy(ptr, ubo.data(), ubo_size);
-    uniform_buffer.unmap();
+    cvk::StandardTexture2D texture(device);
+    load_texture(device, "texture/colored_glass_rgba.ktx", graphics_index, texture);
 
-    VkDescriptorBufferInfo ubo_copy_info;
-    __cvk::get_default_descriptor_buffer_info(ubo_size, uniform_buffer, ubo_copy_info);
-    cvk::WriteDescriptorSet ubo_copy_set(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0);
-    ubo_copy_set.attaches(ubo_copy_info);
-    ubo_copy_set.update(device, descriptor[0]);
+    std::vector<NodeBuffers> building_buffers;
+    load_vertex(device, "model/samplebuilding.gltf", building_buffers);
+    
+    cvk::Descriptor descriptor(device);
+    for (auto& buf : building_buffers) {
+        descriptor.add_layout()
+            .set(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1)
+            .set(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1)
+            .set(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1);
+    }
+    CVK_ASSERT(descriptor.create() == VK_SUCCESS);
+
+    for (uint32_t i = 0; i < building_buffers.size(); ++i) {
+        descriptor[i].write(0, uniform_buffer.get_descriptor_info());
+        descriptor[i].write(1, building_buffers[i].transform.get_descriptor_info());
+        descriptor[i].write(2, texture.get_descriptor_info(sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+    }
+    cvk::PipelineLayout layout(device);
+    layout.attaches(static_cast<VkDescriptorSetLayout>(descriptor[0].get_layout()));
+    CVK_ASSERT(layout.create() == VK_SUCCESS);
+
+    cvk::Shader vert_shader(device, utils::load_file("shader/texture.vert.spv"));
+    CVK_ASSERT(vert_shader.create() == VK_SUCCESS);
+    cvk::Shader gbuff_frag_shader(device, utils::load_file("shader/gbuff.frag.spv"));
+    CVK_ASSERT(gbuff_frag_shader.create() == VK_SUCCESS);
+
+    cvk::GraphicsPipeline obj_pipeline(device, render_pass, layout);
+    obj_pipeline.vertex_input().add_binding(0, sizeof(Vertex))
+        .add_attribute(0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, POSITION))
+        .add_attribute(1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, NORMAL))
+        .add_attribute(2, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, TEXCOORD_0))
+        .add_attribute(3, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, COLOR_0));
+    obj_pipeline.viewport().attaches(render_area, viewport);
+    obj_pipeline.color_blend()
+        .attach(0xf, false)
+        .attach(0xf, false)
+        .attach(0xf, false);
+    obj_pipeline.shader()
+        .attach(VK_SHADER_STAGE_VERTEX_BIT, vert_shader)
+        .attach(VK_SHADER_STAGE_FRAGMENT_BIT, gbuff_frag_shader);
+    CVK_ASSERT(obj_pipeline.create() == VK_SUCCESS);
+
+    struct Light {
+    };
+    struct CompositionUBO {
+        glm::vec4 viewPos;
+        glm::vec4 position;
+        glm::vec3 color;
+        float radius;
+    } light_ubo;
+    light_ubo.position = glm::vec4(10.0, 10.0, 0.0, 1.0);
+    light_ubo.viewPos = glm::vec4(view_pos, 1.0);
+    light_ubo.color = glm::vec3(1.0);
+    light_ubo.radius = 20.0;
+    cvk::WritableUniformBuffer light_ubo_buffer(device);
+    CVK_ASSERT(light_ubo_buffer.create(device.get_memory_properties(), sizeof(CompositionUBO)) == VK_SUCCESS);
+    CVK_ASSERT(light_ubo_buffer.upload(&light_ubo, sizeof(light_ubo)) == VK_SUCCESS);
+
+    cvk::Descriptor light_descriptor(device);
+    light_descriptor.add_layout()
+        .set(0, VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+        .set(1, VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+        .set(2, VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+
+        .set(3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 1);
+    CVK_ASSERT(light_descriptor.create() == VK_SUCCESS);
+    
+    light_descriptor[0].write(0, position_attachment.get_descriptor_info(VK_NULL_HANDLE, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+    light_descriptor[0].write(1, normal_attachment.get_descriptor_info(VK_NULL_HANDLE, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+    light_descriptor[0].write(2, albedo_attachment.get_descriptor_info(VK_NULL_HANDLE, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+    
+    light_descriptor[0].write(3, light_ubo_buffer.get_descriptor_info());
+
+    cvk::PipelineLayout light_layout(device);
+    light_layout.attaches(static_cast<VkDescriptorSetLayout>(light_descriptor[0].get_layout()));
+    CVK_ASSERT(light_layout.create() == VK_SUCCESS);
+
+    cvk::Shader composition_vert_shader(device, utils::load_file("shader/composition.vert.spv"));
+    CVK_ASSERT(composition_vert_shader.create() == VK_SUCCESS);
+    cvk::Shader composition_frag_shader(device, utils::load_file("shader/composition.frag.spv"));
+    CVK_ASSERT(composition_frag_shader.create() == VK_SUCCESS);
+
+    cvk::GraphicsPipeline light_pipeline(device, render_pass, light_layout);
+    light_pipeline.viewport().attaches(render_area, viewport);
+    light_pipeline.color_blend()
+        .attach(0xf, false);
+    light_pipeline.set_subpass(1);
+    light_pipeline.shader()
+        .attach(VK_SHADER_STAGE_VERTEX_BIT, composition_vert_shader)
+        .attach(VK_SHADER_STAGE_FRAGMENT_BIT, composition_frag_shader);
+    CVK_ASSERT(light_pipeline.create() == VK_SUCCESS);
 
     cvk::CommandPool command_pool(device, graphics_index);
     CVK_ASSERT(command_pool.create() == VK_SUCCESS);
@@ -202,21 +256,18 @@ int main()
     cvk::Fence wait_fence(device);
     CVK_ASSERT(wait_fence.create() == VK_SUCCESS);
 
-    std::vector<VkClearValue> clear_values(2);
-    clear_values[0].color.float32[0] = 0.1f;
-    clear_values[0].color.float32[1] = 0.2f;
-    clear_values[0].color.float32[2] = 0.4f;
-    clear_values[0].color.float32[3] = 0.2f;
-    clear_values[1].depthStencil.depth = 1.0f;
-    clear_values[1].depthStencil.stencil = 0;
-    VkRect2D render_area = {{0, 0}, {width, height}};
-
-    VkViewport viewport = { 0.0f, 0.0f, (float)width, (float)height, 0.0f, 1.0f };
-    // VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-
     cvk::Queue graphics_queue(device, graphics_index);
 
-    win.run([&]{ 
+    utils::Stopwatch benchmark;
+    benchmark.start();
+    uint32_t time_i = 0;
+    uint32_t time = 0;
+
+    bool should_close = false;
+    uint32_t msg = 0;
+    win.show();
+    while(!should_close) {
+
         uint32_t cur_index = swapchain.acquire(acquire_semaphore);
 
         CVK_ASSERT(command_buffer.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) == VK_SUCCESS);
@@ -225,12 +276,22 @@ int main()
         __cvk::get_default_begin_renderpass_info(render_pass, framebuffers[cur_index], clear_values, render_area, begin_renderpass_info);
         command_buffer.cmd().begin_renderpass(begin_renderpass_info);
 
-        command_buffer.cmd().bind_pipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-        command_buffer.cmd().bind_descriptor_sets(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, { descriptor[0] });
-        command_buffer.cmd().bind_vertex_buffer(vertex_buffer);
-        command_buffer.cmd().set_viewport({ viewport });
-        command_buffer.cmd().set_scissor({ render_area });
-        command_buffer.cmd().draw(vertexes.get_num_vertex());
+        command_buffer.cmd().bind_pipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, obj_pipeline);
+        for (uint32_t i = 0; i < building_buffers.size(); ++i) 
+        {
+            command_buffer.cmd().bind_descriptor_sets(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, { descriptor[i] });
+            command_buffer.cmd().bind_vertex_buffer(building_buffers[i].vertex);
+            command_buffer.cmd().bind_index_buffer(VK_INDEX_TYPE_UINT16, building_buffers[i].index);
+            command_buffer.cmd().draw_indexed(building_buffers[i].index.get_size() / sizeof(uint16_t));
+        }
+
+        command_buffer.cmd().next_subpass();
+        
+        {
+            command_buffer.cmd().bind_pipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, light_pipeline);
+            command_buffer.cmd().bind_descriptor_sets(VK_PIPELINE_BIND_POINT_GRAPHICS, light_layout, { light_descriptor[0] });
+            command_buffer.cmd().draw(6);
+        }
 
         command_buffer.cmd().end_renderpass();
         command_buffer.end();
@@ -238,11 +299,27 @@ int main()
         graphics_queue
             .set_wait(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, { acquire_semaphore })
             .submit({ command_buffer }, wait_fence);
+
+        time += benchmark.lap();
+        if (time_i++ == 5000) {
+            std::cout << "fps : " << (1000.0f * 5000.0f) / time << "\n";
+            time = 0;
+            time_i = 0;
+        }
+        
         CVK_ASSERT(wait_fence.wait() == VK_SUCCESS);
         CVK_ASSERT(wait_fence.reset() == VK_SUCCESS);
-        // CVK_ASSERT(vkResetFences(device, 1, &(VkFence CONST_REFERENCE)wait_fence) == VK_SUCCESS);
 
         swapchain.present(graphics_queue, {});
 
-    });
+        if (win.poll_event(msg)) {
+            if (msg == WM_QUIT) {
+                should_close = true;
+                break;
+            }
+            win.update();
+        }
+    }
+
+    return 0;
 }

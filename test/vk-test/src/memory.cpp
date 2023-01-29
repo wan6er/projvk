@@ -5,6 +5,11 @@
 #include "cvk/buffer.h"
 #include "cvk/memory.h"
 #include "cvk/memorized_buffer.h"
+#include "cvk/fence.h"
+#include "cvk/command_buffer.h"
+#include "cvk/command_pool.h"
+#include "cvk/command/queue.h"
+#include "cvk/fence.h"
 #include "cvk/initialize/memory_initialize.h"
 
 TEST_FUNC_BEGIN("memory")
@@ -105,6 +110,33 @@ TEST_FUNC_BEGIN("memory")
     {
         cvk::MemorizedBuffer mem_buffer(device);
         CHECK(mem_buffer.create(device.get_memory_properties(), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 512, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) == VK_SUCCESS);
+    }
+    {
+        uint32_t transfer_queue_index = device.get_queue_family_index(VK_QUEUE_GRAPHICS_BIT);
+        cvk::CommandPool cmd_pool(device, transfer_queue_index);
+        cmd_pool.transient();
+        CHECK(cmd_pool.create() == VK_SUCCESS);
+        cvk::CommandBuffer cmd(device, cmd_pool);
+        CHECK(cmd.create() == VK_SUCCESS);
+        cvk::Queue queue(device, transfer_queue_index);
+        cvk::Fence fence(device);
+        CHECK(fence.create() == VK_SUCCESS);
+
+        cvk::TransferSrcBuffer src_buffer(device);
+        CHECK(src_buffer.create(device.get_memory_properties(), 512) == VK_SUCCESS);
+
+        cvk::StandardUniformBuffer uniform_buffer(device);
+        CHECK(uniform_buffer.create(device.get_memory_properties(), 512) == VK_SUCCESS);
+        
+        VkBufferCopy copy = {};
+        copy.size = uniform_buffer.get_size();
+
+        cmd.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+        cmd.cmd().copy_buffer(src_buffer, uniform_buffer, {copy});
+        cmd.end();
+
+        CHECK(queue.submit({ cmd }, fence) == VK_SUCCESS);
+        CHECK(fence.wait() == VK_SUCCESS);
     }
 
 TEST_FUNC_END

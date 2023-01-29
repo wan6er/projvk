@@ -5,30 +5,41 @@ namespace cvk
 {
 
 // primary command
-CommandPrimary::CommandPrimary(VkCommandBuffer CONST_REFERENCE buf) :
+BaseCommandPrimary::BaseCommandPrimary(VkCommandBuffer CONST_REFERENCE buf) :
     BaseCommand(buf)
 {
 }
 
-void CommandPrimary::begin_renderpass(VkRenderPassBeginInfo CONST_REFERENCE info) const
+void BaseCommandPrimary::begin_renderpass(VkRenderPassBeginInfo CONST_REFERENCE info) const
 {
     __cvk::cmd_begin_renderpass(buffer, info, VK_SUBPASS_CONTENTS_INLINE);
 }
 
-void CommandPrimary::exec_secondary_commands(std::vector<VkCommandBuffer> CONST_REFERENCE buffers) const
+void BaseCommandPrimary::exec_secondary_commands(std::vector<VkCommandBuffer> CONST_REFERENCE buffers) const
 {
     __cvk::cmd_execute_command(buffer, buffers);
 }
 
+void BaseCommandPrimary::next_subpass() const
+{
+    __cvk::cmd_next_subpass(buffer, VK_SUBPASS_CONTENTS_INLINE);
+}
+
+
 // secondary command
-CommandSecondary::CommandSecondary(VkCommandBuffer CONST_REFERENCE buf) :
+BaseCommandSecondary::BaseCommandSecondary(VkCommandBuffer CONST_REFERENCE buf) :
     BaseCommand(buf)
 {
 }
 
-void CommandSecondary::begin_renderpass(VkRenderPassBeginInfo CONST_REFERENCE info) const
+void BaseCommandSecondary::begin_renderpass(VkRenderPassBeginInfo CONST_REFERENCE info) const
 {
     __cvk::cmd_begin_renderpass(buffer, info, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+}
+
+void BaseCommandSecondary::next_subpass() const
+{
+    __cvk::cmd_next_subpass(buffer, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 }
 
 // general command
@@ -80,6 +91,24 @@ void BaseCommand::draw(uint32_t vertex_count) const
 void BaseCommand::draw_indexed(uint32_t index_count, uint32_t first_index) const
 {
     __cvk::cmd_draw_indexed(buffer, index_count, first_index);
+}
+
+void BaseCommand::copy_buffer(VkBuffer src, VkBuffer dst, std::vector<VkBufferCopy> CONST_REFERENCE offset) const
+{
+    __cvk::cmd_copy_buffer(buffer, src, dst, offset);
+}
+
+void BaseCommand::copy_buffer_image(VkBuffer src, VkImage dst, std::vector<VkBufferImageCopy> CONST_REFERENCE offset) const
+{
+    __cvk::cmd_copy_buffer_to_image(buffer, src, dst, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, offset);
+}
+
+BaseBarrier BaseCommand::set_barrier(VkPipelineStageFlags src, VkPipelineStageFlags dst) const
+{
+    BaseBarrier barrier(buffer);
+    barrier.src = src;
+    barrier.dst = dst;
+    return barrier;
 }
 
 void BaseCommand::end_renderpass() const

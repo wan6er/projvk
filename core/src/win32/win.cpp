@@ -6,12 +6,18 @@
 
 LRESULT WINAPI __win::DefaultWinProc(HWND hWnd, UINT wMsg, WPARAM wParam, LPARAM lParam)
 {
+    WinInfo*info = (WinInfo*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
     switch (wMsg)
     {
     case WM_CLOSE:
         PostQuitMessage(0);
         break;
     case WM_SIZE:
+        if (info) {
+            info->width = LOWORD(lParam);
+            info->height = HIWORD(lParam);
+            PostMessage(hWnd, WM_ACTIVATE, wParam, lParam);
+        }
         break;
     }
     return DefWindowProc(hWnd, wMsg, wParam, lParam);
@@ -30,6 +36,8 @@ Windows::Windows(const std::string& win_name, uint32_t width, uint32_t height, W
     if (!_hWnd) {
         CLogE("Could not create window %s", win_name.c_str());
     }
+
+    SetWindowLongPtr(_hWnd, GWLP_USERDATA, (LONG_PTR)&_info);
 }
 
 Windows::~Windows()
@@ -50,18 +58,35 @@ void Windows::show()
     UpdateWindow(_hWnd);
 }
 
+bool Windows::poll_event(uint32_t& message)
+{
+    bool ret = PeekMessage(&_msg, 0, 0, 0, PM_REMOVE);
+    message = _msg.message;
+    return ret;
+}
+
+void Windows::update()
+{
+    TranslateMessage(&_msg);
+    DispatchMessage(&_msg);
+}
+
 int Windows::dispatch(std::function<void()> process)
 {
-    MSG msg = {};
-    if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
-        if (msg.message == WM_QUIT)
+    // MSG msg = {};
+    uint32_t msg = 0;
+    if (poll_event(msg)) {
+        if (msg == WM_QUIT)
             return -1;
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-
         process();
+        update();
     }
     return 0;
+}
+
+auto Windows::info() const -> WinInfo CONST_REFERENCE
+{
+    return _info;
 }
 
 void __win::adjust_screen(uint32_t& width, uint32_t& height)
@@ -74,14 +99,19 @@ void __win::adjust_screen(uint32_t& width, uint32_t& height)
 	height = static_cast<uint32_t>(screen.bottom - screen.top);
 }
 
+void Windows::invalidate() const
+{
+    InvalidateRect(_hWnd, nullptr, true);
+}
+
 ATOM __win::register_cls(const std::string& cls_name, HINSTANCE& hInstance, WNDPROC proc)
 {
     WNDCLASSEX cls = {};
     cls.cbSize = sizeof(WNDCLASSEX);
     cls.style = CS_HREDRAW | CS_VREDRAW;
-    cls.lpfnWndProc = proc;
     cls.hInstance = hInstance;
     cls.lpszClassName = cls_name.c_str();
+    cls.lpfnWndProc = proc;
     return RegisterClassEx(&cls);
 }
 

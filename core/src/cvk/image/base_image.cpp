@@ -7,37 +7,17 @@
 namespace cvk
 {
 
-
-// BaseImage::BaseImage(VkDevice device, VkImageType type, VkFormat format, uint32_t layers, const VkExtent2D &extent, VkImageUsageFlags usage) :
-//     _device(device)
-// {
-//     __cvk::create_image(device, type, format, layers, extent, usage, object());
-// }
-
-// BaseImage::BaseImage(VkDevice device, VkImageCreateInfo CONST_REFERENCE info) :
-//     utils::BaseObj<VkImage>(),
-//     _create_info(info),
-//     _device(device)
-// {
-// }
-
 BaseImage::BaseImage(VkDevice device, VkImage image) :
     utils::BaseObj<VkImage>(image)
 {
+    __cvk::get_default_image_create_info(get_image_info());
 }
 
 BaseImage::BaseImage(VkDevice device) :
     _device(device)
 {
+    __cvk::get_default_image_create_info(get_image_info());
 }
-
-// BaseImage::BaseImage(const BaseImage& image) :
-//     utils::BaseObj<VkImage>(image),
-//     utils::ClonedObj(),
-//     _device(image.get_device()),
-//     _create_info(image._create_info)
-// {
-// }
 
 BaseImage::~BaseImage()
 {
@@ -85,6 +65,16 @@ auto BaseImage::get_memory_requirement() const -> VkMemoryRequirements
     VkMemoryRequirements requirement = {};
     __cvk::get_memory_requirement(_device, object(), requirement);
     return requirement;
+}
+
+auto BaseImage::get_subresource() -> Subresource&
+{
+    return *this;
+}
+
+auto BaseImage::get_subresource() const -> Subresource CONST_REFERENCE
+{
+    return *this;
 }
 
 };

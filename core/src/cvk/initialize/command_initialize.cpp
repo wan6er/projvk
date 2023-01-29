@@ -24,6 +24,15 @@ void destroy_command_pool(VkDevice device, VkCommandPool command_pool)
     vkDestroyCommandPool(device, command_pool, nullptr);
 }
 
+CVK_API void get_default_command_buffer_inheritance_allocate_info(VkRenderPass renderpass, VkFramebuffer framebuffer, uint32_t subpass, VkCommandBufferInheritanceInfo& info)
+{
+    info = {};
+    info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+    info.renderPass = renderpass;
+    info.framebuffer = framebuffer;
+    info.subpass = subpass; 
+}
+
 CVK_API void get_default_command_buffers_allocate_info(VkCommandPool pool, VkCommandBufferLevel level, uint32_t size, VkCommandBufferAllocateInfo& info)
 {
     info = {};
@@ -39,6 +48,13 @@ CVK_API VkResult append_alloc_command_buffers(VkDevice device, VkCommandBufferAl
     size_t cur = buffers.size();
     buffers.resize(cur + info.commandBufferCount);
     return vkAllocateCommandBuffers(device, &info, &buffers[cur]);
+}
+
+CVK_API VkResult alloc_command_buffers(VkDevice device, VkCommandBufferAllocateInfo CONST_REFERENCE info, std::vector<VkCommandBuffer>& buffers)
+{
+    CVK_ASSERT(device != VK_NULL_HANDLE);
+    CVK_ASSERT(info.commandBufferCount == buffers.size());
+    return vkAllocateCommandBuffers(device, &info, buffers.data());
 }
 
 CVK_API VkResult alloc_command_buffer(VkDevice device, VkCommandBufferAllocateInfo CONST_REFERENCE info, VkCommandBuffer& buffer)
@@ -148,6 +164,67 @@ CVK_API void cmd_execute_command(VkCommandBuffer buffer, std::vector<VkCommandBu
     CVK_ASSERT(buffer != VK_NULL_HANDLE);
     CVK_ASSERT(buffers.size() > 0);
     vkCmdExecuteCommands(buffer, static_cast<uint32_t>(buffers.size()), buffers.data());
+}
+
+CVK_API void cmd_copy_buffer(VkCommandBuffer buffer, VkBuffer src, VkBuffer dst, std::vector<VkBufferCopy> CONST_REFERENCE offset)
+{
+    vkCmdCopyBuffer(buffer, src, dst, static_cast<uint32_t>(offset.size()), offset.size() == 0 ? nullptr : offset.data());
+}
+
+CVK_API void get_image_memory_barrier(VkImage image, VkImageSubresourceRange CONST_REFERENCE subresource, VkImageLayout src_layout, VkImageLayout dst_layout, VkImageMemoryBarrier& barrier)
+{
+    barrier = {};
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.image = image;
+    barrier.subresourceRange = subresource;
+    barrier.oldLayout = src_layout;
+    barrier.newLayout = dst_layout;
+    get_image_layout_access_mask(src_layout, barrier.srcAccessMask);
+    get_image_layout_access_mask(dst_layout, barrier.dstAccessMask);
+}
+
+CVK_API void get_image_layout_access_mask(VkImageLayout layout, VkAccessFlags& access)
+{
+    switch (layout)
+    {
+    case VK_IMAGE_LAYOUT_UNDEFINED:
+        access = 0;
+        break;
+    case VK_IMAGE_LAYOUT_PREINITIALIZED:
+        access = VK_ACCESS_HOST_WRITE_BIT;
+        break;
+    case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+        access = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        break;
+    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+        access = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        break;
+    case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+        access = VK_ACCESS_TRANSFER_READ_BIT;
+        break;
+    case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+        access = VK_ACCESS_TRANSFER_WRITE_BIT;
+        break;
+    case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+        access = VK_ACCESS_SHADER_READ_BIT;
+        break;
+    default:
+        break;
+    }
+}
+
+CVK_API void cmd_set_pipeline_barrier(VkCommandBuffer buffer, VkPipelineStageFlags src, VkPipelineStageFlags dst, std::vector<VkBufferMemoryBarrier> CONST_REFERENCE buffer_barrier, std::vector<VkImageMemoryBarrier> CONST_REFERENCE image_barrier)
+{
+    vkCmdPipelineBarrier(buffer, src, dst, 0, 0, nullptr, 
+        static_cast<uint32_t>(buffer_barrier.size()), buffer_barrier.data(),
+        static_cast<uint32_t>(image_barrier.size()), image_barrier.data());
+}
+
+CVK_API void cmd_copy_buffer_to_image(VkCommandBuffer buffer, VkBuffer src, VkImage dst, VkImageLayout dst_layout, std::vector<VkBufferImageCopy> CONST_REFERENCE offset)
+{
+    vkCmdCopyBufferToImage(buffer, src, dst, dst_layout, static_cast<uint32_t>(offset.size()), offset.data());
 }
 
 CVK_API void get_default_begin_renderpass_info(VkRenderPass renderpass, VkFramebuffer framebuffer, std::vector<VkClearValue> CONST_REFERENCE clear_values, VkRect2D CONST_REFERENCE render_area, VkRenderPassBeginInfo& info)

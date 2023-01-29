@@ -30,6 +30,11 @@ void GraphicsPipeline::set_layout(VkPipelineLayout layout)
     _create_info.layout = layout;
 }
 
+void GraphicsPipeline::set_subpass(uint32_t subpass)
+{
+    _create_info.subpass = subpass;
+}
+
 VkResult GraphicsPipeline::create()
 {
     CVK_ASSERT(_create_info.renderPass != VK_NULL_HANDLE);

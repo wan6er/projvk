@@ -7,6 +7,7 @@ namespace cvk
 Queue::Queue(VkDevice device, uint32_t queue_index)
 {
     __cvk::get_queue(device, queue_index, object());
+    CVK_ASSERT(object() != VK_NULL_HANDLE);
 }
 
 Queue::~Queue()

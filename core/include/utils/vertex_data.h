@@ -10,28 +10,31 @@
 
 namespace utils
 {
-    
+    struct VertexInfo
+    {
+        size_t offset;
+        size_t size;
+    };
+
     template<class _VertexType>
     class VectexData
     {
     public:
-        struct VertexInfo
-        {
-            size_t offset;
-            size_t size;
-        };
         // using KeyType = std::string;
 
+        VectexData();
         VectexData(std::unordered_map<std::string, VertexInfo> CONST_REFERENCE info);
         virtual ~VectexData() = default;
 
+        void register_info(std::unordered_map<std::string, VertexInfo> CONST_REFERENCE info);
+
         void resize(size_t size);
         void reserve(size_t size);
-        void append(std::string CONST_REFERENCE name, void* data_ptr);
+        void append(std::string CONST_REFERENCE name, void CONST_PTR data_ptr);
         void append(_VertexType CONST_REFERENCE vertex);
-        void set(size_t index, std::string CONST_REFERENCE name, void* data_ptr);
+        void set(size_t index, std::string CONST_REFERENCE name, void CONST_PTR data_ptr);
         size_t get_size() const;
-        size_t get_num_vertex() const;
+        size_t get_data_size() const;
         auto get_info(std::string CONST_REFERENCE name) const -> VertexInfo CONST_REFERENCE;
         auto get_data() const -> _VertexType CONST_PTR;
 

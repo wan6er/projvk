@@ -8,7 +8,7 @@
 
 namespace __cvk
 {
-    CVK_API typedef std::map<VkQueueFlagBits, uint32_t> QueueIndexType;
+    typedef std::map<VkQueueFlagBits, uint32_t> QueueIndexType;
 
     CVK_API VkResult create_device(VkPhysicalDevice physical_device, const QueueIndexType& indices, const std::vector<std::string>& extensions_name, const VkPhysicalDeviceFeatures& features, uint32_t queue_flag, VkDevice& device);
     CVK_API void destroy_device(VkDevice device);

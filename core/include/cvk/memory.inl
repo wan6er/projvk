@@ -6,7 +6,7 @@
 
 
 template<class _Type>
-VkResult cvk::Memory::map(_Type&& data, uint32_t offset)
+VkResult cvk::Memory::map(_Type&& data, size_t offset)
 {
     assert(_device != VK_NULL_HANDLE);
     assert(object() != VK_NULL_HANDLE);

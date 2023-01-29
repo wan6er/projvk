@@ -6,9 +6,20 @@ namespace utils
 {
 
 template<class _VertexType>
+VectexData<_VertexType>::VectexData()
+{
+}
+
+template<class _VertexType>
 VectexData<_VertexType>::VectexData(std::unordered_map<std::string, VertexInfo> CONST_REFERENCE info) :
     _info(info)
 {
+}
+
+template<class _VertexType>
+void VectexData<_VertexType>::register_info(std::unordered_map<std::string, VertexInfo> CONST_REFERENCE info)
+{
+    _info = info;
 }
 
 template<class _VertexType>
@@ -24,7 +35,7 @@ void VectexData<_VertexType>::reserve(size_t size)
 }
 
 template<class _VertexType>
-void VectexData<_VertexType>::append(std::string CONST_REFERENCE name, void* data_ptr)
+void VectexData<_VertexType>::append(std::string CONST_REFERENCE name, void CONST_PTR data_ptr)
 {
     CVK_ASSERT(data_ptr != nullptr);
     size_t cur_index = _append_index[name]++;
@@ -41,7 +52,7 @@ void VectexData<_VertexType>::append(_VertexType CONST_REFERENCE vertex)
 }
 
 template<class _VertexType>
-void VectexData<_VertexType>::set(size_t index, std::string CONST_REFERENCE name, void* data_ptr)
+void VectexData<_VertexType>::set(size_t index, std::string CONST_REFERENCE name, void CONST_PTR data_ptr)
 {
     CVK_ASSERT(data_ptr != nullptr);
     CVK_ASSERT(index < _data.size());
@@ -76,13 +87,13 @@ auto VectexData<_VertexType>::get_info(std::string CONST_REFERENCE name) const -
 template<class _VertexType>
 size_t VectexData<_VertexType>::get_size() const
 {
-    return _data.size() * sizeof(_VertexType);
+    return _data.size();
 }
 
 template<class _VertexType>
-size_t VectexData<_VertexType>::get_num_vertex() const
+size_t VectexData<_VertexType>::get_data_size() const
 {
-    return _data.size();
+    return _data.size() * sizeof(_VertexType);
 }
 
 template<class _VertexType>

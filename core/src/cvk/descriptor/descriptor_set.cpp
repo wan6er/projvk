@@ -1,31 +1,75 @@
 #include "cvk/descriptor/descriptor_set.h"
-#include "cvk/initialize/pipe_initialize.h"
+// #include "cvk/initialize/pipe_initialize.h"
+#include "cvk/descriptor/write_descriptor_set.h"
+#include "cvk/initialize/descriptor_initialize.h"
 #include "utils/vector_util.h"
 
 namespace cvk
 {
 
-DescriptorSet::DescriptorSet(VkDevice device, VkDescriptorPool pool, VkDescriptorSetLayout CONST_REFERENCE layout) :
+DescriptorSet::DescriptorSet(VkDevice device, VkDescriptorPool pool) :
+    DescriptorSetLayout(device),
     _device(device)
 {
-    __cvk::get_default_descriptor_set_allocate_info(pool, layout, _alloc_info);
+    __cvk::get_default_descriptor_set_allocate_info(pool, VK_NULL_HANDLE, _alloc_info);
+}
+
+DescriptorSet::DescriptorSet(VkDevice device) :
+    DescriptorSetLayout(device),
+    _device(device)
+{
+    __cvk::get_default_descriptor_set_allocate_info(VK_NULL_HANDLE, VK_NULL_HANDLE, _alloc_info);
 }
 
 DescriptorSet::~DescriptorSet()
 {
-    if (isolated() && !is_cloned()) {
+    if (SetType::isolated() && !SetType::is_cloned()) {
         free();
     }
 }
 
 DescriptorSet::operator VkDescriptorSet CONST_REFERENCE () const
 {
-    return object();
+    return SetType::object();
 }
 
-VkResult DescriptorSet::allocate()
+VkResult DescriptorSet::create()
 {
-    return __cvk::alloc_descriptor_set(_device, _alloc_info, object());
+    CVK_ASSERT(_alloc_info.descriptorPool != VK_NULL_HANDLE);
+    __cvk::get_default_descriptor_set_allocate_info(_alloc_info.descriptorPool, *this, _alloc_info);
+    VkResult result = DescriptorSetLayout::create();
+    if (result == VK_SUCCESS) {
+        result = __cvk::alloc_descriptor_set(_device, _alloc_info, SetType::object());
+    }
+    return result;
+}
+
+VkResult DescriptorSet::create(VkDescriptorPool pool)
+{
+    __cvk::get_default_descriptor_set_allocate_info(pool, *this, _alloc_info);
+    VkResult result = DescriptorSetLayout::create();
+    if (result == VK_SUCCESS) {
+        result = __cvk::alloc_descriptor_set(_device, _alloc_info, SetType::object());
+    }
+    return result;
+}
+
+void DescriptorSet::write(uint32_t binding, VkDescriptorImageInfo CONST_REFERENCE info)
+{
+    CVK_ASSERT((VkDescriptorSet)*this != VK_NULL_HANDLE);
+    VkDescriptorSetLayoutBinding CONST_REFERENCE binding_info = get_layout_binding(binding);
+    cvk::WriteDescriptorSet write_set(binding_info.descriptorType, binding);
+    write_set.attaches(info);
+    write_set.update(_device, *this);
+}
+
+void DescriptorSet::write(uint32_t binding, VkDescriptorBufferInfo CONST_REFERENCE info)
+{
+    CVK_ASSERT((VkDescriptorSet)*this != VK_NULL_HANDLE);
+    VkDescriptorSetLayoutBinding CONST_REFERENCE binding_info = get_layout_binding(binding);
+    cvk::WriteDescriptorSet write_set(binding_info.descriptorType, binding);
+    write_set.attaches(info);
+    write_set.update(_device, *this);
 }
 
 // void DescriptorSet::update()

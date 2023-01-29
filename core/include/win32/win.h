@@ -20,6 +20,12 @@ namespace __win
     CVK_API void adjust_screen(uint32_t &width, uint32_t &height);
 };
 
+struct CVK_API WinInfo
+{
+    uint32_t width;
+    uint32_t height;
+    bool size_changed;
+};
 
 class CVK_API Windows
 {
@@ -37,10 +43,19 @@ public:
     void show();
     int dispatch(std::function<void()> process);
 
+    bool poll_event(uint32_t& message);
+    void update();
+
     void run(std::function<void()> process);
+    void invalidate() const;
+
+    auto info() const -> WinInfo CONST_REFERENCE;
 
 private:
     std::string _name;
     HINSTANCE _hInstance;
     HWND _hWnd;
+    WinInfo _info;
+    MSG _msg;
+
 };

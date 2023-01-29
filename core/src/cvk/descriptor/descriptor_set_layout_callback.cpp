@@ -4,7 +4,7 @@ namespace cvk
 {
     
 DescriptorSetLayoutCallback::DescriptorSetLayoutCallback(DescriptorPool& pool, VkDevice device) :
-    DescriptorSetLayout(device),
+    DescriptorSet(device),
     _descriptor(pool)
 {
 }
@@ -18,7 +18,7 @@ DescriptorSetLayoutCallback& DescriptorSetLayoutCallback::operator=(DescriptorSe
 DescriptorSetLayout& DescriptorSetLayoutCallback::set(uint32_t binding, VkDescriptorType type, VkShaderStageFlags shader_stage, uint32_t num_of_descriptor)
 {
     _descriptor.get(type)++;
-    return DescriptorSetLayout::set(binding, type, shader_stage, num_of_descriptor);
+    return DescriptorSet::set(binding, type, shader_stage, num_of_descriptor);
 }
 
 

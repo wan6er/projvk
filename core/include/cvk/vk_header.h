@@ -13,8 +13,10 @@
 
 #if defined(BUILD_CVK)
 #define CVK_API __declspec(dllexport)
+// #define CVK_API [[gnu::dllexport]]
 #else
 #define CVK_API __declspec(dllimport)
+// #define CVK_API [[gnu::dllimport]]
 // #define CVK_API
 #endif
 

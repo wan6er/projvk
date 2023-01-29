@@ -5,8 +5,11 @@
 namespace __cvk
 {
     // image
-    CVK_API void get_default_image_create_info(VkFormat format, const VkExtent3D& extent, VkImageLayout image_layout, VkImageUsageFlags usage, VkImageTiling tiling, VkImageCreateInfo& create_info);
-    CVK_API void get_default_image_view_create_info(VkFormat format, VkImageViewType type, VkImageAspectFlags aspect, VkImage image, VkImageViewCreateInfo& create_info);
+    CVK_API void get_default_image_create_info(VkImageCreateInfo& create_info);
+    CVK_API void get_image2d_create_info(VkFormat format, const VkExtent2D& extent, VkImageLayout image_layout, VkImageUsageFlags usage, VkImageTiling tiling, VkImageCreateInfo& create_info);
+    CVK_API void get_default_image_view_create_info(VkImageViewCreateInfo& create_info);
+    CVK_API void get_image_view_create_info(VkFormat format, VkImageViewType type, VkImageAspectFlags aspect, VkImage image, VkImageViewCreateInfo& create_info);
+    CVK_API void get_image_view_create_info(VkFormat format, VkImageViewType type, VkImage image, VkImageSubresourceRange CONST_REFERENCE subresource, VkImageViewCreateInfo& create_info);
     CVK_API VkResult create_image(VkDevice device, const VkImageCreateInfo& image_create_info, VkImage& image);
     CVK_API VkResult create_image(VkDevice device, VkImageType type, VkFormat format, uint32_t layers, const VkExtent2D& extent, VkImageUsageFlags usage, VkImage& image);
     CVK_API VkResult create_image2d(VkDevice device, VkFormat format, const VkExtent2D& extent, VkImageUsageFlags usage, VkImage& image);

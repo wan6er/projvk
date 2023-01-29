@@ -23,6 +23,7 @@ namespace utils
 
         virtual auto count() const -> int final;
         virtual auto isolated() const -> bool final;
+        virtual void count_swap(BaseObj& obj) final;
 
     protected:
         // virtual void release() = 0;

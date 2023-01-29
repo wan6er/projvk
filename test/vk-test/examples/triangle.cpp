@@ -17,7 +17,7 @@
 
 // #include "cvk/descriptor/descriptor_set_layout.h"
 // #include "cvk/descriptor/descriptor_set.h"
-// #include "cvk/descriptor/descriptor_pool.h"
+#include "cvk/descriptor/write_descriptor_set.h"
 #include "cvk/descriptor.h"
 #include "cvk/render_pass.h"
 #include "cvk/graphics_pipeline.h"
@@ -28,6 +28,7 @@
 #include "cvk/initialize/memory_initialize.h"
 #include "cvk/initialize/swapchain_initialize.h"
 #include "cvk/initialize/surface_initialize.h"
+#include "cvk/initialize/descriptor_initialize.h"
 #include "cvk/initialize/pipe_initialize.h"
 
 #include "utils/file.h"
@@ -115,9 +116,9 @@ int main()
         float color[3];
     };
 
-    cvk::Shader vert_shader(device, utils::load_file("triangle.vert.spv"));
+    cvk::Shader vert_shader(device, utils::load_file("shader/triangle.vert.spv"));
     CVK_ASSERT(vert_shader.create() == VK_SUCCESS);
-    cvk::Shader frag_shader(device, utils::load_file("triangle.frag.spv"));
+    cvk::Shader frag_shader(device, utils::load_file("shader/triangle.frag.spv"));
     CVK_ASSERT(frag_shader.create() == VK_SUCCESS);
 
     cvk::Descriptor descriptor(device);
@@ -126,7 +127,7 @@ int main()
     CVK_ASSERT(descriptor.create() == VK_SUCCESS);
 
     cvk::PipelineLayout layout(device);
-    layout.attaches(static_cast<VkDescriptorSetLayout>(descriptor.get_layout(0)));
+    layout.attaches(descriptor[0].get_layout());
     CVK_ASSERT(layout.create() == VK_SUCCESS);
 
     cvk::GraphicsPipeline pipeline(device, render_pass, layout);

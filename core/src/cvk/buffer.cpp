@@ -1,5 +1,7 @@
 #include "cvk/buffer.h"
 #include "cvk/initialize/memory_initialize.h"
+// #include "cvk/initialize/pipe_initialize.h"
+#include "cvk/initialize/descriptor_initialize.h"
 
 namespace cvk
 {
@@ -27,6 +29,14 @@ auto Buffer::get_memory_requirement() const -> VkMemoryRequirements
     VkMemoryRequirements requirement;
     __cvk::get_memory_requirement(_device, object(), requirement);
     return requirement;
+}
+
+auto Buffer::get_descriptor_info() const -> VkDescriptorBufferInfo
+{
+    CVK_ASSERT(object() != VK_NULL_HANDLE);
+    VkDescriptorBufferInfo descriptor_info;
+    __cvk::get_default_descriptor_buffer_info(_info.size, object(), descriptor_info);
+    return descriptor_info;
 }
 
 Buffer::operator VkBuffer() const

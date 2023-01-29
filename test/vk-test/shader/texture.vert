@@ -1,27 +1,41 @@
 #version 450
 
-layout (location = 0) in vec3 inPos;
-layout (location = 1) in vec3 inColor;
-layout (location = 2) in vec2 inTexcoord;
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 normal;
+layout (location = 2) in vec2 texcoord;
+layout (location = 3) in vec3 color;
 
 layout (binding = 0) uniform UBO 
 {
+	mat4 modelMatrix;
 	mat4 viewMatrix;
 	mat4 projectionMatrix;
 } ubo;
 
-layout (location = 0) out vec3 outColor;
+layout (binding = 1) uniform MODEL
+{
+	mat4 transform;
+} model;
+
+layout (location = 0) out vec2 outTexcoord;
+layout (location = 1) out vec4 outPosition;
+layout (location = 2) out vec4 outNormal;
+layout (location = 3) out vec4 outColor;
 
 out gl_PerVertex 
 {
     vec4 gl_Position;   
 };
 
-
 void main() 
 {
-	outColor = inColor;
+	vec4 worldPos = ubo.modelMatrix * model.transform * vec4(position.xyz, 1.0);
+	gl_Position = ubo.projectionMatrix * ubo.viewMatrix * worldPos;
 	
-	// vec2 outUV = vec2(gl_VertexIndex & 1, (gl_VertexIndex >> 1) & 1);
-	gl_Position = ubo.projectionMatrix * ubo.viewMatrix * vec4(inPos.xyz, 1.0);
+	outTexcoord = texcoord;
+	outColor = vec4(color, 1.0);
+	outPosition = vec4(worldPos.xyz, gl_Position.a);
+
+	// mat3 mNormal = transpose(inverse(mat3(model.transform)));
+	outNormal = vec4(normalize(normal), 1.0);
 }

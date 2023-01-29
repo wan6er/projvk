@@ -1,7 +1,7 @@
-.cache/
-.vscode/
-build/
-bin/
-bin32/
-lib/
-lib64/
+/.cache/
+/.vscode/
+/build/
+/bin/
+/bin32/
+/lib/
+/lib32/

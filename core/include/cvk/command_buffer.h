@@ -3,11 +3,13 @@
 #include "cvk/vk_header.h"
 #include "cvk/command/base_command.h"
 #include "cvk/command/base_command_buffer.h"
-
+#include "cvk/command/base_command_buffer_set.h"
 namespace cvk
 {
     
-    typedef BaseCommandBuffer<CommandPrimary> CommandBuffer;
-    typedef BaseCommandBuffer<CommandSecondary> CommandBufferSecondary;
+    typedef BaseCommandBufferPrimary<BaseCommandPrimary> CommandBuffer;
+    typedef BaseCommandBufferSecondary<BaseCommandSecondary> CommandBufferSecondary;
+
+    typedef BaseCommandBufferSet<CommandBufferSecondary, VK_COMMAND_BUFFER_LEVEL_SECONDARY> CommandBufferSet;
 
 } // namespace cvk

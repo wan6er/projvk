@@ -1,7 +1,7 @@
 #pragma once
 
 #include "descriptor_pool.h"
-#include "descriptor_set_layout.h"
+#include "descriptor_set.h"
 
 namespace cvk
 {
@@ -9,7 +9,7 @@ namespace cvk
     class Descriptor;
 
     class CVK_API DescriptorSetLayoutCallback :
-        public DescriptorSetLayout
+        public DescriptorSet
     {
     public:
         DescriptorSetLayoutCallback(DescriptorPool& pool, VkDevice device);

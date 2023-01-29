@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cvk/vk_header.h"
+#include "base_barrier.h"
 
 namespace cvk
 {
@@ -21,23 +22,32 @@ namespace cvk
         void draw(uint32_t vertex_count) const;
         void draw_indexed(uint32_t index_count, uint32_t first_index = 0) const;
 
+        void copy_buffer(VkBuffer src, VkBuffer dst, std::vector<VkBufferCopy> CONST_REFERENCE offset) const;
+        void copy_buffer_image(VkBuffer src, VkImage dst, std::vector<VkBufferImageCopy> CONST_REFERENCE offset) const;
+
+
+        BaseBarrier set_barrier(VkPipelineStageFlags src, VkPipelineStageFlags dst) const;
+
         void end_renderpass() const;
     };
 
-    struct CVK_API CommandPrimary : public BaseCommand
+    struct CVK_API BaseCommandPrimary : public BaseCommand
     {
-        CommandPrimary(VkCommandBuffer CONST_REFERENCE buffer);
+        BaseCommandPrimary(VkCommandBuffer CONST_REFERENCE buffer);
         
         void begin_renderpass(VkRenderPassBeginInfo CONST_REFERENCE info) const;
         void exec_secondary_commands(std::vector<VkCommandBuffer> CONST_REFERENCE buffers) const;
+        
+        void next_subpass() const;
     };
 
-    struct CVK_API CommandSecondary : public BaseCommand
+    struct CVK_API BaseCommandSecondary : public BaseCommand
     {
-        CommandSecondary(VkCommandBuffer CONST_REFERENCE buffer);
+        BaseCommandSecondary(VkCommandBuffer CONST_REFERENCE buffer);
 
         void begin_renderpass(VkRenderPassBeginInfo CONST_REFERENCE info) const;
 
+        void next_subpass() const;
     };
 
 

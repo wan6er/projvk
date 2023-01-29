@@ -97,11 +97,9 @@ DepthStencilState::DepthStencilState() : VkPipelineDepthStencilStateCreateInfo()
     depthWriteEnable = VK_TRUE;
     depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
     depthBoundsTestEnable = VK_FALSE;
-    back.failOp = VK_STENCIL_OP_KEEP;
-    back.passOp = VK_STENCIL_OP_KEEP;
-    back.compareOp = VK_COMPARE_OP_ALWAYS;
-    front = back;
-    stencilTestEnable = VK_FALSE;
+    // back.compareOp = VK_COMPARE_OP_ALWAYS;
+    // front = back;
+    // stencilTestEnable = VK_FALSE;
 }
 
 ViewportState::ViewportState() : VkPipelineViewportStateCreateInfo()

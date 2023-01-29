@@ -21,6 +21,7 @@ VkResult RenderPass::create()
     
     std::vector<Subpass> CONST_REFERENCE subpasses = *this;
     for (auto CONST_REFERENCE subpass : subpasses) {
+        // subpass.update_description();
         BaseRenderPass::attaches(subpass.get_description());
     }
     std::vector<SubpassDependency> CONST_REFERENCE dependencies = *this;

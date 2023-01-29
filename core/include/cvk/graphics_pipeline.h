@@ -32,6 +32,7 @@ namespace cvk
 
         void set_renderpass(VkRenderPass renderpass);
         void set_layout(VkPipelineLayout layout);
+        void set_subpass(uint32_t subpass);
 
         template<class...__Args>
         void attaches(__Args&&...args);

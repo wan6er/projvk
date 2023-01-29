@@ -1,5 +1,6 @@
 #include "cvk/descriptor/descriptor_set_layout.h"
-#include "cvk/initialize/pipe_initialize.h"
+// #include "cvk/initialize/pipe_initialize.h"
+#include "cvk/initialize/descriptor_initialize.h"
 
 namespace cvk
 {
@@ -63,9 +64,22 @@ VkResult DescriptorSetLayout::create()
     return __cvk::create_descriptor_set_layout(_device, _create_info, object());
 }
 
+VkDescriptorSetLayoutBinding CONST_REFERENCE DescriptorSetLayout::get_layout_binding(uint32_t binding) const
+{
+    std::vector<VkDescriptorSetLayoutBinding> CONST_REFERENCE bindings = *this;
+    for (auto CONST_REFERENCE b : bindings) {
+        if (b.binding == binding) {
+            return b;
+        }
+    }
+    throw std::exception();
+}
+
 void DescriptorSetLayout::release()
 {
-    __cvk::destroy_descriptor_set_layout(_device, object());
+    if (object() != VK_NULL_HANDLE) {
+        __cvk::destroy_descriptor_set_layout(_device, object());
+    }
 }
 
 };

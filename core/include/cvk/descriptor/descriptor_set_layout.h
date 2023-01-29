@@ -24,8 +24,9 @@ namespace cvk
         DescriptorSetLayout(DescriptorSetLayout CONST_REFERENCE) = default;
         virtual ~DescriptorSetLayout();
 
-        VkResult create();
+        virtual VkResult create();
         virtual DescriptorSetLayout& set(uint32_t binding, VkDescriptorType type, VkShaderStageFlags shader_stage, uint32_t num_of_descriptor);
+        VkDescriptorSetLayoutBinding CONST_REFERENCE get_layout_binding(uint32_t binding) const;
 
         VkDescriptorSetLayout CONST_REFERENCE get_layout() const;
         operator VkDescriptorSetLayout CONST_REFERENCE () const;

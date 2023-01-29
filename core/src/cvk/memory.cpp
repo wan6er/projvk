@@ -4,19 +4,6 @@
 namespace cvk
 {
 
-
-// Memory::Memory(VkDevice device, VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, VkMemoryRequirements CONST_REFERENCE requirements, VkMemoryPropertyFlags property) :
-//     _device(device)
-// {
-//     __cvk::get_default_memory_allocate_info(_device, properties, requirements, property, allocate_info());
-// }
-
-// Memory::Memory(VkDevice device, uint32_t size, uint32_t type_index) :
-//     _device(device)
-// {
-//     __cvk::get_default_memory_allocate_info(_device, size, type_index, allocate_info());
-// }
-
 Memory::Memory(VkDevice device) :
     _device(device)
 {
@@ -68,9 +55,20 @@ VkResult Memory::allocate(uint32_t size, uint32_t type_index)
     return __cvk::alloc_memory(_device, _info, object());
 }
 
+auto Memory::allocate_info() const -> VkMemoryAllocateInfo CONST_REFERENCE
+{
+    return _info;
+}
+
 auto Memory::allocate_info() -> VkMemoryAllocateInfo&
 {
     return _info;
+}
+
+size_t Memory::get_size() const
+{
+    CVK_ASSERT(_info.allocationSize > 0);
+    return _info.allocationSize;
 }
 
 void Memory::release()
@@ -78,6 +76,17 @@ void Memory::release()
     if (_device != VK_NULL_HANDLE && object() != VK_NULL_HANDLE) {
         __cvk::free_memory(_device, object());
     }
+}
+
+VkResult Memory::upload(void CONST_PTR data, size_t size, size_t offset)
+{
+    void* device_ptr = nullptr;
+    VkResult result = map(device_ptr, offset);
+    if (result == VK_SUCCESS) {
+        memcpy(device_ptr, data, size);
+        unmap();
+    }
+    return result;
 }
 
 void Memory::unmap()

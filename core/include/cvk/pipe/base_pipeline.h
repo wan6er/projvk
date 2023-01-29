@@ -7,7 +7,7 @@ namespace cvk
 {
     
     class CVK_API BasePipeline :
-        protected utils::BaseObj<VkPipeline>
+        public utils::BaseObj<VkPipeline>
     {
     public:
         explicit BasePipeline(VkDevice device);

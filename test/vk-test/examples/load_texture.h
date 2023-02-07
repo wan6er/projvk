@@ -3,7 +3,7 @@
 #include "ktx.h"
 
 #include "cvk/device.h"
-#include "cvk/memorized_image.h"
+#include "cvk/image.h"
 #include "cvk/memorized_buffer.h"
 #include "cvk/fence.h"
 #include "cvk/command_pool.h"

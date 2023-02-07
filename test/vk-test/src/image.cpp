@@ -5,7 +5,7 @@
 #include "cvk/memory.h"
 #include "cvk/buffer.h"
 #include "cvk/image/image_view.h"
-#include "cvk/memorized_image.h"
+#include "cvk/image.h"
 #include "cvk/initialize/surface_initialize.h"
 #include "cvk/initialize/image_initialize.h"
 #include "cvk/initialize/memory_initialize.h"
@@ -46,110 +46,28 @@ TEST_FUNC_BEGIN("image")
 #endif
 
     auto test_color_image = [&] {
-        cvk::ImageView2D image_view(device);
-        VkResult result = image_view.create(VK_FORMAT_R8G8B8A8_UNORM, 1000, 700 , VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
+        cvk::basic::Image image(device);
+        image.setup(VK_FORMAT_R8G8B8A8_UNORM, {1000, 700, 1}, VK_IMAGE_TYPE_2D, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
+        VkResult result = image.create();
+        CHECK(result == VK_SUCCESS);
+        
+        cvk::basic::ImageView image_view(device);
+        image_view.setup(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT);
         CHECK(result == VK_SUCCESS);
 
         VkMemoryRequirements mem_req;
-        __cvk::get_memory_requirement(device, image_view, mem_req);
+        __cvk::get_memory_requirement(device, image, mem_req);
         VkDeviceMemory memory;
         result = __cvk::alloc_memory(device, device.get_memory_properties(), mem_req, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, memory);
         CHECK(result == VK_SUCCESS);
-        result = vkBindImageMemory(device, image_view, memory, 0);
+        result = vkBindImageMemory(device, image, memory, 0);
         CHECK(result == VK_SUCCESS);
 
-        result = image_view.create_image_view(VK_IMAGE_ASPECT_COLOR_BIT);
-        CHECK(result == VK_SUCCESS);
-
+        result = image_view.create(image);
+        
         __cvk::free_memory(device, memory);
-
-        cvk::ImageView2D image_view2(image_view);
-        CHECK((static_cast<VkImageView>(image_view2) != VK_NULL_HANDLE));
     };
-
-    auto test_depth_image = [&]{
-        cvk::ImageView2D depth_image_view(device);
-        VkResult result = depth_image_view.create(VK_FORMAT_D16_UNORM, 1000, 700 , VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
-        CHECK(result == VK_SUCCESS);
-        
-        VkMemoryRequirements mem_req;
-        __cvk::get_memory_requirement(device, depth_image_view, mem_req);
-        VkDeviceMemory depth_memory;
-        result = __cvk::alloc_memory(device, device.get_memory_properties(), mem_req, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depth_memory);
-        CHECK(result == VK_SUCCESS);
-        result = vkBindImageMemory(device, depth_image_view, depth_memory, 0);
-        CHECK(result == VK_SUCCESS);
-
-        depth_image_view.create_image_view(VK_IMAGE_ASPECT_DEPTH_BIT);
-        __cvk::free_memory(device, depth_memory);
-    };
-
-    auto test_texture = [&] {
-        cvk::ImageView2D image_view(device);
-        VkResult result = image_view.create(VK_FORMAT_R8G8B8A8_UNORM, 1000, 700 , VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_LINEAR);
-        CHECK(result == VK_SUCCESS);
-
-        VkMemoryRequirements mem_req;
-        __cvk::get_memory_requirement(device, image_view, mem_req);
-
-        cvk::Memory memory(device);
-        result = memory.allocate(device.get_memory_properties(), mem_req, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-        CHECK(result == VK_SUCCESS);
-        result = memory.bind(image_view);
-        CHECK(result == VK_SUCCESS);
-
-        result = image_view.create_image_view(VK_IMAGE_ASPECT_COLOR_BIT);
-        CHECK(result == VK_SUCCESS);
-
-    };
-
-    auto test_texture_with_staging_buffer = [&] {
-        cvk::ImageView2D image_view(device);
-        VkResult result = image_view.create(VK_FORMAT_R8G8B8A8_UNORM, 1000, 700 , VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_OPTIMAL);
-        CHECK(result == VK_SUCCESS);
-
-        cvk::Memory image_memory(device);
-        result = image_memory.allocate(device.get_memory_properties(), image_view.get_memory_requirement(), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-        CHECK(result == VK_SUCCESS);
-        result = image_memory.bind(image_view);
-        CHECK(result == VK_SUCCESS);
-
-        cvk::Buffer buffer(device);
-        buffer.create(image_view.get_memory_requirement().size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
-        cvk::Memory buffer_memory(device);
-        result = buffer_memory.allocate(device.get_memory_properties(), buffer.get_memory_requirement(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-        CHECK(result == VK_SUCCESS);
-        result = buffer_memory.bind(buffer);
-        CHECK(result == VK_SUCCESS);
-
-        uint8_t* data = nullptr;
-        result = buffer_memory.map(data);
-        CHECK(result == VK_SUCCESS);
-
-        buffer_memory.unmap();
-
-    };
-
-    {
-        cvk::MemorizedImage2D mem_image(device);
-        CHECK(mem_image.create(device.get_memory_properties(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
-            VK_FORMAT_R8G8B8A8_UNORM, 1000, 700 , VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_LINEAR) == VK_SUCCESS);
-        
-        void*ptr = nullptr;
-        CHECK(mem_image.map(ptr) == VK_SUCCESS);
-        CHECK(ptr != nullptr);
-        mem_image.unmap();
-
-        cvk::MemorizedImageView2D mem_image_view(device);
-        CHECK(mem_image_view.create(device.get_memory_properties(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
-            VK_IMAGE_ASPECT_COLOR_BIT,
-            VK_FORMAT_R8G8B8A8_UNORM, 1000, 700 , VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_LINEAR) == VK_SUCCESS);
-        
-    }
 
     test_color_image();
-    test_depth_image();
-    test_texture();
-    test_texture_with_staging_buffer();
 
 TEST_FUNC_END

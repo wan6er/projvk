@@ -37,9 +37,9 @@ CVK_API void get_default_image_create_info(VkImageCreateInfo& create_info)
     create_info.samples = VK_SAMPLE_COUNT_1_BIT;
 }
 
-void get_image2d_create_info(VkFormat format, const VkExtent2D& extent, VkImageLayout image_layout, VkImageUsageFlags usage, VkImageTiling tiling, VkImageCreateInfo& create_info)
+void get_image_create_info(VkFormat format, VkExtent3D CONST_REFERENCE extent, VkImageType type, VkImageLayout image_layout, VkImageUsageFlags usage, VkImageTiling tiling, VkImageCreateInfo& create_info)
 {
-    create_info.imageType = VK_IMAGE_TYPE_2D;
+    create_info.imageType = type;
     create_info.format = format;
     create_info.extent = { extent.width, extent.height, 1 };
     create_info.tiling = tiling;

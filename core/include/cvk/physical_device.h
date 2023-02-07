@@ -8,7 +8,7 @@ namespace cvk
     {
     public:
         explicit PhysicalDevice(VkPhysicalDevice physical_device);
-        PhysicalDevice(const PhysicalDevice& physical_device);
+        PhysicalDevice(const PhysicalDevice& physical_device) = default;
 
         auto get_memory_properties() const -> const VkPhysicalDeviceMemoryProperties&;
         auto get_physical_device() const -> VkPhysicalDevice;

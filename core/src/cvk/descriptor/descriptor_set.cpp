@@ -21,6 +21,14 @@ DescriptorSet::DescriptorSet(VkDevice device) :
     __cvk::get_default_descriptor_set_allocate_info(VK_NULL_HANDLE, VK_NULL_HANDLE, _alloc_info);
 }
 
+DescriptorSet::DescriptorSet(VkDevice device, DescriptorSetLayout CONST_REFERENCE layout) :
+    DescriptorSetLayout(layout),
+    _device(device)
+{
+    __cvk::get_default_descriptor_set_allocate_info(VK_NULL_HANDLE, VK_NULL_HANDLE, _alloc_info);
+}
+
+
 DescriptorSet::~DescriptorSet()
 {
     if (SetType::isolated() && !SetType::is_cloned()) {
@@ -57,19 +65,19 @@ VkResult DescriptorSet::create(VkDescriptorPool pool)
 void DescriptorSet::write(uint32_t binding, VkDescriptorImageInfo CONST_REFERENCE info)
 {
     CVK_ASSERT((VkDescriptorSet)*this != VK_NULL_HANDLE);
-    VkDescriptorSetLayoutBinding CONST_REFERENCE binding_info = get_layout_binding(binding);
-    cvk::WriteDescriptorSet write_set(binding_info.descriptorType, binding);
+    cvk::WriteDescriptorSet write_set;
     write_set.attaches(info);
-    write_set.update(_device, *this);
+    write_set.setup(*this, get_layout_binding(binding));
+    write_set.update(_device);
 }
 
 void DescriptorSet::write(uint32_t binding, VkDescriptorBufferInfo CONST_REFERENCE info)
 {
     CVK_ASSERT((VkDescriptorSet)*this != VK_NULL_HANDLE);
-    VkDescriptorSetLayoutBinding CONST_REFERENCE binding_info = get_layout_binding(binding);
-    cvk::WriteDescriptorSet write_set(binding_info.descriptorType, binding);
+    cvk::WriteDescriptorSet write_set;
     write_set.attaches(info);
-    write_set.update(_device, *this);
+    write_set.setup(*this, get_layout_binding(binding));
+    write_set.update(_device);
 }
 
 // void DescriptorSet::update()

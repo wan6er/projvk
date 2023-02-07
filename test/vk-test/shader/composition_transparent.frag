@@ -29,6 +29,13 @@ float diffuse(vec3 pos_light, vec3 pos, vec3 nor)
 	return max(0.0, dot(nor, normalize(view_dir)));
 }
 
+float specular(vec3 pos_light, vec3 pos_camera, vec3 pos, vec3 nor) 
+{
+	vec3 light_dir = normalize(pos_light - pos) + normalize(pos_camera - pos);
+	return pow(max(0.0, dot(normalize(nor), normalize(light_dir))), 4.0);
+	// return 1.0;
+}
+
 float attenuation(float len, float radius) 
 {
 	// return len;
@@ -36,40 +43,35 @@ float attenuation(float len, float radius)
 	return 1.0 - min(1.0, len);
 }
 
-vec3 get_color()
+vec3 get_color(vec3 fragPos, vec3 normal, vec4 albedo)
 {
-	vec3 fragPos = subpassLoad(samplerPosition).xyz;
-	float fragDepth = subpassLoad(samplerPosition).a;
-	vec3 normal = subpassLoad(samplerNormal).xyz;
-	vec4 albedo = subpassLoad(samplerAlbedo);
+	float atten = attenuation(length(ubo.position.xyz - fragPos), ubo.radius);
 
-	float ambient = 0.15;
-	float diff = 0.4 * diffuse(ubo.position.xyz, fragPos, normal) * attenuation(length(ubo.position.xyz - fragPos), ubo.radius);
-	return albedo.rgb * ubo.color * (ambient + diff);
-}
-
-vec3 get_transparent_color()
-{
-	vec3 fragPos = subpassLoad(transparentPosition).xyz;
-	float fragDepth = subpassLoad(transparentPosition).a;
-	vec3 normal = subpassLoad(transparentNormal).xyz;
-	vec4 albedo = subpassLoad(transparentAlbedo);
-
-	float ambient = 0.15;
-	float diff = 0.4 * diffuse(ubo.position.xyz, fragPos, normal) * attenuation(length(ubo.position.xyz - fragPos), ubo.radius);
-	return albedo.rgb * ubo.color * (ambient + diff);
+	float ambient = 0.1;
+	float diff = 0.6 * diffuse(ubo.position.xyz, fragPos, normal) * atten;
+	float spec = specular(ubo.position.xyz, ubo.viewPos.xyz, fragPos, normal) * atten;
+	return (albedo.rgb) * (ambient + diff) + spec;
 }
 
 void main() 
 {
 	float fragDepth = subpassLoad(transparentPosition).a;
 	
+	vec3 fragPos = subpassLoad(samplerPosition).xyz;
+	vec3 normal = subpassLoad(samplerNormal).xyz;
+	vec4 albedo = subpassLoad(samplerAlbedo);
+	vec3 color = get_color(fragPos, normal, albedo);
+
 	if (fragDepth > 0) {
-		vec3 color = get_color();
-		vec3 tColor = get_transparent_color();
-		float lambda = 0.6;
+		
+		vec3 transFragPos = subpassLoad(transparentPosition).xyz;
+		vec3 transNormal = subpassLoad(transparentNormal).xyz;
+		vec4 transAlbedo = subpassLoad(transparentAlbedo);
+
+		vec3 tColor = get_color(transFragPos, transNormal, transAlbedo);
+		float lambda = 0.4;
 		outColor = vec4((1.0 - lambda) * tColor + lambda * color, 1.0);
 	} else {
-		outColor = vec4(get_color(), 1.0);
+		outColor = vec4(color, 1.0);
 	}
 }

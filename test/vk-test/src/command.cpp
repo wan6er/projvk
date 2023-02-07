@@ -7,7 +7,7 @@
 #include "cvk/command_buffer.h"
 #include "cvk/render_pass.h"
 #include "cvk/framebuffer.h"
-#include "cvk/memorized_image.h"
+#include "cvk/image.h"
 #include "cvk/initialize/command_initialize.h"
 #include "cvk/initialize/surface_initialize.h"
 

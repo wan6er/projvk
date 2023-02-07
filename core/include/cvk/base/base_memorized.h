@@ -20,7 +20,7 @@ static VkMemoryPropertyFlags const MEMORY_WRITABLE_FULL_SPEED = MEMORY_WRITABLE 
     {
     public:
         BaseMemorized(VkDevice device);
-        virtual ~BaseMemorized();
+        virtual ~BaseMemorized() = default;
 
         template<class...__Args>
         VkResult create(VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, VkMemoryPropertyFlags property, __Args&&...args);

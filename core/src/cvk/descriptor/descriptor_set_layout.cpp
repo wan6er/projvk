@@ -43,6 +43,14 @@ DescriptorSetLayout& DescriptorSetLayout::set(uint32_t binding, VkDescriptorType
     return *this;
 }
 
+DescriptorSetLayout DescriptorSetLayout::copy() const
+{
+    DescriptorSetLayout copied_layout(*this);
+    DescriptorSetLayout temp(_device);
+    copied_layout.count_swap(temp);
+    return copied_layout;
+}
+
 DescriptorSetLayout::operator VkDescriptorSetLayout CONST_REFERENCE () const
 {
     return object();
@@ -55,13 +63,11 @@ VkDescriptorSetLayout CONST_REFERENCE DescriptorSetLayout::get_layout() const
 
 VkResult DescriptorSetLayout::create()
 {
-    // _temp_bindings = *this;
-    // std::vector<DescriptorSetLayoutBinding> src_bindings = *this;
-    // if (src_bindings.size() > 0) {
-    //     _temp_bindings.insert(_temp_bindings.end(), src_bindings.begin(), src_bindings.end());
-    // }
     __cvk::get_default_descriptor_set_layout_create_info(*this, _create_info);
-    return __cvk::create_descriptor_set_layout(_device, _create_info, object());
+    if (object() == VK_NULL_HANDLE) {
+        return __cvk::create_descriptor_set_layout(_device, _create_info, object());
+    }
+    return VK_SUCCESS;
 }
 
 VkDescriptorSetLayoutBinding CONST_REFERENCE DescriptorSetLayout::get_layout_binding(uint32_t binding) const

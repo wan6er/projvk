@@ -33,7 +33,7 @@ namespace cvk
         size_t get_size() const;
 
     protected:
-        void release();
+        void deallocate();
 
     private:
         VkDevice _device;

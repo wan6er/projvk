@@ -6,6 +6,7 @@
 #include "cvk/memory.h"
 #include "cvk/swapchain.h"
 #include "cvk/framebuffer.h"
+#include "cvk/image.h"
 #include "cvk/pipe/subpass.h"
 #include "cvk/pipe/base_render_pass.h"
 #include "cvk/image/image_view.h"
@@ -69,18 +70,14 @@ TEST_FUNC_BEGIN("framebuffer")
     render_pass.attaches(color_attachment_desc, depth_attachment_desc, subpass.get_description());
     CHECK(render_pass.create() == VK_SUCCESS);
 
-    cvk::ImageView2D depth_attach(device);
-    CHECK(depth_attach.create(VK_FORMAT_D16_UNORM, width, height, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL) == VK_SUCCESS);
-    cvk::Memory depth_mem(device);
-    CHECK(depth_mem.allocate(device.get_memory_properties(), depth_attach.get_memory_requirement(), VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) == VK_SUCCESS);
-    depth_mem.bind(depth_attach);
-    CHECK(depth_attach.create_image_view(VK_IMAGE_ASPECT_DEPTH_BIT) == VK_SUCCESS);
+    cvk::StandardDepthAttachment2D depth_attach(device);
+    CHECK(depth_attach.create(device.get_memory_properties(), VK_FORMAT_D16_UNORM, width, height) == VK_SUCCESS);
 
     std::vector<cvk::Framebuffer> framebuffers;
     auto CONST_REFERENCE images = swapchain.get_images();
-    std::vector<cvk::ImageView2D> image_views2d;
+    std::vector<cvk::ColorImageView2D> image_views2d;
     for (auto i : images) {
-        CHECK(image_views2d.emplace_back(device, i).create_image_view(swapchain.info()) == VK_SUCCESS);
+        CHECK(image_views2d.emplace_back(device).create(swapchain.get_format(), i) == VK_SUCCESS);
         framebuffers.emplace_back(device, render_pass, width, height).attaches((VkImageView)image_views2d.back(), (VkImageView)depth_attach);
         CHECK(framebuffers.back().create() == VK_SUCCESS);
     }

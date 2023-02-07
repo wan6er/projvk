@@ -6,13 +6,14 @@
 #include "cgltf/gltf_node.h"
 
 #include "cvk/device.h"
-#include "cvk/memorized_image.h"
+#include "cvk/image.h"
 #include "cvk/memorized_buffer.h"
 #include "cvk/fence.h"
 #include "cvk/command_pool.h"
 #include "cvk/command_buffer.h"
 
 #include "utils/vertex_data.h"
+#include "utils/tuple.h"
 
 struct NodeBuffers
 {
@@ -25,6 +26,8 @@ struct NodeBuffers
     {
     }
 };
+
+// typedef utils::TupleUnion<NodeBuffersImpl, cvk::WritableVertexBuffer, cvk::WritableIndexBuffer, cvk::WritableUniformBuffer> NodeBuffers;
 
 struct Vertex
 {
@@ -54,6 +57,7 @@ void load_vertex(cvk::Device CONST_REFERENCE device, std::string filename, std::
         nodes.emplace_back();
         nodes.back().setup_info(VERTEX_DATA_REG_MEMBERS(Vertex, POSITION, NORMAL, COLOR_0, TEXCOORD_0));
         nodes.back().load(gltfModel, node);
+        nodes.back().load_material(gltfModel, node, "COLOR_0");
         i++;
     }
 

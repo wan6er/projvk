@@ -17,6 +17,9 @@ namespace __cvk
     // CVK_API void get_default_descriptor_set_allocate_info(VkDescriptorPool pool, std::vector<VkDescriptorSetLayout> CONST_REFERENCE set_layout, VkDescriptorSetAllocateInfo& alloc_info);
     CVK_API void get_default_descriptor_buffer_info(uint32_t size, VkBuffer buffer, VkDescriptorBufferInfo& info, uint32_t offset = 0);
     CVK_API void get_default_descriptor_image_info(VkSampler sampler, VkImageView image_view, VkImageLayout layout, VkDescriptorImageInfo& info);
+    CVK_API void get_default_write_descriptor_set_info(VkWriteDescriptorSet& info);
+    CVK_API void get_write_descriptor_set_info(VkDescriptorSet set, VkDescriptorType type, uint32_t binding, VkWriteDescriptorSet& info);
+    CVK_API void get_write_descriptor_set_info(std::vector<VkDescriptorImageInfo> CONST_REFERENCE images, std::vector<VkDescriptorBufferInfo> CONST_REFERENCE buffers, VkWriteDescriptorSet& info);
     CVK_API void get_default_descriptor_set_allocate_info(VkDescriptorPool pool, VkDescriptorSetLayout CONST_REFERENCE set_layout, VkDescriptorSetAllocateInfo& alloc_info);
     CVK_API void update_descriptor_set(VkDevice device, std::vector<VkWriteDescriptorSet> CONST_REFERENCE write_info);
     CVK_API VkResult alloc_descriptor_set(VkDevice device, VkDescriptorSetAllocateInfo CONST_REFERENCE alloc_info, VkDescriptorSet& set);

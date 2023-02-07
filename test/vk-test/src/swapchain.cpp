@@ -4,6 +4,7 @@
 #include "cvk/device.h"
 #include "cvk/memory.h"
 #include "cvk/swapchain.h"
+#include "cvk/image.h"
 #include "cvk/image/image_view.h"
 #include "cvk/initialize/surface_initialize.h"
 #include "cvk/initialize/image_initialize.h"
@@ -96,11 +97,11 @@ TEST_FUNC_BEGIN("swapchain")
         std::vector<VkImage> images;
         __cvk::get_swapchain_images(device, swapchain, images);
 
-        VkImageViewCreateInfo image_view_create_info = {};
-        __cvk::get_swapchain_image_view_create_info(swapchain.info(), image_view_create_info);
-        std::vector<cvk::ImageView2D> image_views;
+        // VkImageViewCreateInfo image_view_create_info = {};
+        // __cvk::get_swapchain_image_view_create_info(swapchain.info(), image_view_create_info);
+        std::vector<cvk::ColorImageView2D> image_views;
         for (auto image : images) {
-            result = image_views.emplace_back(device, image).create_image_view(image_view_create_info);
+            result = image_views.emplace_back(device).create(swapchain.get_format(), image);
             CHECK(result == VK_SUCCESS);
         }
     }

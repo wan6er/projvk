@@ -4,77 +4,65 @@
 
 
 
-namespace cvk
+namespace cvk::basic
 {
 
-BaseImage::BaseImage(VkDevice device, VkImage image) :
+Image::Image(VkImage image) :
     utils::BaseObj<VkImage>(image)
 {
-    __cvk::get_default_image_create_info(get_image_info());
+    __cvk::get_default_image_create_info(_create_info);
 }
 
-BaseImage::BaseImage(VkDevice device) :
+Image::Image(VkDevice device) :
     _device(device)
 {
-    __cvk::get_default_image_create_info(get_image_info());
+    __cvk::get_default_image_create_info(_create_info);
 }
 
-BaseImage::~BaseImage()
+Image::~Image()
 {
     if (isolated() && !is_cloned()) {
         release();
     }
 }
 
-BaseImage::operator VkImage CONST_REFERENCE () const
+Image::operator VkImage CONST_REFERENCE () const
 {
     CVK_ASSERT(object() != VK_NULL_HANDLE);
     return object();
 }
 
-void BaseImage::release()
+void Image::release()
 {
     if (_device != VK_NULL_HANDLE && object() != VK_NULL_HANDLE) {
         __cvk::destroy_image(_device, object());
     }
 }
 
-auto BaseImage::get_image_info() -> VkImageCreateInfo&
+void Image::setup(VkFormat format, VkExtent3D CONST_REFERENCE extent, VkImageType type, VkImageLayout image_layout, VkImageUsageFlags usage, VkImageTiling tiling)
 {
-    return _create_info;
+    __cvk::get_image_create_info(format, extent, type, image_layout, usage, tiling, _create_info);
 }
 
-auto BaseImage::get_image_format() const -> VkFormat CONST_REFERENCE
+VkResult Image::create()
 {
-    return _create_info.format;
+    CVK_ASSERT(object() == VK_NULL_HANDLE);
+    _create_info.mipLevels = mip_levels;
+    _create_info.arrayLayers = array_layers;
+    return __cvk::create_image(get_device(), _create_info, object());
 }
 
-auto BaseImage::get_image_extent() const -> VkExtent3D CONST_REFERENCE
-{
-    return _create_info.extent;
-}
-
-auto BaseImage::get_device() const -> VkDevice
+auto Image::get_device() const -> VkDevice
 {
     return _device;
 }
 
-auto BaseImage::get_memory_requirement() const -> VkMemoryRequirements
+auto Image::get_memory_requirement() const -> VkMemoryRequirements
 {
     CVK_ASSERT(_device != VK_NULL_HANDLE);
     VkMemoryRequirements requirement = {};
     __cvk::get_memory_requirement(_device, object(), requirement);
     return requirement;
-}
-
-auto BaseImage::get_subresource() -> Subresource&
-{
-    return *this;
-}
-
-auto BaseImage::get_subresource() const -> Subresource CONST_REFERENCE
-{
-    return *this;
 }
 
 };

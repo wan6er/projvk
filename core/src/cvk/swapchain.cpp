@@ -40,6 +40,18 @@ VkSwapchainCreateInfoKHR &Swapchain::info()
     return _create_info;
 }
 
+VkImageViewCreateInfo Swapchain::get_image_view_info() const
+{
+    VkImageViewCreateInfo return_info;
+    __cvk::get_swapchain_image_view_create_info(_create_info, return_info);
+    return return_info;
+}
+
+VkFormat Swapchain::get_format() const
+{
+    return _create_info.imageFormat;
+}
+
 VkResult Swapchain::create()
 {
     VkResult result = __cvk::create_swapchain_by_info(_device, info(), object());

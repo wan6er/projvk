@@ -8,7 +8,7 @@
 #include "cvk/descriptor.h"
 #include "cvk/render_pass.h"
 #include "cvk/graphics_pipeline.h"
-#include "cvk/memorized_image.h"
+#include "cvk/image.h"
 #include "cvk/memorized_buffer.h"
 #include "cvk/semaphore.h"
 #include "cvk/fence.h"
@@ -126,9 +126,9 @@ int main(int argc, char *argv[])
 
     std::vector<cvk::Framebuffer> framebuffers;
     auto CONST_REFERENCE images = swapchain.get_images();
-    std::vector<cvk::ImageView2D> image_views2d;
+    std::vector<cvk::ColorImageView2D> image_views2d;
     for (auto i : images) {
-        CVK_ASSERT(image_views2d.emplace_back(device, i).create_image_view(swapchain.info()) == VK_SUCCESS);
+        CVK_ASSERT(image_views2d.emplace_back(device).create(swapchain.get_format(), i) == VK_SUCCESS);
         framebuffers.emplace_back(device, render_pass, width, height).attaches(
             (VkImageView)position_attachment,
             (VkImageView)normal_attachment,

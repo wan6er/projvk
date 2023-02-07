@@ -35,10 +35,7 @@ namespace cvk
     class BaseTypeBuffer : public Buffer
     {
     public:
-        BaseTypeBuffer(VkDevice device) : Buffer(device) {}
-        BaseTypeBuffer(VkBuffer buffer) : Buffer(buffer) {}
-        BaseTypeBuffer(BaseTypeBuffer CONST_REFERENCE buffer) = default;
-        virtual ~BaseTypeBuffer() = default;
+        using Buffer::Buffer;
 
         virtual VkResult create(uint32_t size) 
         {

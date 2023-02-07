@@ -9,6 +9,11 @@ DescriptorSetLayoutCallback::DescriptorSetLayoutCallback(DescriptorPool& pool, V
 {
 }
 
+DescriptorSetLayoutCallback::DescriptorSetLayoutCallback(DescriptorPool& pool, VkDevice device, DescriptorSetLayout CONST_REFERENCE layout) :
+    DescriptorSet(device, layout),
+    _descriptor(pool)
+{
+}
 DescriptorSetLayoutCallback& DescriptorSetLayoutCallback::operator=(DescriptorSetLayoutCallback CONST_REFERENCE callback)
 {
     _descriptor = callback._descriptor;

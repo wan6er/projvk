@@ -47,6 +47,30 @@ CVK_API void get_default_descriptor_image_info(VkSampler sampler, VkImageView im
     info.imageLayout = layout;
 }
 
+CVK_API void get_default_write_descriptor_set_info(VkWriteDescriptorSet& info)
+{
+    info = {};
+    info.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+}
+
+CVK_API void get_write_descriptor_set_info(VkDescriptorSet set, VkDescriptorType type, uint32_t binding, VkWriteDescriptorSet& info)
+{
+    info.dstSet = set;
+    info.descriptorType = type;
+    info.dstBinding = binding;
+}
+
+CVK_API void get_write_descriptor_set_info(std::vector<VkDescriptorImageInfo> CONST_REFERENCE images, std::vector<VkDescriptorBufferInfo> CONST_REFERENCE buffers, VkWriteDescriptorSet& info)
+{
+    CVK_ASSERT(!(images.size() > 0 && buffers.size() > 0));
+    uint32_t image_size = 0;
+    uint32_t buffer_size = 0;
+
+    utils::vector_fill_info(images, image_size, info.pImageInfo);
+    utils::vector_fill_info(buffers, buffer_size, info.pBufferInfo);
+    info.descriptorCount = image_size + buffer_size;
+}
+
 CVK_API void get_default_descriptor_set_allocate_info(VkDescriptorPool pool, VkDescriptorSetLayout CONST_REFERENCE set_layout, VkDescriptorSetAllocateInfo& alloc_info)
 {
     alloc_info = {};

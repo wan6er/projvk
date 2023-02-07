@@ -8,7 +8,7 @@
 #include "cvk/descriptor.h"
 #include "cvk/render_pass.h"
 #include "cvk/graphics_pipeline.h"
-#include "cvk/memorized_image.h"
+#include "cvk/image.h"
 #include "cvk/memorized_buffer.h"
 #include "cvk/semaphore.h"
 #include "cvk/fence.h"
@@ -96,9 +96,9 @@ int main()
 
     std::vector<cvk::Framebuffer> framebuffers;
     auto CONST_REFERENCE images = swapchain.get_images();
-    std::vector<cvk::ImageView2D> image_views2d;
+    std::vector<cvk::ColorImageView2D> image_views2d;
     for (auto i : images) {
-        CVK_ASSERT(image_views2d.emplace_back(device, i).create_image_view(swapchain.info()) == VK_SUCCESS);
+        CVK_ASSERT(image_views2d.emplace_back(device).create(swapchain.get_format(), i) == VK_SUCCESS);
         framebuffers.emplace_back(device, render_pass, width, height).attaches((VkImageView)image_views2d.back(), (VkImageView)depth);
         CVK_ASSERT(framebuffers.back().create() == VK_SUCCESS);
     }
@@ -137,17 +137,17 @@ int main()
     CVK_ASSERT(descriptor.create() == VK_SUCCESS);
 
     for (uint32_t i = 0; i < node_buffers.size(); ++i) {
-        cvk::WriteDescriptorSet ubo_copy_set(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0);
+        cvk::WriteDescriptorSet ubo_copy_set;
         ubo_copy_set.attaches(uniform_buffer.get_descriptor_info());
-        ubo_copy_set.update(device, descriptor[i]);
+        ubo_copy_set.setup(descriptor[i], VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0).update(device);
         
-        cvk::WriteDescriptorSet transition_set(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1);
+        cvk::WriteDescriptorSet transition_set;
         transition_set.attaches(node_buffers[i].transform.get_descriptor_info());
-        transition_set.update(device, descriptor[i]);
+        transition_set.setup(descriptor[i], VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1).update(device);
 
-        cvk::WriteDescriptorSet texture_copy_set(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 2);
+        cvk::WriteDescriptorSet texture_copy_set;
         texture_copy_set.attaches(texture.get_descriptor_info(sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
-        texture_copy_set.update(device, descriptor[i]);
+        texture_copy_set.setup(descriptor[i], VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 2).update(device);
     }
 
     cvk::PipelineLayout layout(device);

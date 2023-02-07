@@ -6,7 +6,7 @@
 #include "cvk/command_buffer.h"
 #include "cvk/command/queue.h"
 #include "cvk/fence.h"
-#include "cvk/memorized_image.h"
+#include "cvk/image.h"
 #include "cvk/memorized_buffer.h"
 
 #include "ktx.h"
@@ -14,7 +14,7 @@
 #include <string>
 
 
-TEST_FUNC_BEGIN("texture test")
+TEST_FUNC_BEGIN("texture")
 
     std::vector<std::string> instance_extensions = {
     };

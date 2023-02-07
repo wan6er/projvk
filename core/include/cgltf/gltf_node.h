@@ -29,13 +29,13 @@ namespace cgltf
         
         virtual void setup_info(std::unordered_map<std::string, utils::VertexInfo> CONST_REFERENCE info);
         virtual void load(tinygltf::Model CONST_REFERENCE model, tinygltf::Node CONST_REFERENCE node);
+        virtual void load_material(tinygltf::Model CONST_REFERENCE model, tinygltf::Node CONST_REFERENCE node, std::string CONST_REFERENCE color);
 
         auto get_vertexes() const -> utils::VectexData<_VertexType> CONST_REFERENCE;
         auto get_indices() const -> std::vector<_IndexType> CONST_REFERENCE;
         auto get_transform() const -> NodeTransform CONST_REFERENCE;
 
     protected:
-        void load_vertex_index(tinygltf::Model CONST_REFERENCE model, tinygltf::Node CONST_REFERENCE node);
         void load_vertex(tinygltf::Model CONST_REFERENCE model, tinygltf::Node CONST_REFERENCE node);
         void load_index(tinygltf::Model CONST_REFERENCE model, tinygltf::Node CONST_REFERENCE node);
         void load_matrix(tinygltf::Model CONST_REFERENCE model, tinygltf::Node CONST_REFERENCE node);

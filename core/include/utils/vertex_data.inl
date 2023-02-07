@@ -23,24 +23,12 @@ void VectexData<_VertexType>::register_info(std::unordered_map<std::string, Vert
 }
 
 template<class _VertexType>
-void VectexData<_VertexType>::resize(size_t size) 
-{
-    _data.resize(size);
-}
-
-template<class _VertexType>
-void VectexData<_VertexType>::reserve(size_t size) 
-{
-    _data.reserve(size);
-}
-
-template<class _VertexType>
 void VectexData<_VertexType>::append(std::string CONST_REFERENCE name, void CONST_PTR data_ptr)
 {
     CVK_ASSERT(data_ptr != nullptr);
     size_t cur_index = _append_index[name]++;
-    if (cur_index >= _data.size()) {
-        _data.emplace_back();
+    if (cur_index >= this->objects().size()) {
+        this->objects().emplace_back();
     }
     set(cur_index, name, data_ptr);
 }
@@ -48,30 +36,16 @@ void VectexData<_VertexType>::append(std::string CONST_REFERENCE name, void CONS
 template<class _VertexType>
 void VectexData<_VertexType>::append(_VertexType CONST_REFERENCE vertex)
 {
-    _data.emplace_back(vertex);
+    this->objects().emplace_back(vertex);
 }
 
 template<class _VertexType>
 void VectexData<_VertexType>::set(size_t index, std::string CONST_REFERENCE name, void CONST_PTR data_ptr)
 {
     CVK_ASSERT(data_ptr != nullptr);
-    CVK_ASSERT(index < _data.size());
+    CVK_ASSERT(index < this->objects().size());
     VertexInfo CONST_REFERENCE cur_info = _info[name];
-    memcpy(cur_info.offset + reinterpret_cast<char*>(&_data[index]), data_ptr, cur_info.size);
-}
-
-template<class _VertexType>
-auto VectexData<_VertexType>::operator[](size_t index) -> _VertexType&
-{
-    CVK_ASSERT(index < _data.size());
-    return _data[index];
-}
-
-template<class _VertexType>
-auto VectexData<_VertexType>::operator[](size_t index) const -> _VertexType CONST_REFERENCE
-{
-    CVK_ASSERT(index < _data.size());
-    return _data[index];
+    memcpy(cur_info.offset + reinterpret_cast<char*>(&this->objects()[index]), data_ptr, cur_info.size);
 }
 
 template<class _VertexType>
@@ -87,19 +61,19 @@ auto VectexData<_VertexType>::get_info(std::string CONST_REFERENCE name) const -
 template<class _VertexType>
 size_t VectexData<_VertexType>::get_size() const
 {
-    return _data.size();
+    return this->objects().size();
 }
 
 template<class _VertexType>
 size_t VectexData<_VertexType>::get_data_size() const
 {
-    return _data.size() * sizeof(_VertexType);
+    return this->objects().size() * sizeof(_VertexType);
 }
 
 template<class _VertexType>
 auto VectexData<_VertexType>::get_data() const -> _VertexType CONST_PTR
 {
-    return _data.data();
+    return this->objects().data();
 }
 
 } // namespace utils

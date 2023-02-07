@@ -16,8 +16,5 @@ void main()
 {
 	outPosition = inPosition;
 	outNormal = inNormal;
-	// outAlbedo = vec4(1.0, 1.0, 1.0, 0.1);
 	outAlbedo = texture(samplerTexture, inTexcoord);
-	outAlbedo.a = 0.4;
-	// outColor = vec4(1.0);
 }

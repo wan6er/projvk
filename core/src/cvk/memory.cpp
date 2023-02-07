@@ -17,7 +17,7 @@ Memory::Memory(VkDeviceMemory CONST_REFERENCE memory) :
 Memory::~Memory()
 {
     if (isolated() && !is_cloned()) {
-        release();
+        deallocate();
     }
 }
 
@@ -71,7 +71,7 @@ size_t Memory::get_size() const
     return _info.allocationSize;
 }
 
-void Memory::release()
+void Memory::deallocate()
 {
     if (_device != VK_NULL_HANDLE && object() != VK_NULL_HANDLE) {
         __cvk::free_memory(_device, object());

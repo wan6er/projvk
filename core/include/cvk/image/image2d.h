@@ -1,35 +1,30 @@
 #pragma once
 
-#include "cvk/image/base_image.h"
+#include "cvk/base/base_memorized.h"
+#include "cvk/image/texture.h"
 
 namespace cvk
 {
-    class CVK_API Image2D : public BaseImage
+    
+    class CVK_API Texture2D : public basic::Texture
     {
     public:
-        Image2D(VkDevice device);
-        Image2D(VkDevice device, VkImage image);
-        Image2D(Image2D CONST_REFERENCE image) = default;
-        // Image2D(VkDevice device);
-        ~Image2D();
+        using basic::Texture::Texture;
 
-        VkResult create(VkFormat format, uint32_t width, uint32_t height, VkImageLayout image_layout, VkImageUsageFlags usage, VkImageTiling tiling);
-        // void setup(VkFormat format, uint32_t width, uint32_t height, VkImageUsageFlags usage);
+        VkResult create(VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, VkMemoryPropertyFlags property, 
+            VkFormat format, uint32_t width, uint32_t height, VkImageLayout image_layout, VkImageUsageFlags usage, VkImageTiling tiling, VkImageAspectFlags aspect);
     };
 
-    template<VkImageLayout _Layout, VkImageUsageFlags _Usage, VkImageTiling _Tiling>
-    class BaseTypeImage2D : public Image2D
+    template<VkMemoryPropertyFlags _Property, VkImageLayout _Layout, VkImageUsageFlags _Usage, VkImageTiling _Tiling, VkImageAspectFlags _Aspect>
+    class BaseTypeTexture2D : public Texture2D
     {
     public:
-        BaseTypeImage2D(VkDevice device) : Image2D(device) {}
-        BaseTypeImage2D(VkDevice device, VkImage image) : Image2D(device, image) {}
-        BaseTypeImage2D(BaseTypeImage2D CONST_REFERENCE image) = default;
+        using Texture2D::Texture2D;
 
-        VkResult create(VkFormat format, uint32_t width, uint32_t height)
+        VkResult create(VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, VkFormat format, uint32_t width, uint32_t height)
         {
-            return Image2D::create(format, width, height, _Layout, _Usage, _Tiling);
+            return Texture2D::create(properties, _Property, format, width, height, _Layout, _Usage, _Tiling, _Aspect);
         }
-
     };
 
 };

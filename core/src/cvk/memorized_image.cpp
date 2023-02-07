@@ -1,1 +1,1 @@
-#include "cvk/memorized_image.h"
+#include "cvk/image.h"

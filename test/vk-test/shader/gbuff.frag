@@ -17,5 +17,4 @@ void main()
 	outPosition = inPosition;
 	outNormal = inNormal;
 	outAlbedo = inColor;
-	// outColor = vec4(1.0);
 }

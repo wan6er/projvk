@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cvk/vk_header.h"
+#include "utils/base_objs.h"
 #include "utils/def_utils.h"
 
 #include <unordered_map>
@@ -17,7 +18,7 @@ namespace utils
     };
 
     template<class _VertexType>
-    class VectexData
+    class VectexData : public utils::BaseObjs<_VertexType>
     {
     public:
         // using KeyType = std::string;
@@ -28,8 +29,6 @@ namespace utils
 
         void register_info(std::unordered_map<std::string, VertexInfo> CONST_REFERENCE info);
 
-        void resize(size_t size);
-        void reserve(size_t size);
         void append(std::string CONST_REFERENCE name, void CONST_PTR data_ptr);
         void append(_VertexType CONST_REFERENCE vertex);
         void set(size_t index, std::string CONST_REFERENCE name, void CONST_PTR data_ptr);
@@ -38,13 +37,10 @@ namespace utils
         auto get_info(std::string CONST_REFERENCE name) const -> VertexInfo CONST_REFERENCE;
         auto get_data() const -> _VertexType CONST_PTR;
 
-        auto operator[](size_t index) -> _VertexType&;
-        auto operator[](size_t index) const -> _VertexType CONST_REFERENCE;
-
     private:
         std::unordered_map<std::string, VertexInfo> _info;
         std::unordered_map<std::string, size_t> _append_index;
-        std::vector<_VertexType> _data;
+        // std::vector<_VertexType> _data;
 
     };
 

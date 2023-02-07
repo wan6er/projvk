@@ -19,7 +19,7 @@ namespace cvk
         virtual ~Descriptor();
 
         DescriptorSetLayout& add_layout();
-        // DescriptorSetLayout& get_layout(size_t index);
+        void add_layout(DescriptorSetLayout CONST_REFERENCE layout);
         VkResult create();
 
         DescriptorSetLayoutCallback& operator[](size_t set);

@@ -19,6 +19,12 @@ DescriptorSetLayout& Descriptor::add_layout()
     return layouts.emplace_back(*this, get_device());
 }
 
+void Descriptor::add_layout(DescriptorSetLayout CONST_REFERENCE layout)
+{
+    std::vector<DescriptorSetLayoutCallback>& layouts = *this;
+    layouts.emplace_back(*this, get_device(), layout);
+}
+
 // DescriptorSetLayout& Descriptor::get_layout(size_t index)
 // {
 //     std::vector<DescriptorSetLayoutCallback>& layouts = *this;

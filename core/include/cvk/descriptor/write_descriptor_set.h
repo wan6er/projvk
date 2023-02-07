@@ -11,13 +11,14 @@ namespace cvk
         protected utils::BaseMultipleAttaches<VkDescriptorImageInfo, VkDescriptorBufferInfo>
     {
     public:
-        // explicit WriteDescriptorSet();
-        WriteDescriptorSet(VkDescriptorType type, uint32_t binding);
-        WriteDescriptorSet(VkDescriptorSetLayoutBinding CONST_REFERENCE layout_binding);
+        WriteDescriptorSet();
+        virtual ~WriteDescriptorSet() = default;
 
         template<class...__Args>
-        void attaches(__Args&&...args);
-        void update(VkDevice device, VkDescriptorSet set);
+        auto attaches(__Args&&...args) -> WriteDescriptorSet&;
+        auto setup(VkDescriptorSet set, VkDescriptorType type, uint32_t binding) -> WriteDescriptorSet&;
+        auto setup(VkDescriptorSet set, VkDescriptorSetLayoutBinding CONST_REFERENCE layout_binding) -> WriteDescriptorSet&;
+        void update(VkDevice device) const;
 
         operator VkWriteDescriptorSet CONST_REFERENCE () const;
 

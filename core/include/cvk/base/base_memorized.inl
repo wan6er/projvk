@@ -9,17 +9,18 @@ BaseMemorized<_Base>::BaseMemorized(VkDevice device) :
     Memory(device)
 {
 }
-template<class _Base>
-BaseMemorized<_Base>::~BaseMemorized()
-{
-}
 
 template<class _Base>
 template<class...__Args>
 VkResult BaseMemorized<_Base>::create(VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, VkMemoryPropertyFlags property, __Args&&...args)
 {
     VkResult result = VK_SUCCESS;
-    result = _Base::create(std::forward<__Args>(args)...);
+    
+    if constexpr (sizeof...(args) == 0) {
+        result = _Base::create();
+    } else {
+        result = _Base::create(std::forward<__Args>(args)...);
+    }
     if (result != VK_SUCCESS) {
         goto __RESULT;
     }
@@ -32,8 +33,8 @@ VkResult BaseMemorized<_Base>::create(VkPhysicalDeviceMemoryProperties CONST_REF
 
     result = Memory::bind(*this);
     if (result != VK_SUCCESS) {
-        Memory::release();
         _Base::release();
+        Memory::deallocate();
         goto __RESULT;
     }
 __RESULT:

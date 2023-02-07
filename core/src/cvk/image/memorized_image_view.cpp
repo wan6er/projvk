@@ -1,1 +1,0 @@
-#include "cvk/image/memorized_image_view.h"

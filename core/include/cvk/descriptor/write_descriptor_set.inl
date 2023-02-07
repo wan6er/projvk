@@ -1,19 +1,20 @@
 #pragma once
 
+#include "cvk/initialize/descriptor_initialize.h"
+
 namespace cvk
 {
 
 template<class...__Args>
-void WriteDescriptorSet::attaches(__Args&&...args)
+auto WriteDescriptorSet::attaches(__Args&&...args) -> WriteDescriptorSet&
 {
     BaseAttachesType::attaches(std::forward<__Args>(args)...);
     
-    std::vector<VkDescriptorImageInfo> CONST_REFERENCE image_infos = *this;
-    std::vector<VkDescriptorBufferInfo> CONST_REFERENCE buffer_infos = *this;
+    // std::vector<VkDescriptorImageInfo> CONST_REFERENCE image_infos = *this;
+    // std::vector<VkDescriptorBufferInfo> CONST_REFERENCE buffer_infos = *this;
     
-    _write.descriptorCount = static_cast<uint32_t>(image_infos.size() + buffer_infos.size());
-    _write.pImageInfo = image_infos.size() == 0 ? nullptr : image_infos.data();
-    _write.pBufferInfo = buffer_infos.size() == 0 ? nullptr : buffer_infos.data();
+    __cvk::get_write_descriptor_set_info(*this, *this, _write);
+    return *this;
 }
 
 };

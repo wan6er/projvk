@@ -15,8 +15,11 @@ namespace cvk
         Swapchain(VkDevice device, VkSwapchainCreateInfoKHR CONST_REFERENCE create_info);
         virtual ~Swapchain();
 
-        VkSwapchainCreateInfoKHR& info();
         VkResult create();
+
+        VkSwapchainCreateInfoKHR& info();
+        VkImageViewCreateInfo get_image_view_info() const;
+        VkFormat get_format() const;
         auto get_images() const -> std::vector<VkImage> CONST_REFERENCE;
 
         uint32_t acquire(VkSemaphore signal_semaphore, VkFence signal_fence = VK_NULL_HANDLE);

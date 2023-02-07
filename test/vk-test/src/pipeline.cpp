@@ -107,7 +107,7 @@ void test_descriptor(VkDevice device)
     // set.attaches()
 }
 
-TEST_FUNC_BEGIN("render_pass")
+TEST_FUNC_BEGIN("renderpass")
 
     
     std::vector<std::string> instance_extensions = {

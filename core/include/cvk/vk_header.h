@@ -2,8 +2,8 @@
 
 #include <vulkan/vulkan.h>
 
+#define CVK ::cvk::
 #define CONST_REFERENCE const &
-// #define RIGHT_REFERENCE &&
 #define CONST_PTR const *
 
 #if defined(_WIN32)

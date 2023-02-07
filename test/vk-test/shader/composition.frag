@@ -25,26 +25,42 @@ float diffuse(vec3 pos_light, vec3 pos, vec3 nor)
 	return max(0.0, dot(nor, normalize(view_dir)));
 }
 
+float specular(vec3 pos_light, vec3 pos_camera, vec3 pos, vec3 nor) 
+{
+	vec3 light_dir = normalize(pos_light - pos) + normalize(pos_camera - pos);
+	return pow(max(0.0, dot(normalize(nor), normalize(light_dir))), 4.0);
+	// return 1.0;
+}
+
 float attenuation(float len, float radius) 
 {
 	// return len;
 	len = pow(len / radius, 2.0);
-	return 1.0 - min(1.0, len);
+	return 1.0 - max(min(1.0, len), 0.0);
 }
 
-vec3 get_color()
+vec3 get_color(vec3 fragPos, vec3 normal, vec4 albedo)
 {
-	vec3 fragPos = subpassLoad(samplerPosition).xyz;
-	float fragDepth = subpassLoad(samplerPosition).a;
-	vec3 normal = subpassLoad(samplerNormal).xyz;
-	vec4 albedo = subpassLoad(samplerAlbedo);
+	float atten = attenuation(length(ubo.position.xyz - fragPos), ubo.radius);
 
-	float ambient = 0.15;
-	float diff = 0.4 * diffuse(ubo.position.xyz, fragPos, normal) * attenuation(length(ubo.position.xyz - fragPos), ubo.radius);
-	return albedo.rgb * ubo.color * (ambient + diff);
+	float ambient = 0.05;
+	float diff = 0.3 * diffuse(ubo.position.xyz, fragPos, normal) * atten;
+	float spec = 0.6 * specular(ubo.position.xyz, ubo.viewPos.xyz, fragPos, normal) * atten;
+	return (albedo.rgb) * (ambient + diff) + spec;
+	// return vec3(spec);
 }
 
 void main() 
 {
-	outColor = vec4(get_color(), 1.0);
+	float fragDepth = subpassLoad(samplerPosition).a;
+	if (fragDepth > 0) {
+		vec3 fragPos = subpassLoad(samplerPosition).xyz;
+		vec3 normal = subpassLoad(samplerNormal).xyz;
+		vec4 albedo = subpassLoad(samplerAlbedo);
+
+		outColor = vec4(get_color(fragPos, normal, albedo), 1.0);
+	} else {
+		outColor = vec4(0.0);
+		discard;
+	}
 }

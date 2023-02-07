@@ -13,11 +13,11 @@ cvk::Device::Device(VkPhysicalDevice physical_device, const std::vector<std::str
     __cvk::create_device(physical_device, _indices, extensions_name, features, queue_flag, object());
 }        
 
-cvk::Device::Device(const Device& device) :
-    utils::BaseObj<ObjType>(device),
-    PhysicalDevice(device)
-{
-}
+// cvk::Device::Device(const Device& device) :
+//     utils::BaseObj<ObjType>(device),
+//     PhysicalDevice(device)
+// {
+// }
 
 cvk::Device::~Device()
 {

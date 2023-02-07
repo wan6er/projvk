@@ -15,7 +15,7 @@ namespace cvk
     {
     public:
         Device(VkPhysicalDevice physical_device, const std::vector<std::string> &extensions_name, const VkPhysicalDeviceFeatures& features, uint32_t queue_flag);
-        Device(const Device& device);
+        Device(const Device& device) = default;
         ~Device();
 
         operator VkDevice() const;

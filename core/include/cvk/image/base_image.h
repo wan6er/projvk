@@ -6,34 +6,40 @@
 
 #include "subresource.h"
 
-namespace cvk
+namespace cvk::basic
 {
-    class CVK_API BaseImage : 
-        protected utils::BaseObj<VkImage>, 
-        public Subresource
-    {
-    public:
-        BaseImage(VkDevice device, VkImage image);
-        BaseImage(VkDevice device);
-        BaseImage(BaseImage CONST_REFERENCE image) = default;
-        virtual ~BaseImage();
 
-        operator VkImage CONST_REFERENCE () const;
+class CVK_API Image : 
+    protected utils::BaseObj<VkImage>, 
+    virtual public CVK Subresource
+{
+public:
+    Image(VkImage image);
+    Image(VkDevice device);
+    Image(Image CONST_REFERENCE image) = default;
+    virtual ~Image();
 
-        auto get_memory_requirement() const -> VkMemoryRequirements;
-        auto get_image_info() -> VkImageCreateInfo&;
-        auto get_image_format() const -> VkFormat CONST_REFERENCE;
-        auto get_image_extent() const -> VkExtent3D CONST_REFERENCE;
-        auto get_subresource() -> Subresource&;
-        auto get_subresource() const -> Subresource CONST_REFERENCE;
-    
-    protected:
-        auto get_device() const -> VkDevice;
-        void release();
-    
-    private:
-        VkImageCreateInfo _create_info;
-        VkDevice _device = VK_NULL_HANDLE;
-        // bool _no_release = false;
-    };
+    operator VkImage CONST_REFERENCE () const;
+
+    void setup(VkFormat format, VkExtent3D CONST_REFERENCE extent, VkImageType type, VkImageLayout image_layout, VkImageUsageFlags usage, VkImageTiling tiling);
+    VkResult create();
+
+    auto get_memory_requirement() const -> VkMemoryRequirements;
+    inline auto get_image_info() -> VkImageCreateInfo& { return _create_info; }
+    inline auto get_image_format() -> VkFormat& { return _create_info.format; }
+    inline auto get_image_extent() -> VkExtent3D& { return _create_info.extent; }
+    // auto get_subresource() -> Subresource&;
+    // auto get_subresource() const -> Subresource CONST_REFERENCE;
+
+protected:
+    auto get_device() const -> VkDevice;
+    void release();
+
+private:
+    VkImageCreateInfo _create_info;
+    VkDevice _device = VK_NULL_HANDLE;
+    // bool _no_release = false;
+};
+
+
 };

@@ -3,7 +3,7 @@
 // #define STB_IMAGE_IMPLEMENTATION
 // #define TINYGLTF_NO_STB_IMAGE_WRITE
 #include "cgltf/gltf_node.h"
-#include "utils/tuple_map.h"
+#include "utils/tuple.h"
 #include "utils/vertex_data.h"
 #include "utils/def_utils.h"
 #include <tuple>
@@ -28,7 +28,7 @@
         // static VkPipelineVertexInputStateCreateInfo* getPipelineVertexInputState(const std::vector<VertexComponent> components);
     };
 
-TEST_FUNC_BEGIN("gltf test")
+TEST_FUNC_BEGIN("gltf")
 
     std::string filename = "../test/vk-test/models/samplebuilding.gltf";
     std::string error, warning;

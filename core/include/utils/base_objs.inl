@@ -28,4 +28,28 @@ auto BaseObjs<Obj>::objects() -> std::vector<Obj>&
     return object();
 }
 
+template<class Obj>
+void BaseObjs<Obj>::resize(size_t size)
+{
+    objects().resize(size);
+}
+
+template<class Obj>
+void BaseObjs<Obj>::reserve(size_t size)
+{
+    objects().reserve(size);
+}
+
+template<class Obj>
+auto BaseObjs<Obj>::operator[](size_t index) -> Obj&
+{
+    return objects()[index];
+}
+
+template<class Obj>
+auto BaseObjs<Obj>::operator[](size_t index) const -> Obj CONST_REFERENCE
+{
+    return objects()[index];
+}
+
 };

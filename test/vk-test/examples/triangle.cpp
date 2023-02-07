@@ -5,6 +5,7 @@
 #include "cvk/shader.h"
 #include "cvk/buffer.h"
 #include "cvk/framebuffer.h"
+#include "cvk/image.h"
 
 #include "cvk/sync/sync_set.h"
 
@@ -83,12 +84,8 @@ int main()
     CVK_ASSERT(graphics_index != UINT32_MAX);
     CVK_ASSERT(present_index != UINT32_MAX);
 
-    cvk::ImageView2D depth(device);
-    CVK_ASSERT(depth.create(VK_FORMAT_D16_UNORM, width, height, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL) == VK_SUCCESS);
-    cvk::Memory depth_mem(device);
-    CVK_ASSERT(depth_mem.allocate(device.get_memory_properties(), depth.get_memory_requirement(), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) == VK_SUCCESS);
-    depth_mem.bind(depth);
-    CVK_ASSERT(depth.create_image_view(VK_IMAGE_ASPECT_DEPTH_BIT) == VK_SUCCESS);
+    cvk::StandardDepthAttachment2D depth(device);
+    CVK_ASSERT(depth.create(device.get_memory_properties(), VK_FORMAT_D16_UNORM, width, height) == VK_SUCCESS);
 
     cvk::Sampler sampler(device);
     sampler.create();
@@ -104,9 +101,9 @@ int main()
 
     std::vector<cvk::Framebuffer> framebuffers;
     auto CONST_REFERENCE images = swapchain.get_images();
-    std::vector<cvk::ImageView2D> image_views2d;
+    std::vector<cvk::ColorImageView2D> image_views2d;
     for (auto i : images) {
-        CVK_ASSERT(image_views2d.emplace_back(device, i).create_image_view(swapchain.info()) == VK_SUCCESS);
+        CVK_ASSERT(image_views2d.emplace_back(device).create(swapchain.get_format(), i) == VK_SUCCESS);
         framebuffers.emplace_back(device, render_pass, width, height).attaches((VkImageView)image_views2d.back(), (VkImageView)depth);
         CVK_ASSERT(framebuffers.back().create() == VK_SUCCESS);
     }
@@ -183,9 +180,9 @@ int main()
 
     VkDescriptorBufferInfo ubo_copy_info;
     __cvk::get_default_descriptor_buffer_info(ubo_size, uniform_buffer, ubo_copy_info);
-    cvk::WriteDescriptorSet ubo_copy_set(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0);
+    cvk::WriteDescriptorSet ubo_copy_set;
     ubo_copy_set.attaches(ubo_copy_info);
-    ubo_copy_set.update(device, descriptor[0]);
+    ubo_copy_set.setup(descriptor[0], VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0).update(device);
 
     cvk::CommandPool command_pool(device, graphics_index);
     CVK_ASSERT(command_pool.create() == VK_SUCCESS);

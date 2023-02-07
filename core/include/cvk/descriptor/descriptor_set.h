@@ -20,6 +20,7 @@ namespace cvk
 
         DescriptorSet(VkDevice device, VkDescriptorPool pool);
         DescriptorSet(VkDevice device);
+        DescriptorSet(VkDevice device, DescriptorSetLayout CONST_REFERENCE layout);
         virtual ~DescriptorSet();
 
         operator VkDescriptorSet CONST_REFERENCE () const;

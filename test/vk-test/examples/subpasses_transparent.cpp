@@ -8,7 +8,7 @@
 #include "cvk/descriptor.h"
 #include "cvk/render_pass.h"
 #include "cvk/graphics_pipeline.h"
-#include "cvk/memorized_image.h"
+#include "cvk/image.h"
 #include "cvk/memorized_buffer.h"
 #include "cvk/semaphore.h"
 #include "cvk/fence.h"
@@ -150,9 +150,9 @@ int main()
 
     std::vector<cvk::Framebuffer> framebuffers;
     auto CONST_REFERENCE images = swapchain.get_images();
-    std::vector<cvk::ImageView2D> image_views2d;
+    std::vector<cvk::ColorImageView2D> image_views2d;
     for (auto i : images) {
-        CVK_ASSERT(image_views2d.emplace_back(device, i).create_image_view(swapchain.info()) == VK_SUCCESS);
+        CVK_ASSERT(image_views2d.emplace_back(device).create(swapchain.get_format(), i) == VK_SUCCESS);
         framebuffers.emplace_back(device, render_pass, width, height).attaches(
             (VkImageView)position_attachment,
             (VkImageView)normal_attachment,
@@ -265,10 +265,10 @@ int main()
         glm::vec3 color;
         float radius;
     } light_ubo;
-    light_ubo.position = glm::vec4(10.0, 10.0, 0.0, 1.0);
+    light_ubo.position = glm::vec4(20.0, 20.0, 0.0, 1.0);
     light_ubo.viewPos = glm::vec4(view_pos, 1.0);
     light_ubo.color = glm::vec3(1.0);
-    light_ubo.radius = 20.0;
+    light_ubo.radius = 100.0;
     cvk::WritableUniformBuffer light_ubo_buffer(device);
     CVK_ASSERT(light_ubo_buffer.create(device.get_memory_properties(), sizeof(CompositionUBO)) == VK_SUCCESS);
     CVK_ASSERT(light_ubo_buffer.upload(&light_ubo, sizeof(light_ubo)) == VK_SUCCESS);

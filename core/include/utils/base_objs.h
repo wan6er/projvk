@@ -16,6 +16,7 @@ namespace utils
         void reserve(size_t size);
         auto operator[](size_t index) -> Obj&;
         auto operator[](size_t index) const -> Obj CONST_REFERENCE;
+        inline size_t size() const { return object().size(); }
 
     protected:
         void run_loop(std::function<int(Obj&)> loop_function);

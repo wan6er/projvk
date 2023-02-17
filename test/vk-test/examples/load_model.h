@@ -7,7 +7,7 @@
 
 #include "cvk/device.h"
 #include "cvk/image.h"
-#include "cvk/memorized_buffer.h"
+#include "cvk/buffer.h"
 #include "cvk/fence.h"
 #include "cvk/command_pool.h"
 #include "cvk/command_buffer.h"

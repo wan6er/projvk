@@ -9,7 +9,7 @@
 #include "cvk/render_pass.h"
 #include "cvk/graphics_pipeline.h"
 #include "cvk/image.h"
-#include "cvk/memorized_buffer.h"
+#include "cvk/buffer.h"
 #include "cvk/semaphore.h"
 #include "cvk/fence.h"
 #include "cvk/command_pool.h"

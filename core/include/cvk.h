@@ -6,7 +6,7 @@
 #include "cvk/swapchain.h"
 #include "cvk/memory.h"
 
-#include "cvk/image/image2d.h"
+#include "cvk/image/texture2d.h"
 
 #include "cvk/pipe/base_render_pass.h"
 

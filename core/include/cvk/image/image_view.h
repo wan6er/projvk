@@ -2,7 +2,7 @@
 
 #include "cvk/vk_header.h"
 #include "cvk/image/base_image.h"
-#include "cvk/image/image2d.h"
+#include "cvk/image/texture2d.h"
 #include "utils/base_obj.h"
 
 #include <type_traits>

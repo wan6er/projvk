@@ -3,7 +3,7 @@
 #include "cvk/vk_header.h"
 #include "cvk/base/base_memorized.h"
 #include "cvk/image/base_image_view.h"
-#include "cvk/image/image2d.h"
+#include "cvk/image/texture2d.h"
 
 namespace cvk
 {

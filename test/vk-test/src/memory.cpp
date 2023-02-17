@@ -4,7 +4,7 @@
 #include "cvk/device.h"
 #include "cvk/buffer.h"
 #include "cvk/memory.h"
-#include "cvk/memorized_buffer.h"
+#include "cvk/buffer.h"
 #include "cvk/fence.h"
 #include "cvk/command_buffer.h"
 #include "cvk/command_pool.h"
@@ -106,10 +106,6 @@ TEST_FUNC_BEGIN("memory")
         CHECK(result == VK_SUCCESS);
         result = memory.bind(buffer);
         CHECK(result == VK_SUCCESS);
-    }
-    {
-        cvk::MemorizedBuffer mem_buffer(device);
-        CHECK(mem_buffer.create(device.get_memory_properties(), VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 512, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) == VK_SUCCESS);
     }
     {
         uint32_t transfer_queue_index = device.get_queue_family_index(VK_QUEUE_GRAPHICS_BIT);

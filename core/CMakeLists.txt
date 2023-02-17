@@ -1,24 +1,25 @@
 set(PROJ_NAME "core")
 project(${PROJ_NAME})
 
-include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 file(GLOB PROJ_SRC 
-    ${PROJECT_SOURCE_DIR}/src/*.cpp
-    ${PROJECT_SOURCE_DIR}/src/cgltf/*.cpp
-    ${PROJECT_SOURCE_DIR}/src/cvk/*.cpp
-    ${PROJECT_SOURCE_DIR}/src/cvk/base/*.cpp
-    ${PROJECT_SOURCE_DIR}/src/cvk/image/*.cpp
-    ${PROJECT_SOURCE_DIR}/src/cvk/pipe/*.cpp
-    ${PROJECT_SOURCE_DIR}/src/cvk/sync/*.cpp
-    ${PROJECT_SOURCE_DIR}/src/cvk/command/*.cpp
-    ${PROJECT_SOURCE_DIR}/src/cvk/descriptor/*.cpp
-    ${PROJECT_SOURCE_DIR}/src/cvk/initialize/*.cpp
-    ${PROJECT_SOURCE_DIR}/src/utils/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cgltf/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/base/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/buffer/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/image/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/pipe/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/sync/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/command/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/descriptor/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/initialize/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/*.cpp
 )
 
 if (WIN32) 
-    file(GLOB PROJ_WIN32_SRC ${PROJECT_SOURCE_DIR}/src/win32/*.cpp)
+    file(GLOB PROJ_WIN32_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/*.cpp)
     set(PROJ_SRC "${PROJ_SRC};${PROJ_WIN32_SRC}")
 endif()
 

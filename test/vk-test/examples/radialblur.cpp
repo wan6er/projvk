@@ -9,7 +9,7 @@
 #include "cvk/render_pass.h"
 #include "cvk/graphics_pipeline.h"
 #include "cvk/image.h"
-#include "cvk/memorized_buffer.h"
+#include "cvk/buffer.h"
 #include "cvk/semaphore.h"
 #include "cvk/fence.h"
 #include "cvk/command_pool.h"
@@ -37,6 +37,7 @@
 #include "win32/surface_win32.h"
 #include "win32/win.h"
 #endif
+
 
 int main(int argc, char *argv[])
 {
@@ -144,13 +145,13 @@ int main(int argc, char *argv[])
 
     glm::vec3 view_pos = glm::vec3(0, 0, -20);
     std::vector<glm::mat4> ubo = {
-        glm::scale(glm::mat4(0.5f), glm::vec3(0.5f)),
+        glm::mat4(1.0),
         glm::lookAt(view_pos, glm::vec3(0, 0, 0), glm::vec3(0, -1, 0)),
-        glm::perspective(glm::radians(60.f), static_cast<float>(width / height), 0.1f, 100.0f)
+        glm::perspective(glm::radians(75.f), static_cast<float>(width / height), 0.1f, 100.0f)
     };
     uint32_t ubo_size = sizeof(glm::mat4) * ubo.size();
 
-    
+
     Object glowsphere(device);
     glowsphere.create_uniform(ubo.data(), ubo_size);
     glowsphere.load(graphics_index);
@@ -228,18 +229,45 @@ int main(int argc, char *argv[])
         .attach(VK_SHADER_STAGE_FRAGMENT_BIT, composition_frag_shader);
     CVK_ASSERT(light_pipeline.create() == VK_SUCCESS);
 
-    cvk::CommandPool command_pool(device, graphics_index);
-    CVK_ASSERT(command_pool.create() == VK_SUCCESS);
-
-    cvk::CommandBuffer command_buffer(device, command_pool);
-    CVK_ASSERT(command_buffer.create() == VK_SUCCESS);
-
     cvk::Semaphore acquire_semaphore(device);
     CVK_ASSERT(acquire_semaphore.create() == VK_SUCCESS);
     cvk::Fence wait_fence(device);
     CVK_ASSERT(wait_fence.create() == VK_SUCCESS);
 
     cvk::Queue graphics_queue(device, graphics_index);
+
+    auto prepare_command = [&] (cvk::CommandBuffer cmd_buf, VkFramebuffer framebuffer)
+    {
+        CVK_ASSERT(cmd_buf.begin(0) == VK_SUCCESS);
+
+        VkRenderPassBeginInfo begin_renderpass_info;
+        __cvk::get_default_begin_renderpass_info(render_pass, framebuffer, clear_values, render_area, begin_renderpass_info);
+        cmd_buf.cmd().begin_renderpass(begin_renderpass_info);
+
+        cmd_buf.cmd().bind_pipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, obj_pipeline);
+        glowsphere.record_draw_command(cmd_buf.cmd());
+
+        cmd_buf.cmd().next_subpass();
+
+        {
+            cmd_buf.cmd().bind_pipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, light_pipeline);
+            cmd_buf.cmd().bind_descriptor_sets(VK_PIPELINE_BIND_POINT_GRAPHICS, light_layout, { light_descriptor[0] });
+            cmd_buf.cmd().draw(6);
+        }
+
+        cmd_buf.cmd().end_renderpass();
+        cmd_buf.end();
+    };
+
+    cvk::CommandPool command_pool(device, graphics_index);
+    CVK_ASSERT(command_pool.create() == VK_SUCCESS);
+
+    cvk::CommandBufferSet command_buffers(device, command_pool, framebuffers.size());
+    command_buffers.create();
+    for (uint32_t i = 0; i < command_buffers.size(); ++i) {
+        prepare_command(command_buffers[i], framebuffers[i]);
+    }
+
 
     utils::Stopwatch benchmark;
     benchmark.start();
@@ -253,30 +281,9 @@ int main(int argc, char *argv[])
 
         uint32_t cur_index = swapchain.acquire(acquire_semaphore);
 
-        CVK_ASSERT(command_buffer.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) == VK_SUCCESS);
-
-        VkRenderPassBeginInfo begin_renderpass_info;
-        __cvk::get_default_begin_renderpass_info(render_pass, framebuffers[cur_index], clear_values, render_area, begin_renderpass_info);
-        command_buffer.cmd().begin_renderpass(begin_renderpass_info);
-
-        command_buffer.cmd().bind_pipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, obj_pipeline);
-
-        glowsphere.record_draw_command(command_buffer.cmd());
-
-        command_buffer.cmd().next_subpass();
-        
-        {
-            command_buffer.cmd().bind_pipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, light_pipeline);
-            command_buffer.cmd().bind_descriptor_sets(VK_PIPELINE_BIND_POINT_GRAPHICS, light_layout, { light_descriptor[0] });
-            command_buffer.cmd().draw(6);
-        }
-
-        command_buffer.cmd().end_renderpass();
-        command_buffer.end();
-
         graphics_queue
             .set_wait(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, { acquire_semaphore })
-            .submit({ command_buffer }, wait_fence);
+            .submit({ command_buffers[cur_index] }, wait_fence);
 
         time += benchmark.lap();
         if (time_i++ == 5000) {
@@ -284,9 +291,13 @@ int main(int argc, char *argv[])
             time = 0;
             time_i = 0;
         }
+
+        ubo[0] = glm::rotate(ubo[0], 0.0001f, glm::vec3(0, 1, 0));
         
         CVK_ASSERT(wait_fence.wait() == VK_SUCCESS);
         CVK_ASSERT(wait_fence.reset() == VK_SUCCESS);
+
+        glowsphere.get_uniform().upload(ubo.data(), ubo_size);
 
         swapchain.present(graphics_queue, {});
 

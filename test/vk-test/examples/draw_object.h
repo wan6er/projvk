@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cvk/descriptor.h"
-#include "cvk/memorized_buffer.h"
+#include "cvk/buffer.h"
 #include "load_model.h"
 #include "load_texture.h"
 
@@ -75,6 +75,8 @@ public:
     {
         return _layout;
     }
+
+    inline cvk::MemoryBuffer& get_uniform() { return _uniform; }
 
 protected:
 

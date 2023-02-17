@@ -29,13 +29,14 @@ out gl_PerVertex
 
 void main() 
 {
-	vec4 worldPos = ubo.modelMatrix * model.transform * vec4(position.xyz, 1.0);
+	mat4 model_trans = ubo.modelMatrix * model.transform;
+	vec4 worldPos = model_trans * vec4(position.xyz, 1.0);
 	gl_Position = ubo.projectionMatrix * ubo.viewMatrix * worldPos;
 	
 	outTexcoord = texcoord;
 	outColor = vec4(color, 1.0);
 	outPosition = vec4(worldPos.xyz, gl_Position.a);
 
-	// mat3 mNormal = transpose(inverse(mat3(model.transform)));
-	outNormal = vec4(normalize(normal), 1.0);
+	mat3 mNormal = transpose(inverse(mat3(model_trans)));
+	outNormal = vec4(mNormal * normalize(normal), 1.0);
 }

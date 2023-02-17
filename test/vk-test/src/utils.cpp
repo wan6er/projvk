@@ -164,6 +164,7 @@ TEST_FUNC_BEGIN("template sort")
     CHECK(test_max1.index == 3);
     CHECK(test_max1.max == 10);
 
+
     using unsort_seq = utils::Sequence<int, 13, 6, 50, 10, 18>;
     using sorted_seq = utils::InsertionSort<unsort_seq>;
     constexpr auto sorted_tuple = utils::MakeTupleFromSequence<sorted_seq>;

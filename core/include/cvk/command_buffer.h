@@ -10,6 +10,7 @@ namespace cvk
     typedef BaseCommandBufferPrimary<BaseCommandPrimary> CommandBuffer;
     typedef BaseCommandBufferSecondary<BaseCommandSecondary> CommandBufferSecondary;
 
-    typedef BaseCommandBufferSet<CommandBufferSecondary, VK_COMMAND_BUFFER_LEVEL_SECONDARY> CommandBufferSet;
+    typedef BaseCommandBufferSet<CommandBuffer, VK_COMMAND_BUFFER_LEVEL_PRIMARY> CommandBufferSet;
+    typedef BaseCommandBufferSet<CommandBufferSecondary, VK_COMMAND_BUFFER_LEVEL_SECONDARY> CommandBufferSecondarySet;
 
 } // namespace cvk

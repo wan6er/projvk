@@ -1,6 +1,6 @@
 #include "thread_pool.h"
 
-namespace cperf
+namespace utils
 {
     
 ThreadPool::ThreadPool(size_t size) :
@@ -20,26 +20,42 @@ ThreadPool::~ThreadPool()
 void ThreadPool::push(TaskType task)
 {
     _tasks->push(task);
+    _notify_all();
 }
 
 void ThreadPool::start()
 {
     _tasks->start();
+    _notify_all();
 }
 
 void ThreadPool::pause()
 {
     _tasks->pause();
+    _notify_all();
 }
 
 void ThreadPool::stop()
 {
     _tasks->stop();
+    _notify_all();
 }
 
 void ThreadPool::wait_done()
 {
-    _tasks->wait_all_tasks_done();
+    for (auto& exec : _execs) {
+        // exec.notify();
+        exec.wait_task();
+    }
+    // _tasks->wait_all_tasks_done();
+    // _notify_all();
+}
+    
+void ThreadPool::_notify_all()
+{
+    for (auto& exec : _execs) {
+        exec.notify();
+    }
 }
 
 void ThreadPool::_init_executors(size_t size)

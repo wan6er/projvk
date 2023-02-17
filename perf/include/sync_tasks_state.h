@@ -9,7 +9,7 @@
 #include <atomic>
 #include <functional>
 
-namespace cperf
+namespace utils
 {
 
 enum class ThreadState
@@ -38,11 +38,11 @@ public:
 
     void wait_task();
     void signal_task();
-    void wait_all_tasks_done();
-    void signal_all_tasks_done();
+    // void wait_all_tasks_done();
+    // void signal_all_tasks_done();
     void wait_finish_done();
-    void wait_pause();
-    void notify_one();
+    // void wait_pause();
+    // void notify_one();
 
     auto get_queue() -> ATTaskQueue& { return queue; }
     auto get_state() -> ThreadState { return state; }
@@ -54,12 +54,6 @@ protected:
 private:
     std::mutex _push_mtx;
     std::condition_variable _push_cv;
-
-    std::mutex _tasks_mtx;
-    std::condition_variable _tasks_cv;
-
-    std::mutex _mtx;
-    std::condition_variable _cv;
 
 };
 

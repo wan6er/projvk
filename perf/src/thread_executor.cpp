@@ -2,18 +2,18 @@
 
 #include <iostream>
 
-namespace cperf
+namespace utils
 {
 
 ThreadExecutor::ThreadExecutor(TasksStateType state) :
     _state(state),
-    _thr(&ThreadExecutor::task_loop, this)
+    _thr(&ThreadExecutor::_task_loop, this)
 {
 }
 
 ThreadExecutor::ThreadExecutor(ThreadExecutor const& exec) :
     _state(exec._state),
-    _thr(&ThreadExecutor::task_loop, this)
+    _thr(&ThreadExecutor::_task_loop, this)
 {
 }
 
@@ -31,27 +31,51 @@ void ThreadExecutor::join()
 ThreadExecutor& ThreadExecutor::operator=(ThreadExecutor const& exec)
 {
     _state = exec._state;
-    _thr = std::thread(&ThreadExecutor::task_loop, this);
+    _thr = std::thread(&ThreadExecutor::_task_loop, this);
     return *this;
 }
 
-void ThreadExecutor::task_loop()
+void ThreadExecutor::notify()
 {
-    
+    _pause_cv.notify_one();
+}
+
+void ThreadExecutor::_wait_pause()
+{
+    std::unique_lock<std::mutex> locker(_pause_mtx);
+    _pause_cv.wait(locker, [this]() -> bool { return _state->get_state() != ThreadState::PAUSE; });
+}
+
+void ThreadExecutor::wait_task()
+{
+    std::unique_lock<std::mutex> locker(_tasks_mtx);
+    _tasks_cv.wait(locker, [this]() -> bool { return _has_waited; });
+}
+
+void ThreadExecutor::_notify_taskover()
+{
+    if (_state->get_queue().size() == 0) {
+        _tasks_cv.notify_one();
+    }
+}
+
+void ThreadExecutor::_task_loop()
+{
     while (_state->get_state() != ThreadState::STOPPED) {
-        _state->wait_task();
-        // std::cout << std::this_thread::get_id() << " => wait_task\n";
 
         auto local_task = _state->get_queue().pop_front();
         if (local_task) {
             (*local_task)();
-            // std::cout << std::this_thread::get_id() << " => proc task\n";
+        } else {
+            _has_waited.store(true);
+            _notify_taskover();
+            _state->wait_task();
+            _has_waited.store(false);
         }
 
-        _state->signal_all_tasks_done();
+        // _state->signal_all_tasks_done();
         _state->wait_finish_done();
-        _state->wait_pause();
-        // std::cout << std::this_thread::get_id() << " => wait_pause\n";
+        _wait_pause();
     }
 }
 

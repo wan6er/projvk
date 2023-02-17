@@ -8,7 +8,7 @@
 
 #include <vector>
 
-namespace cperf
+namespace utils
 {
 
 class CPERF_API ThreadPool
@@ -30,6 +30,7 @@ public:
     void wait_done();
 
 private:
+    void _notify_all();
     void _init_executors(size_t size);
 
     _ExecutorsType _execs;

@@ -1,5 +1,7 @@
 #include "thread_pool.h"
 
+#include <iostream>
+
 namespace utils
 {
     
@@ -43,12 +45,12 @@ void ThreadPool::stop()
 
 void ThreadPool::wait_done()
 {
+    // for (auto& exec : _execs) {
+    //     std::cout << exec._thr.get_id() << ":" << exec._has_waited.load() << "\n";
+    // }
     for (auto& exec : _execs) {
-        // exec.notify();
         exec.wait_task();
     }
-    // _tasks->wait_all_tasks_done();
-    // _notify_all();
 }
     
 void ThreadPool::_notify_all()

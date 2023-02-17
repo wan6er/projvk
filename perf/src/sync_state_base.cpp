@@ -56,24 +56,4 @@ void SyncTasksState::wait_finish_done()
     }
 }
 
-// void SyncTasksState::wait_all_tasks_done()
-// {
-//     std::unique_lock<std::mutex> locker(_tasks_mtx);
-//     _tasks_cv.wait(locker, [this]() -> bool { return queue.size() == 0; });
-// }
-
-// void SyncTasksState::signal_all_tasks_done()
-// {
-//     if (queue.size() == 0) {
-//         _tasks_cv.notify_one();
-//     }
-// }
-
-// void SyncTasksState::wait_pause()
-// {
-//     std::unique_lock<std::mutex> locker(_mtx);
-//     _cv.wait(locker, [this]() -> bool { return state != ThreadState::PAUSE; });
-// }
-
-
 }

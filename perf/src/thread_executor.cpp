@@ -48,14 +48,8 @@ void ThreadExecutor::_wait_pause()
 
 void ThreadExecutor::wait_task()
 {
-    std::unique_lock<std::mutex> locker(_tasks_mtx);
-    _tasks_cv.wait(locker, [this]() -> bool { return _has_waited; });
-}
-
-void ThreadExecutor::_notify_taskover()
-{
-    if (_state->get_queue().size() == 0) {
-        _tasks_cv.notify_one();
+    while (!_has_waited) {
+        std::this_thread::yield();
     }
 }
 
@@ -68,12 +62,10 @@ void ThreadExecutor::_task_loop()
             (*local_task)();
         } else {
             _has_waited.store(true);
-            _notify_taskover();
             _state->wait_task();
             _has_waited.store(false);
         }
 
-        // _state->signal_all_tasks_done();
         _state->wait_finish_done();
         _wait_pause();
     }

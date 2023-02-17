@@ -38,9 +38,6 @@ private:
     std::mutex _pause_mtx;
     std::condition_variable _pause_cv;
     
-    std::mutex _tasks_mtx;
-    std::condition_variable _tasks_cv;
-
     std::atomic<bool> _has_waited = false;
 };
 

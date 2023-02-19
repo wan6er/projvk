@@ -6,7 +6,7 @@
 #define CONST_REFERENCE const &
 #define CONST_PTR const *
 
-#if defined(_WIN32)
+#if defined(WIN32)
 
 #include <windows.h>
 #include <vulkan/vulkan_win32.h>
@@ -20,18 +20,37 @@
 // #define CVK_API
 #endif
 
+#elif defined(linux)
+
+#if defined(BUILD_CVK)
+#define CVK_API 
+#else
+#define CVK_API 
+#endif
+
 #endif
 
 #if defined(NDEBUG)
 
 #define CVK_ASSERT(expression) ((void)0)
 
-#elif !defined(NDEBUG) && defined(WIN32)
+#else 
+
+#include <iostream>
+
+#if defined(WIN32)
 
 extern "C" __declspec(dllimport) void DebugBreak();
 
 #define CVK_PRINT_FILE_LINE(msg, ...) printf("%s:%d error %s :" msg "\n", __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
 #define CVK_ASSERT(expression) do { if (!(expression)) { CVK_PRINT_FILE_LINE("%s", #expression); DebugBreak(); } } while (false)
+
+#elif defined(linux)
+
+#define CVK_PRINT_FILE_LINE(msg, ...) printf("%s:%d error %s :" msg "\n", __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
+#define CVK_ASSERT(expression) do { if (!(expression)) { CVK_PRINT_FILE_LINE("%s", #expression); __builtin_trap(); } } while (false)
+
+#endif
 
 #endif
 

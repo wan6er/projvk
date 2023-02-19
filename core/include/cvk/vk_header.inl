@@ -1,6 +1,5 @@
 #pragma once
 
-#include <iostream>
 #include <type_traits>
 
 template<class _Func, class _Properties, class..._Args>

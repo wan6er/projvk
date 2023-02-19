@@ -62,9 +62,9 @@ public:
         head = (_PtrDiff)val;
     }
     
-    constexpr auto get_head_ptr() 
+    constexpr auto get_head_ptr() -> NodePtrType
     {
-        return NodePtrType(head);
+        return reinterpret_cast<NodePtrType>(head);
     }
 
     template<typename __Ty>
@@ -73,9 +73,9 @@ public:
         tail = (_PtrDiff)val;
     }
 
-    constexpr auto get_tail_ptr() 
+    constexpr auto get_tail_ptr() -> NodePtrType
     {
-        return NodePtrType(tail);
+        return reinterpret_cast<NodePtrType>(tail);
     }
     
     template<typename __Ty1, typename __Ty2>
@@ -111,7 +111,12 @@ public:
     {
         auto node = new_node(t);
         auto cur_flag = _flag.load();
-        while (!_flag.compare_exchange_weak(cur_flag, _unsafe_push_back(cur_flag, node)));
+        NodePtrType cur_tail = nullptr;
+        while (!_flag.compare_exchange_weak(cur_flag, _unsafe_push_back(cur_flag, node, cur_tail)));
+
+        if (cur_tail != nullptr) {
+            cur_tail->next = node;
+        }
     }
     
     constexpr std::optional<ValueType> pop_front()
@@ -127,6 +132,15 @@ public:
         }
         return {};
     }
+    
+    constexpr std::optional<NodePtrType> get_head()
+    {
+        auto flag = _flag.load();
+        if (flag.size > 0) {
+            return flag.get_head_ptr();
+        }
+        return {};
+    }
 
     constexpr auto flag() const -> FlagType 
     {
@@ -139,14 +153,15 @@ public:
     }
 
 protected:
-    constexpr FlagType _unsafe_push_back(FlagType const& flag, NodePtrType node)
+    constexpr FlagType _unsafe_push_back(FlagType const& flag, NodePtrType node, NodePtrType& tail)
     {
         FlagType ret(flag);
-        if (ret.head == 0 || ret.tail == 0) {
+        if (ret.size == 0) {
             ret.set(node, node);
         } else {
-            ret.get_tail_ptr()->next = node;
-            ret.set_tail(ret.get_tail_ptr()->next);
+            // ret.get_tail_ptr()->next = node;
+            tail = ret.get_tail_ptr();
+            ret.set_tail(node);
         }
         ret.size++;
         return ret;

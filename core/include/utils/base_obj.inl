@@ -15,9 +15,10 @@ constexpr BaseObj<Obj>::BaseObj() :
 
 template <class Obj>
 constexpr BaseObj<Obj>::BaseObj(const Obj& obj) : 
+    ClonedObj(true),
     _obj(obj)
 {
-    ClonedObj::clone();
+    // ClonedObj::clone();
     _count = new int(1);
 }
 

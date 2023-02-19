@@ -1,5 +1,7 @@
 #include "cvk/initialize/win32_initialize.h"
 
+#if defined(WIN32)
+
 namespace __cvk
 {
 
@@ -14,3 +16,5 @@ VkResult create_win32_surface(VkInstance instance, HINSTANCE hInstance, HWND hWn
 }
 
 };
+
+#endif

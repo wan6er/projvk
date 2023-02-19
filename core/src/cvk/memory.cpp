@@ -1,6 +1,8 @@
 #include "cvk/memory.h"
 #include "cvk/initialize/memory_initialize.h"
 
+#include <memory.h>
+
 namespace cvk
 {
 
@@ -83,7 +85,7 @@ VkResult Memory::upload(void CONST_PTR data, size_t size, size_t offset)
     void* device_ptr = nullptr;
     VkResult result = map(device_ptr, offset);
     if (result == VK_SUCCESS) {
-        memcpy(device_ptr, data, size);
+        ::memcpy(device_ptr, data, size);
         unmap();
     }
     return result;

@@ -10,29 +10,36 @@
 namespace utils
 {
 
-class CPERF_API ThreadExecutor
+class CPERF_API BaseThreadExecutor
 {
 public:
     using TaskType = SyncTasksState::TaskType;
     using TasksStateType = std::shared_ptr<SyncTasksState>;
 
-    ThreadExecutor(TasksStateType state);
-    ThreadExecutor(ThreadExecutor const& exec);
-    virtual ~ThreadExecutor();
+    BaseThreadExecutor(TasksStateType state);
+    BaseThreadExecutor(BaseThreadExecutor const& exec);
+    virtual ~BaseThreadExecutor();
     
-    ThreadExecutor& operator=(ThreadExecutor const& exec);
+    BaseThreadExecutor& operator=(BaseThreadExecutor const& exec);
 
     void join();
-    void notify();
+    virtual void notify();
     // bool running() const { return !_is_pause; }
     void wait_task();
 
-private:
-    void _task_loop();
-    void _wait_pause();
-    void _notify_taskover();
+protected:
+    void _wait(std::function<bool()> compare);
+
+    virtual void _wait_pause();
+    virtual void _wait_task_push();
     
     TasksStateType _state;
+
+private:
+    void _task_loop();
+    
+    // void _notify_taskover();
+    
     std::thread _thr;
 
     std::mutex _pause_mtx;

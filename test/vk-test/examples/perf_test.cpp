@@ -19,7 +19,7 @@ void queue_del_num(utils::SyncQueue<int>& deque, int start, int end)
 
 void test_queue()
 {
-        constexpr int COUNT = 10000;
+        constexpr int COUNT = 5000;
 
     auto start = std::chrono::system_clock::now();
     
@@ -27,10 +27,11 @@ void test_queue()
     {
 
         std::thread thr1([&] { queue_add_num(deque1, 0, COUNT); });
-        std::thread thr2([&] { queue_add_num(deque1, 0, COUNT); });
+        std::thread thr2([&] { queue_add_num(deque1, COUNT, 2 * COUNT); });
 
         thr1.join();
         thr2.join();
+
         
         std::thread dthr1([&] { queue_del_num(deque1, 0, COUNT); });
         std::thread thr3([&] { queue_add_num(deque1, 0, COUNT); });
@@ -38,7 +39,12 @@ void test_queue()
         thr3.join();
     }
     auto time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
-    
+
+    auto head = deque1.get_head().value();
+    for (size_t i = 0; i < deque1.size() - 1; ++i) {
+        head = head->next;
+    }
+
     start = std::chrono::system_clock::now();
     
     {
@@ -72,7 +78,7 @@ void test_pool()
     
     int a = 0;
     {
-        utils::ThreadPool tasks(32);
+        utils::ThreadPool tasks(8);
         tasks.pause();
 
         for (int i = 0; i < 10000; ++i) {
@@ -85,18 +91,18 @@ void test_pool()
         tasks.start();
         tasks.wait_done();
         auto time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
-        std::cout << "process time:" << time.count() << " ";
+        // std::cout << "process time:" << time.count() << " ";
 
         tasks.pause();
         tasks.push([&]() {
-            // for (int i = 0; i < 10000; ++i) {
-            //     // std::this_thread::yield();
-            //     a++;
-            // }
+            for (int i = 0; i < 10000; ++i) {
+                // std::this_thread::yield();
+                a++;
+            }
         });
         start = std::chrono::system_clock::now();
         tasks.start();
-        tasks.wait_done();
+        tasks.wait_done();        
         auto cmp_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
         std::cout << "process time:" << time.count() << " " << cmp_time.count() << " ";
     }
@@ -105,6 +111,9 @@ void test_pool()
 
 int main()
 {
-    // test_queue();
-    test_pool();
+    for (int i = 0; i < 100; ++i) {
+        test_queue();
+        test_pool();
+        std::cout << "\n";
+    }
 }

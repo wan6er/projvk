@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sstream>
+#include <memory.h>
 
 namespace utils
 {
@@ -45,7 +46,7 @@ void VectexData<_VertexType>::set(size_t index, std::string CONST_REFERENCE name
     CVK_ASSERT(data_ptr != nullptr);
     CVK_ASSERT(index < this->objects().size());
     VertexInfo CONST_REFERENCE cur_info = _info[name];
-    memcpy(cur_info.offset + reinterpret_cast<char*>(&this->objects()[index]), data_ptr, cur_info.size);
+    ::memcpy(cur_info.offset + reinterpret_cast<char*>(&this->objects()[index]), data_ptr, cur_info.size);
 }
 
 template<class _VertexType>

@@ -19,7 +19,7 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
-    endif()
+endif()
 
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
@@ -34,8 +34,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 
-set(SDL2_DIR "C:/SDL2/msvc/cmake")
-find_package(SDL2 REQUIRED)
+# set(SDL2_DIR "C:/SDL2/msvc/cmake")
+# find_package(SDL2 REQUIRED)
 find_package(Vulkan REQUIRED)
 find_package(core)
 find_package(perf)
@@ -43,7 +43,7 @@ find_package(perf)
 # add_definitions(-DDLL_EXPORT)
 
 # glm
-# set(glm_INCLUDE_DIR external/glm)
+set(glm_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/external/glm)
 
 # glm
 set(tinygltf_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/external/tinygltf)

@@ -4,7 +4,7 @@ namespace cvk
 {
 
 Subresource::Subresource() noexcept :
-    aspect(VK_IMAGE_ASPECT_NONE),
+    aspect(VK_IMAGE_ASPECT_NONE_KHR),
     mip_levels(1),
     array_layers(1)
 {

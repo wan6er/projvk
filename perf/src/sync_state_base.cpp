@@ -9,9 +9,14 @@ SyncTasksState::~SyncTasksState()
 
 void SyncTasksState::push(TaskType task)
 {
-    queue.push_back(task);
+    queue.push(task);
     // _cv.notify_one();
     signal_task();
+}
+
+auto SyncTasksState::pop() -> std::optional<TaskType>
+{
+    return queue.pop();
 }
 
 void SyncTasksState::start()
@@ -36,6 +41,16 @@ void SyncTasksState::wait_finish()
 {
     state = ThreadState::WAIT_FINISH;
     _push_cv.notify_all();
+}
+
+void SyncTasksState::signal_pause()
+{
+    _pause_cv.notify_all();
+}
+void SyncTasksState::wait_pause()
+{
+    std::unique_lock<std::mutex> locker(_pause_mtx);
+    _pause_cv.wait(locker, [this]() -> bool { return state != ThreadState::PAUSE; });
 }
 
 void SyncTasksState::wait_task()

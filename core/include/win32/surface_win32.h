@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(WIN32)
+
 #include "cvk/vk_header.h"
 #include "cvk/surface.h"
 
@@ -12,3 +14,5 @@ namespace cvk
         ~SurfaceWin32();
     };
 };
+
+#endif

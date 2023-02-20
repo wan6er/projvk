@@ -1,6 +1,8 @@
 #include "win32/win.h"
 #include "clog.h"
 
+#if defined(WIN32)
+
 #include <Windows.h>
 
 
@@ -140,3 +142,5 @@ void __win::destroy_win(HWND hWnd)
 {
     DestroyWindow(hWnd);
 }
+
+#endif

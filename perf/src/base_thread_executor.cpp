@@ -41,13 +41,14 @@ void BaseThreadExecutor::notify()
 
 void BaseThreadExecutor::_wait_pause()
 {
-    std::unique_lock<std::mutex> locker(_pause_mtx);
-    _pause_cv.wait(locker, [this]() -> bool { return _state->get_state() != ThreadState::PAUSE; });
+    // std::unique_lock<std::mutex> locker(_pause_mtx);
+    // _pause_cv.wait(locker, [this]() -> bool { return _state->get_state() != ThreadState::PAUSE; });
+    _state->wait_pause();
 }
 
 void BaseThreadExecutor::_wait_task_push()
 {
-    _wait([this]() { return _state->get_queue().size() > 0 || _state->get_state() != ThreadState::RUNNING; });
+    _wait([this]() { return _state->size() > 0 || _state->get_state() != ThreadState::RUNNING; });
 }
 
 
@@ -60,6 +61,7 @@ void BaseThreadExecutor::_wait(std::function<bool()> predicate)
 
 void BaseThreadExecutor::wait_task()
 {
+    _state->signal_pause();
     _wait([this]() { return _has_waited.load(); });
 }
 
@@ -67,7 +69,7 @@ void BaseThreadExecutor::_task_loop()
 {
     while (_state->get_state() != ThreadState::STOPPED) {
 
-        auto local_task = _state->get_queue().pop_front();
+        auto local_task = _state->pop();
         if (local_task) {
             (*local_task)();
         } else {

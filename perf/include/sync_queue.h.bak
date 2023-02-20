@@ -3,6 +3,8 @@
 
 #include <atomic>
 #include <memory>
+#include <thread>
+#include <mutex>
 #include <optional>
 
 namespace utils
@@ -102,28 +104,50 @@ class SyncQueue
     using NodePtrType = _PtrType<NodeType>;
     using FlagType = _SyncDequeFlag<_Ty>;
     using LockFreeFlagType = std::atomic<FlagType>;
+    using LockFreeNum = std::atomic<size_t>;
 
 public:
-    constexpr SyncQueue() noexcept = default;
-    constexpr SyncQueue(SyncQueue const&) = default;
+    SyncQueue() noexcept = default;
+    SyncQueue(SyncQueue const&) = default;
+    ~SyncQueue()
+    {
+        clean();
+    }
 
-    constexpr void push_back(_Ty const& t)
+    void push_back(_Ty const& t)
     {
         auto node = new_node(t);
         auto cur_flag = _flag.load();
         NodePtrType cur_tail = nullptr;
-        while (!_flag.compare_exchange_weak(cur_flag, _unsafe_push_back(cur_flag, node, cur_tail)));
+
+        ++_head_count;
+        while (!_flag.compare_exchange_weak(cur_flag, _unsafe_push_back(cur_flag, node, cur_tail))) {
+            std::this_thread::yield();
+        }
 
         if (cur_tail != nullptr) {
             cur_tail->next = node;
         }
+        --_head_count;
     }
     
-    constexpr std::optional<ValueType> pop_front()
+    std::optional<ValueType> pop_front()
     {
+        size_t Zero = 0;
         NodePtrType node = nullptr;
+
+        // std::lock_guard<std::mutex> locker(_pop_mtx);
+
+        while (!_head_count.compare_exchange_strong(Zero, 1)) {
+            std::this_thread::yield();
+        }
+
         auto cur_flag = _flag.load();
-        while (!_flag.compare_exchange_weak(cur_flag, _unsafe_pop_front(cur_flag, node)));
+        while (!_flag.compare_exchange_weak(cur_flag, _unsafe_pop_front(cur_flag, node))) {
+            std::this_thread::yield();
+        }
+
+        _head_count = Zero;
 
         if (node != nullptr) {
             auto ret = node->val;
@@ -133,7 +157,7 @@ public:
         return {};
     }
     
-    constexpr std::optional<NodePtrType> get_head()
+    std::optional<NodePtrType> get_head()
     {
         auto flag = _flag.load();
         if (flag.size > 0) {
@@ -142,14 +166,19 @@ public:
         return {};
     }
 
-    constexpr auto flag() const -> FlagType 
+    auto flag() const -> FlagType 
     {
         return _flag.load();
     }
 
-    constexpr size_t size() const
+    size_t size() const
     {
         return _flag.load().size;
+    }
+
+    void clean() 
+    {
+        while (pop_front().has_value());
     }
 
 protected:
@@ -170,13 +199,14 @@ protected:
     constexpr FlagType _unsafe_pop_front(FlagType const& flag, NodePtrType& node)
     {
         FlagType ret(flag);
-        if (ret.head == 0 || ret.tail == 0) {
+        if (ret.size == 0) {
             // error
             node = nullptr;
         } else {
             ret.size--;
             node = ret.get_head_ptr();
-            ret.set_head(ret.get_head_ptr()->next);
+            CPERF_ASSERT(node != nullptr);
+            ret.set_head(node->next);
             if (ret.size == 0) {
                 ret.set_tail(0);
             }
@@ -191,11 +221,14 @@ protected:
     }
     
     constexpr void del_node(NodePtrType node) {
+        // node->next = nullptr;
         delete node;
     }
 
 private:
     LockFreeFlagType _flag;
+    // LockFreeNum _head_count = 0;
+    std::mutex _mtx;
 
 };
 

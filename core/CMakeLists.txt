@@ -17,12 +17,14 @@ file(GLOB PROJ_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/descriptor/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/initialize/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/*.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/*.cpp
 )
 
-if (WIN32) 
-    file(GLOB PROJ_WIN32_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/*.cpp)
-    set(PROJ_SRC "${PROJ_SRC};${PROJ_WIN32_SRC}")
-endif()
+# if (WIN32) 
+#     file(GLOB PROJ_WIN32_SRC )
+#     set(PROJ_SRC "${PROJ_SRC};${PROJ_WIN32_SRC}")
+# endif()
 
 add_library(${PROJ_NAME} SHARED ${PROJ_SRC} ${EXTERNAL_SRC})
 target_include_directories(${PROJ_NAME} PUBLIC ${Vulkan_INCLUDE_DIR} PUBLIC ${tinygltf_INCLUDE_DIR} PUBLIC ${glm_INCLUDE_DIR} PUBLIC ktx)

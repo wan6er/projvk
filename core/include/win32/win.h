@@ -1,5 +1,7 @@
 #pragma once
 
+#if defined(WIN32)
+
 #include "cvk/vk_header.h"
 
 #include <Windows.h>
@@ -59,3 +61,5 @@ private:
     MSG _msg;
 
 };
+
+#endif

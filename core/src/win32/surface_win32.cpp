@@ -1,5 +1,7 @@
 #include "win32/surface_win32.h"
 
+#if defined(WIN32)
+
 #include "cvk/initialize/win32_initialize.h"
 
 cvk::SurfaceWin32::SurfaceWin32(VkInstance instance, HINSTANCE hInstance, HWND hWnd) :
@@ -12,3 +14,5 @@ cvk::SurfaceWin32::~SurfaceWin32()
 {
 
 }
+
+#endif

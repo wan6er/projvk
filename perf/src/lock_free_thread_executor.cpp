@@ -14,7 +14,7 @@ void LockFreeThreadExecutor::_wait_pause()
 
 void LockFreeThreadExecutor::_wait_task_push()
 {
-    _wait([this]() { return _state->get_queue().size() > 0 || _state->get_state() != ThreadState::RUNNING; });
+    _wait([this]() { return _state->size() > 0 || _state->get_state() != ThreadState::RUNNING; });
 }
 
 

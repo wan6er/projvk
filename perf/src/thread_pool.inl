@@ -55,6 +55,7 @@ void BaseThreadPool<_Exec>::wait_done()
     // for (auto& exec : _execs) {
     //     std::cout << exec._thr.get_id() << ":" << exec._has_waited.load() << "\n";
     // }
+    // _tasks->signal_pause();
     for (auto& exec : _execs) {
         exec.wait_task();
     }

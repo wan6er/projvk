@@ -1,5 +1,6 @@
 #include "thread_pool.h"
-#include "sync_queue.h"
+// #include "sync_queue.h"
+#include "sync_stack.h"
 
 #include <iostream>
 
@@ -7,23 +8,23 @@ template<typename _Ty>
 void queue_add_num(_Ty& deque, int start, int end)
 {
     for (int i = start; i < end; ++i) {
-        deque.push_back(i);
+        deque.push(i);
     }
 }
-void queue_del_num(utils::SyncQueue<int>& deque, int start, int end)
+template<typename _Ty>
+void queue_del_num(_Ty& deque, int start, int end)
 {
     for (int i = start; i < end; ++i) {
-        deque.pop_front();
+        deque.pop();
     }
 }
 
 void test_queue()
 {
-        constexpr int COUNT = 5000;
+    constexpr int COUNT = 5000;
+    utils::LockFreeStack<int> deque1;
 
     auto start = std::chrono::system_clock::now();
-    
-    utils::SyncQueue<int> deque1;
     {
 
         std::thread thr1([&] { queue_add_num(deque1, 0, COUNT); });
@@ -48,7 +49,7 @@ void test_queue()
     start = std::chrono::system_clock::now();
     
     {
-        utils::SyncQueue<int> deque2;
+        utils::LockFreeStack<int> deque2;
         std::thread thr0([&] { queue_add_num(deque2, 0, COUNT * 3); });
         thr0.join();
         std::thread dthr0([&] { queue_del_num(deque2, 0, COUNT); });
@@ -57,25 +58,12 @@ void test_queue()
 
     auto cmp_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
 
-    // start = std::chrono::system_clock::now();
-    
-    // {
-    //     std::deque<int> stddeque;
-    //     std::thread stdthr([&] { queue_add_num(stddeque, 0, COUNT * 2); });
-    //     stdthr.join();
-    // }
-
-    // auto std_cmp_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
-
-
-    // CHECK(deque1.flag().size == COUNT * 2);
     std::cout << "process time:" << time.count() << " " << cmp_time.count() << " ";
 
 }
 
 void test_pool()
 {
-    
     int a = 0;
     {
         utils::ThreadPool tasks(8);
@@ -111,9 +99,10 @@ void test_pool()
 
 int main()
 {
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 10000; ++i) {
         test_queue();
         test_pool();
         std::cout << "\n";
     }
+    // test_lockfree();
 }

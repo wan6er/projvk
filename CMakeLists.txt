@@ -36,11 +36,25 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 
+find_file(CCACHE ccache)
+if(EXISTS ${CCACHE})
+    set(CMAKE_C_COMPILER_LAUNCHER ${CCACHE})
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE})
+    message("found ${CCACHE}")
+else()
+    message("cannot found ${CCACHE}")
+endif()
+
 # set(SDL2_DIR "C:/SDL2/msvc/cmake")
 # find_package(SDL2 REQUIRED)
 find_package(Vulkan REQUIRED)
 find_package(core)
 find_package(perf)
+
+if(${CMAKE_HOST_UNIX})
+    find_package(XCB REQUIRED)
+endif()
+
 
 # add_definitions(-DDLL_EXPORT)
 

@@ -14,9 +14,12 @@ set(PROJ_EXT_LIBS "")
 set(PROJ_EXT_INCLUDE_DIR "")
 
 if(${CMAKE_HOST_UNIX})
-set(PROJ_EXT_LIBS "${PROJ_EXT_LIBS};pthread")
+    set(PROJ_EXT_LIBS "${PROJ_EXT_LIBS};pthread")
+    if(${XCB_FOUND})
+        set(PROJ_EXT_INCLUDE_DIR "${PROJ_EXT_INCLUDE_DIR};${XCB_INCLUDE_DIR}")
+        set(PROJ_EXT_LIBS "${PROJ_EXT_LIBS};${XCB_LIBRARIES}")
+    endif()
 endif()
-
 
 target_link_libraries(${PROJ_NAME} ${PROJ_LIBS})
 target_include_directories(${PROJ_NAME} PRIVATE ${PROJ_INCLUDE_DIR})

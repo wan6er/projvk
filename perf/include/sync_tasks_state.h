@@ -49,15 +49,16 @@ public:
     auto get_state() -> ThreadState { return state; }
 
 protected:
-    ATTaskQueue queue;
+    std::mutex _pause_mtx;
+    std::condition_variable _pause_cv;
+
     ATStateType state = ThreadState::RUNNING;
+    ATTaskQueue queue;
 
 private:
     std::mutex _push_mtx;
     std::condition_variable _push_cv;
 
-    std::mutex _pause_mtx;
-    std::condition_variable _pause_cv;
 };
 
 } // namespace cperf

@@ -104,6 +104,10 @@ public:
         auto cur_flag = _flag.load();
         while (!_flag.compare_exchange_weak(cur_flag, _announce([&]() { return _unsafe_pop(cur_flag, node); })));
 
+        // ++_ann_lf;
+        // while (!_flag.compare_exchange_weak(cur_flag, _unsafe_pop(cur_flag, node)));
+        // --_ann_lf;
+
         if (node != nullptr) {
             auto ret = node->val;
             _wait_announce();

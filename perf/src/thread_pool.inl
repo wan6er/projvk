@@ -76,7 +76,7 @@ void BaseThreadPool<_Exec>::_init_executors(size_t size)
     for (size_t i = 0; i < size; ++i) {
         _execs.emplace_back(_tasks);
     }
-    // _execs.shrink_to_fit();
+    _execs.shrink_to_fit();
 }
 
 } // namespace cperf

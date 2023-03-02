@@ -4,9 +4,9 @@
 namespace utils
 {
 
-template class BaseThreadPool<BaseThreadExecutor>;
-template class BaseThreadPool<LockThreadExecutor>;
-template class BaseThreadPool<LockFreeThreadExecutor>;
+template class CPERF_API BaseThreadPool<BaseThreadExecutor>;
+template class CPERF_API BaseThreadPool<LockThreadExecutor>;
+template class CPERF_API BaseThreadPool<LockFreeThreadExecutor>;
 
 } // namespace utils
 

@@ -40,12 +40,13 @@ private:
     
     // void _notify_taskover();
     
+    std::atomic<int> _has_waited = 0;
+
     std::thread _thr;
 
     std::mutex _pause_mtx;
     std::condition_variable _pause_cv;
-    
-    std::atomic<bool> _has_waited = false;
+    // volatile int _has_waited = false;
 };
 
 } // namespace cperf

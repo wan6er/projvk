@@ -21,36 +21,52 @@ auto SyncTasksState::pop() -> std::optional<TaskType>
 
 void SyncTasksState::start()
 {
-    state = ThreadState::RUNNING;
+    {
+        std::lock_guard locker(_pause_mtx);
+        state = ThreadState::RUNNING;
+    }
+    _pause_cv.notify_all();
     _push_cv.notify_all();
 }
 
 void SyncTasksState::pause()
 {
-    state = ThreadState::PAUSE;
+    {
+        std::lock_guard locker(_pause_mtx);
+        state = ThreadState::PAUSE;
+    }
     _push_cv.notify_all();
 }
 
 void SyncTasksState::stop()
 {
-    state = ThreadState::STOPPED;
+    {
+        std::lock_guard locker(_pause_mtx);
+        state = ThreadState::STOPPED;
+    }
+    _pause_cv.notify_all();
     _push_cv.notify_all();
 }
 
 void SyncTasksState::wait_finish()
 {
-    state = ThreadState::WAIT_FINISH;
+    {
+        std::lock_guard locker(_pause_mtx);
+        state = ThreadState::WAIT_FINISH;
+    }
+    _pause_cv.notify_all();
     _push_cv.notify_all();
 }
 
 void SyncTasksState::signal_pause()
 {
-    _pause_cv.notify_all();
+    _pause_cv.notify_one();
 }
+
 void SyncTasksState::wait_pause()
 {
     std::unique_lock<std::mutex> locker(_pause_mtx);
-    _pause_cv.wait(locker, [this]() -> bool { return state != ThreadState::PAUSE; });
+    _pause_cv.wait(locker, [this]() -> bool { return state.load() != ThreadState::PAUSE; });
 }
 
 void SyncTasksState::wait_task()

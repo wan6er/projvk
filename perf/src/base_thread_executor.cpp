@@ -44,11 +44,14 @@ void BaseThreadExecutor::_wait_pause()
     // std::unique_lock<std::mutex> locker(_pause_mtx);
     // _pause_cv.wait(locker, [this]() -> bool { return _state->get_state() != ThreadState::PAUSE; });
     _state->wait_pause();
+    // _state->signal_pause();
 }
 
 void BaseThreadExecutor::_wait_task_push()
 {
-    _wait([this]() { return _state->size() > 0 || _state->get_state() != ThreadState::RUNNING; });
+    // std::atomic_thread_fence(std::memory_order_seq_cst);
+    _wait([&]() { return _state->size() > 0 || _state->get_state() != ThreadState::RUNNING; });
+    // std::atomic_thread_fence(std::memory_order_seq_cst);
 }
 
 
@@ -62,7 +65,7 @@ void BaseThreadExecutor::_wait(std::function<bool()> predicate)
 void BaseThreadExecutor::wait_task()
 {
     _state->signal_pause();
-    _wait([this]() { return _has_waited.load(); });
+    _wait([this]() -> bool { return _has_waited.load(std::memory_order_seq_cst) == 1; });
 }
 
 void BaseThreadExecutor::_task_loop()
@@ -73,9 +76,9 @@ void BaseThreadExecutor::_task_loop()
         if (local_task) {
             (*local_task)();
         } else {
-            _has_waited.store(true);
+            _has_waited.store(1);
             _wait_task_push();
-            _has_waited.store(false);
+            _has_waited.store(0);
         }
 
         _state->wait_finish_done();

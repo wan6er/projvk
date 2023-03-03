@@ -5,15 +5,15 @@
 namespace utils
 {
     
-template<typename _Exec>
-BaseThreadPool<_Exec>::BaseThreadPool(size_t size) :
-    _tasks(std::make_shared<SyncTasksState>())
+template<typename _Exec, typename _Tasks>
+BaseThreadPool<_Exec, _Tasks>::BaseThreadPool(size_t size) :
+    _tasks(std::make_shared<_Tasks>())
 {
     _init_executors(size);
 }
 
-template<typename _Exec>
-BaseThreadPool<_Exec>::~BaseThreadPool()
+template<typename _Exec, typename _Tasks>
+BaseThreadPool<_Exec, _Tasks>::~BaseThreadPool()
 {
     _tasks->stop();
     for (auto& t : _execs) {
@@ -21,56 +21,41 @@ BaseThreadPool<_Exec>::~BaseThreadPool()
     }
 }
 
-template<typename _Exec>
-void BaseThreadPool<_Exec>::push(TaskType task)
+template<typename _Exec, typename _Tasks>
+void BaseThreadPool<_Exec, _Tasks>::push(TaskType task)
 {
     _tasks->push(task);
-    // _notify_all();
 }
 
-template<typename _Exec>
-void BaseThreadPool<_Exec>::start()
+template<typename _Exec, typename _Tasks>
+void BaseThreadPool<_Exec, _Tasks>::start()
 {
     _tasks->start();
-    _notify_all();
 }
 
-template<typename _Exec>
-void BaseThreadPool<_Exec>::pause()
+template<typename _Exec, typename _Tasks>
+void BaseThreadPool<_Exec, _Tasks>::pause()
 {
     _tasks->pause();
+}
+
+template<typename _Exec, typename _Tasks>
+void BaseThreadPool<_Exec, _Tasks>::stop()
+{
+    _tasks->stop();
     // _notify_all();
 }
 
-template<typename _Exec>
-void BaseThreadPool<_Exec>::stop()
+template<typename _Exec, typename _Tasks>
+void BaseThreadPool<_Exec, _Tasks>::wait_done()
 {
-    _tasks->stop();
-    _notify_all();
-}
-
-template<typename _Exec>
-void BaseThreadPool<_Exec>::wait_done()
-{
-    // for (auto& exec : _execs) {
-    //     std::cout << exec._thr.get_id() << ":" << exec._has_waited.load() << "\n";
-    // }
-    // _tasks->signal_pause();
     for (auto& exec : _execs) {
         exec.wait_task();
     }
 }
-    
-template<typename _Exec>
-void BaseThreadPool<_Exec>::_notify_all()
-{
-    for (auto& exec : _execs) {
-        exec.notify();
-    }
-}
 
-template<typename _Exec>
-void BaseThreadPool<_Exec>::_init_executors(size_t size)
+template<typename _Exec, typename _Tasks>
+void BaseThreadPool<_Exec, _Tasks>::_init_executors(size_t size)
 {
     _execs.reserve(size);
     for (size_t i = 0; i < size; ++i) {

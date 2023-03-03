@@ -13,7 +13,7 @@ extern "C" __declspec(dllimport) void DebugBreak();
     #define CPERF_API __declspec(dllimport)
 #endif
 
-#elif defined(linux)
+#else
 
 #define CPERF_PRINT_FILE_LINE(msg, ...) printf("%s:%d error %s :" msg "\n", __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
 #define CPERF_ASSERT(expression) do { if (!(expression)) { CPERF_PRINT_FILE_LINE("%s", #expression); __builtin_trap(); } } while (false)

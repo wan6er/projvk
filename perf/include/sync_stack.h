@@ -11,8 +11,8 @@ namespace utils
 
 template<typename _Ty>
 using _PtrType = _Ty*;
-template<typename _Ty>
-using _OwnPtrType = std::unique_ptr<_Ty>;
+// template<typename _Ty>
+// using _OwnPtrType = std::unique_ptr<_Ty>;
 using _PtrDiff = std::ptrdiff_t;
 
 

@@ -28,13 +28,13 @@ void BaseThreadExecutorImpl<_TaskState>::join()
     }
 }
 
-// template<typename _TaskState>
-// BaseThreadExecutorImpl& BaseThreadExecutorImpl<_TaskState>::operator=(BaseThreadExecutorImpl const& exec)
-// {
-//     _state = exec._state;
-//     _thr = std::thread(&BaseThreadExecutorImpl::_task_loop, this);
-//     return *this;
-// }
+template<typename _TaskState>
+auto BaseThreadExecutorImpl<_TaskState>::operator=(BaseThreadExecutorImpl const& exec) -> BaseThreadExecutorImpl&
+{
+    _state = exec._state;
+    _thr = std::thread(&BaseThreadExecutorImpl::_task_loop, this);
+    return *this;
+}
 
 // template<typename _TaskState>
 // void BaseThreadExecutorImpl<_TaskState>::notify()

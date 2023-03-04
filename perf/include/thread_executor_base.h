@@ -23,7 +23,7 @@ public:
     BaseThreadExecutorImpl(BaseThreadExecutorImpl const& exec);
     virtual ~BaseThreadExecutorImpl();
     
-    // BaseThreadExecutorImpl& operator=(BaseThreadExecutorImpl const& exec);
+    auto operator=(BaseThreadExecutorImpl const& exec) -> BaseThreadExecutorImpl&;
 
     void join();
     virtual void wait_task();

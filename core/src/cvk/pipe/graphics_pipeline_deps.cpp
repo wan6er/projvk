@@ -53,7 +53,7 @@ VertexInputAttributes& VertexInputState::get_binding(uint32_t binding)
             return attr;
         }
     }
-    throw std::out_of_range("Invalid binding");
+    throw std::exception();
 }
 
 InputAssemblyState::InputAssemblyState() : VkPipelineInputAssemblyStateCreateInfo()

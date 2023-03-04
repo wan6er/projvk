@@ -63,6 +63,8 @@ int main()
     VkPhysicalDeviceFeatures device_features = {};
     cvk::Device device(devices[0], device_extensions, device_features, VK_QUEUE_GRAPHICS_BIT);
 
+    std::cout << "init device\n";
+
     uint32_t width = 1024;
     uint32_t height = 720;
 #ifdef WIN32
@@ -71,12 +73,14 @@ int main()
 #else
 #error unsupport platform
 #endif
+    std::cout << "init window\n";
 
     std::vector<VkSurfaceFormatKHR> formats;
     __cvk::get_surface_formats(device.get_physical_device(), surface, formats);
     CVK_ASSERT(formats.size() > 0);
     cvk::Swapchain swapchain(device, device.get_physical_device(), surface, { VK_PRESENT_MODE_FIFO_KHR }, formats[0]);
     swapchain.create();
+    std::cout << "init swapchain\n";
 
     uint32_t graphics_index = UINT32_MAX, present_index = UINT32_MAX;
     __cvk::get_queue_family_index(device.get_physical_device(), VK_QUEUE_GRAPHICS_BIT, graphics_index);
@@ -98,15 +102,19 @@ int main()
         .add_attachment(VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
         .add_attachment(VK_FORMAT_D16_UNORM, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
     CVK_ASSERT(render_pass.create() == VK_SUCCESS);
+    std::cout << "init renderpass\n";
 
     std::vector<cvk::Framebuffer> framebuffers;
     auto CONST_REFERENCE images = swapchain.get_images();
+    std::cout << "images count " << images.size() << "\n";
+
     std::vector<cvk::ColorImageView2D> image_views2d;
     for (auto i : images) {
         CVK_ASSERT(image_views2d.emplace_back(device).create(swapchain.get_format(), i) == VK_SUCCESS);
         framebuffers.emplace_back(device, render_pass, width, height).attaches((VkImageView)image_views2d.back(), (VkImageView)depth);
         CVK_ASSERT(framebuffers.back().create() == VK_SUCCESS);
     }
+    std::cout << "init framebuffer\n";
 
     struct Vertex {
         float position[3];
@@ -117,6 +125,8 @@ int main()
     CVK_ASSERT(vert_shader.create() == VK_SUCCESS);
     cvk::Shader frag_shader(device, utils::load_file("shader/triangle.frag.spv"));
     CVK_ASSERT(frag_shader.create() == VK_SUCCESS);
+
+    std::cout << "init shader\n";
 
     cvk::Descriptor descriptor(device);
     descriptor.add_layout()
@@ -208,6 +218,8 @@ int main()
     VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
     cvk::Queue graphics_queue(device, graphics_index);
+
+    std::cout << "prepare finish\n";
 
     win.run([&]{ 
         uint32_t cur_index = swapchain.acquire(acquire_semaphore);

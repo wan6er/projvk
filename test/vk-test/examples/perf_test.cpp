@@ -66,7 +66,7 @@ void test_pool()
 {
     int a = 0;
     {
-        utils::LockFreeThreadPool tasks(4);
+        utils::ThreadPool tasks(4);
         tasks.pause();
 
         for (int i = 0; i < 10000; ++i) {

@@ -32,7 +32,7 @@
 
 #if defined(NDEBUG)
 
-#define CVK_ASSERT(expression) ((void)0)
+#define CVK_ASSERT(expression) do { if (!(expression)) {} } while (false)
 
 #else 
 

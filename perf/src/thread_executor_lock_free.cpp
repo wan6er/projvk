@@ -7,6 +7,12 @@ LockFreeThreadExecutor::LockFreeThreadExecutor(LockFreeThreadExecutor const& exe
     BaseLockFreeThreadExecutor(exec)
 {}
 
+auto LockFreeThreadExecutor::operator=(LockFreeThreadExecutor const& exec) -> LockFreeThreadExecutor&
+{
+    BaseLockFreeThreadExecutor::operator=(exec);
+    return *this;
+}
+
 
 // void LockFreeThreadExecutor::notify()
 // {

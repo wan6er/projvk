@@ -15,6 +15,8 @@ public:
     using BaseThreadExecutor::BaseThreadExecutor;
     ThreadExecutor(ThreadExecutor const& exec);
     virtual ~ThreadExecutor() = default;
+
+    auto operator=(ThreadExecutor const& exec) -> ThreadExecutor&;
     
 protected:
     void _wait_pause();

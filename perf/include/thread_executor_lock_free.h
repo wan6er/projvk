@@ -14,6 +14,8 @@ public:
     LockFreeThreadExecutor(LockFreeThreadExecutor const& exec);
     virtual ~LockFreeThreadExecutor() = default;
 
+    auto operator=(LockFreeThreadExecutor const& exec) -> LockFreeThreadExecutor&;
+
 };
 
 } // namespace utils

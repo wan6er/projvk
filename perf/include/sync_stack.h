@@ -101,20 +101,20 @@ public:
     std::optional<ValueType> pop()
     {
         NodePtrType node = nullptr;
-        auto cur_flag = _flag.load();
-        while (!_flag.compare_exchange_weak(cur_flag, _announce([&]() { return _unsafe_pop(cur_flag, node); })));
 
-        // ++_ann_lf;
-        // while (!_flag.compare_exchange_weak(cur_flag, _unsafe_pop(cur_flag, node)));
-        // --_ann_lf;
+        _announce([&]() {
+            auto cur_flag = _flag.load(std::memory_order_relaxed);
+            while (!_flag.compare_exchange_weak(cur_flag, _unsafe_pop(cur_flag, node), std::memory_order_relaxed));
+        });
 
+        std::optional<ValueType> ret;
         if (node != nullptr) {
-            auto ret = node->val;
+            ret = node->val;
             _wait_announce();
+            std::atomic_thread_fence(std::memory_order_acquire);
             del_node(node);
-            return ret;
         }
-        return {};
+        return ret;
     }
     
     std::optional<NodePtrType> get_head()
@@ -169,18 +169,24 @@ protected:
         return ret;
     }
 
-    auto _announce(std::function<FlagType()> func) -> FlagType
+    auto _announce(std::function<FlagType()> func) -> std::optional<FlagType>
     {
-        ++_ann_lf;
-        auto ret = func();
-        --_ann_lf;
+        _ann_lf.fetch_add(1, std::memory_order_acq_rel);
+        std::optional<FlagType> ret = func();        
+        _ann_lf.fetch_sub(1, std::memory_order_acq_rel);
         return ret;
     }
 
-    void _wait_announce()
+    void _announce(std::function<void()> func)
     {
-        size_t Zero = 0;
-        while (!_ann_lf.compare_exchange_strong(Zero, 1));
+        _ann_lf.fetch_add(1, std::memory_order_acq_rel);
+        func();
+        _ann_lf.fetch_sub(1, std::memory_order_acq_rel);
+    }
+
+    void _wait_announce(size_t wait_time = 0)
+    {
+        while (_ann_lf.load(std::memory_order_relaxed) != 0);
     }
 
     template<typename..._Args>

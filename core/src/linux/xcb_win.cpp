@@ -2,6 +2,8 @@
 
 #if defined(linux)
 
+#include <stdlib.h>
+
 namespace __xcb
 {
     

@@ -119,7 +119,7 @@ public:
     
     std::optional<NodePtrType> get_head()
     {
-        auto flag = _flag.load();
+        auto flag = _flag.load(std::memory_order_relaxed);
         if (flag.size > 0) {
             return flag.get_head_ptr();
         }

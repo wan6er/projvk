@@ -1,5 +1,5 @@
 #include "thread_pool.h"
-// #include "sync_queue.h"
+#include "sync_queue.h"
 #include "sync_stack.h"
 
 #include <iostream>
@@ -19,10 +19,11 @@ void queue_del_num(_Ty& deque, int start, int end)
     }
 }
 
-void test_queue()
+template<typename _SyncTy>
+void test_sync()
 {
     constexpr int COUNT = 5000;
-    utils::LockFreeStack<int> deque1;
+    _SyncTy deque1;
 
     auto start = std::chrono::system_clock::now();
     {
@@ -49,7 +50,7 @@ void test_queue()
     start = std::chrono::system_clock::now();
     
     {
-        utils::LockFreeStack<int> deque2;
+        _SyncTy deque2;
         std::thread thr0([&] { queue_add_num(deque2, 0, COUNT * 3); });
         thr0.join();
         std::thread dthr0([&] { queue_del_num(deque2, 0, COUNT); });
@@ -97,12 +98,37 @@ void test_pool()
 
 }
 
+#include "sync_ref.h"
+void test_ref()
+{
+    utils::SyncRef<int> obj;
+    {
+        CPERF_ASSERT(obj.count() == 1);
+        {
+            utils::SyncRef<int> obj1(obj);
+            // CHECK(obj1.is_cloned());
+            CPERF_ASSERT((obj.count() == 2));
+            CPERF_ASSERT((obj1.count() == 2));
+        }
+        CPERF_ASSERT((obj.count() == 1));
+        utils::SyncRef<int> obj2(obj);
+        // CHECK(obj2.is_cloned());
+        CPERF_ASSERT(obj.count() == 2);
+    }
+    CPERF_ASSERT((obj.count() == 1));
+}
+
+
 int main()
 {
+    test_ref();
+
     for (int i = 0; i < 10000; ++i) {
-        test_queue();
+        test_sync<utils::LockFreeQueue<int>>();
         test_pool();
         std::cout << "\n";
     }
+
+
     // test_lockfree();
 }

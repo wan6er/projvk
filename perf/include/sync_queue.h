@@ -1,32 +1,33 @@
-#ifndef __SYNC_STACK_H__
-#define __SYNC_STACK_H__
+#ifndef __SYNC_QUEUE_H__
+#define __SYNC_QUEUE_H__
 
 #include "sync_structure_base.h"
 
 namespace utils
 {
 
+
 template<typename _Ty>
-class _LockFreeStackFlag
+class _LockFreeQueueFlag
 {
 public:
     using ValueType = _Ty;
     using NodeType = _Node<ValueType>;
     using NodePtrType = _PtrType<NodeType>;
-    // using LockFreeNodePtrType = std::atomic<NodePtrType>;
     
     _PtrDiff head;
+    _PtrDiff tail;
     size_t size;
 
-    _LockFreeStackFlag() noexcept :
-        head(0), size(0)
+    _LockFreeQueueFlag() noexcept :
+        head(0), tail(0), size(0)
     {}
     
-    _LockFreeStackFlag(_LockFreeStackFlag const& flag) noexcept = default;
+    _LockFreeQueueFlag(_LockFreeQueueFlag const& flag) noexcept = default;
 
-    bool operator==(_LockFreeStackFlag const& right) const noexcept
+    bool operator==(_LockFreeQueueFlag const& right) const noexcept
     {
-        return head == right.head;
+        return head == right.head && tail == right.tail;
     }
 
     auto get_head_ptr() -> NodePtrType
@@ -34,10 +35,21 @@ public:
         return reinterpret_cast<NodePtrType>(head);
     }
     
+    auto get_tail_ptr() -> NodePtrType
+    {
+        return reinterpret_cast<NodePtrType>(tail);
+    }
+    
     template<typename __Ty1>
-    void set(__Ty1&& headval) 
+    void set_head(__Ty1&& headval) 
     {
         head = reinterpret_cast<_PtrDiff>(headval);
+    }
+
+    template<typename __Ty1>
+    void set_tail(__Ty1&& tailval) 
+    {
+        tail = reinterpret_cast<_PtrDiff>(tailval);
     }
 
 protected:
@@ -45,18 +57,18 @@ protected:
 };
 
 template<typename _Ty>
-class LockFreeStack : public __SyncStructureBase
+class LockFreeQueue : public __SyncStructureBase
 {
     using ValueType = _Ty;
     using NodeType = _Node<ValueType>;
     using NodePtrType = _PtrType<NodeType>;
-    using FlagType = _LockFreeStackFlag<_Ty>;
+    using FlagType = _LockFreeQueueFlag<_Ty>;
     using LockFreeFlagType = std::atomic<FlagType>;
 
 public:
-    LockFreeStack() noexcept = default;
-    LockFreeStack(LockFreeStack const&) = default;
-    ~LockFreeStack()
+    LockFreeQueue() noexcept = default;
+    LockFreeQueue(LockFreeQueue const&) = default;
+    ~LockFreeQueue()
     {
         clean();
     }
@@ -64,10 +76,15 @@ public:
     void push(_Ty const& t)
     {
         auto node = new_obj<NodeType>(t);
+
+        NodePtrType tail = nullptr;
         auto cur_flag = _flag.load();
 
-        while (!_flag.compare_exchange_weak(cur_flag, _unsafe_push(cur_flag, node)));
+        while (!_flag.compare_exchange_weak(cur_flag, _unsafe_push(cur_flag, node, tail)));
 
+        if (tail) {
+            tail->next = node;
+        }
     }
     
     std::optional<ValueType> pop()
@@ -113,14 +130,17 @@ public:
     }
 
 protected:
-    FlagType _unsafe_push(FlagType const& flag, NodePtrType node)
+    FlagType _unsafe_push(FlagType const& flag, NodePtrType node, NodePtrType& oldnode)
     {
         FlagType ret(flag);
         if (ret.size == 0) {
-            ret.set(node);
+            ret.set_head(node);
+            ret.set_tail(node);
         } else {
-            node->next = ret.get_head_ptr();
-            ret.set(node);
+            // node->next = ret.get_head_ptr();
+            // ret.set(node);
+            oldnode = ret.get_tail_ptr();
+            ret.set_tail(node);
         }
         ret.size++;
         return ret;
@@ -134,8 +154,8 @@ protected:
             node = nullptr;
         } else {
             ret.size--;
-            node = ret.get_head_ptr();
-            ret.set(node->next);
+            // node = ret.get_head_ptr();
+            ret.set_head(ret.get_head_ptr()->next);
         }
         return ret;
     }

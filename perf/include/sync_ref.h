@@ -11,6 +11,7 @@ namespace utils
 
 template<typename _Ty, typename..._Args>
 auto _new_obj(_Args&&...args) -> _Ty*;
+
 template<typename _Ty>
 auto _new_obj() -> _Ty*;
 
@@ -40,9 +41,10 @@ public:
 
     void ref() { _count->fetch_add(1, std::memory_order_acq_rel); }
     void unref()  { _count->fetch_sub(1, std::memory_order_acq_rel); }
-    uint32_t count() const { return _count->load(std::memory_order_release); }
+    uint32_t count() const { return _count->load(std::memory_order_relaxed); }
 
     auto operator->() -> ValType* { return _ptr; }
+    auto operator->() const -> ValType const* { return _ptr; }
 
 private:
     _ValPtrType _ptr; 

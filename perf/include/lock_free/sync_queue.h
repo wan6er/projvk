@@ -3,6 +3,9 @@
 
 #include "sync_structure_base.h"
 
+#include <thread>
+#include <iostream>
+
 namespace utils
 {
 
@@ -19,23 +22,23 @@ public:
     _PtrDiff tail;
     size_t size;
 
-    _LockFreeQueueFlag() noexcept :
+    constexpr _LockFreeQueueFlag() noexcept :
         head(0), tail(0), size(0)
     {}
     
-    _LockFreeQueueFlag(_LockFreeQueueFlag const& flag) noexcept = default;
+    constexpr _LockFreeQueueFlag(_LockFreeQueueFlag const& flag) noexcept = default;
 
-    bool operator==(_LockFreeQueueFlag const& right) const noexcept
+    constexpr bool operator==(_LockFreeQueueFlag const& right) const noexcept
     {
         return head == right.head && tail == right.tail;
     }
 
-    auto get_head_ptr() -> NodePtrType
+    constexpr auto get_head_ptr() const -> NodePtrType
     {
         return reinterpret_cast<NodePtrType>(head);
     }
     
-    auto get_tail_ptr() -> NodePtrType
+    constexpr auto get_tail_ptr() const -> NodePtrType
     {
         return reinterpret_cast<NodePtrType>(tail);
     }
@@ -62,12 +65,19 @@ class LockFreeQueue : public __SyncStructureBase
     using ValueType = _Ty;
     using NodeType = _Node<ValueType>;
     using NodePtrType = _PtrType<NodeType>;
+    using NodeCPtrType = _CPtrType<NodeType>;
     using FlagType = _LockFreeQueueFlag<_Ty>;
     using LockFreeFlagType = std::atomic<FlagType>;
 
 public:
     LockFreeQueue() noexcept = default;
-    LockFreeQueue(LockFreeQueue const&) = default;
+    
+    LockFreeQueue(LockFreeQueue const&) = delete; 
+    // LockFreeQueue(LockFreeQueue const& copy) :
+    //     _flag(copy._flag.load()) 
+    // {
+    // }
+
     ~LockFreeQueue()
     {
         clean();
@@ -105,7 +115,21 @@ public:
         return ret;
     }
     
+    void swap(LockFreeQueue& queue)
+    {
+        queue._flag.store(_flag.exchange(queue._flag, std::memory_order_release), std::memory_order_acquire);
+    }
+
     std::optional<NodePtrType> get_head()
+    {
+        auto flag = _flag.load(std::memory_order_relaxed);
+        if (flag.size > 0) {
+            return flag.get_head_ptr();
+        }
+        return {};
+    }
+
+    std::optional<NodeCPtrType> get_head() const
     {
         auto flag = _flag.load(std::memory_order_relaxed);
         if (flag.size > 0) {
@@ -137,8 +161,6 @@ protected:
             ret.set_head(node);
             ret.set_tail(node);
         } else {
-            // node->next = ret.get_head_ptr();
-            // ret.set(node);
             oldnode = ret.get_tail_ptr();
             ret.set_tail(node);
         }
@@ -153,9 +175,16 @@ protected:
             // error
             node = nullptr;
         } else {
-            ret.size--;
-            // node = ret.get_head_ptr();
-            ret.set_head(ret.get_head_ptr()->next);
+            if (ret.size > 1) {
+                node = ret.get_head_ptr();
+                while (node->next == nullptr);
+                ret.set_head(node->next);
+            } else {
+                node = ret.get_head_ptr();
+                ret.set_head(nullptr);
+                ret.set_tail(nullptr);
+            }
+            --ret.size;
         }
         return ret;
     }

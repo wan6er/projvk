@@ -1,31 +1,42 @@
 #ifndef __PERF_NODE_H__
 #define __PERF_NODE_H__
 
+#include "perf_basic.h"
+
+#include <chrono>
+
 namespace cperf
 {
+
+using Time = std::chrono::system_clock::time_point;
+
+CPERF_API auto now() -> Time;
+
+template<typename _RetTime, typename _Time>
+auto time_cast(_Time const& time_point) -> uint64_t {
+    return std::chrono::duration_cast<_RetTime>(time_point).count();
+}
     
-template<typename _Key>
-struct PerfNode
+struct CPERF_API PerfNode
 {
-    _Key key;
-    PerfNode* parent;
-    PerfNode* child;
+    Time start;
+    Time end;
 
-    constexpr PerfNode() noexcept : parent(nullptr), child(nullptr) {}
-    constexpr PerfNode(_Key const& k) noexcept : key(k), parent(nullptr), child(nullptr) {}
-};
+    void set_start();
+    void set_end();
 
-template<typename _Key>
-void append_perf_node(PerfNode<_Key>& head, PerfNode<_Key>& node)
-{
-    auto ptr = &head;
-    while (ptr->child) {
-        ptr = ptr->child;
+    template<typename _Time>
+    constexpr auto get_start() const -> Time {
+        return start;
+    }
+    
+    template<typename _Time>
+    constexpr auto get_end() const -> Time {
+        return start;
     }
 
-    ptr->child = &node;
-    node.parent = ptr;
-}
+};
+
 
 } // namespace cperf
 

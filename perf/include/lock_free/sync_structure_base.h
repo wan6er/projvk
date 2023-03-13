@@ -1,6 +1,8 @@
 #ifndef __SYNC_STRUCTURE_BASE_H__
 #define __SYNC_STRUCTURE_BASE_H__
 
+#include "perf_basic.h"
+
 #include <atomic>
 #include <optional>
 #include <functional>
@@ -10,6 +12,10 @@ namespace utils
 
 template<typename _Ty>
 using _PtrType = _Ty*;
+
+template<typename _Ty>
+using _CPtrType = _Ty const*;
+
 // template<typename _Ty>
 // using _OwnPtrType = std::unique_ptr<_Ty>;
 using _PtrDiff = std::ptrdiff_t;

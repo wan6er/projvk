@@ -6,7 +6,12 @@ project(${PROJ_NAME})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-file(GLOB PROJ_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+file(GLOB PROJ_SRC 
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/thread_pool/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/lock_free_ptr/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/lock_free/*.cpp"
+)
 
 add_library(${PROJ_NAME} SHARED ${PROJ_SRC})
 target_compile_definitions(${PROJ_NAME} PRIVATE CPERF_BUILD)

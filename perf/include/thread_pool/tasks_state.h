@@ -2,7 +2,7 @@
 #define __TASKS_STATE_H__
 
 #include "perf_basic.h"
-#include "sync_stack.h"
+#include "lock_free/sync_stack.h"
 
 #include <atomic>
 #include <functional>

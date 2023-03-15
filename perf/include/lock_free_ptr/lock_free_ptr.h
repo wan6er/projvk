@@ -2,6 +2,7 @@
 
 #include "lock_free_ptr_base.h"
 #include "lock_free_weak_ptr_base.h"
+#include "shared_ptr.h"
 #include "count_obj.h"
 #include "memory_manager.h"
 
@@ -12,10 +13,11 @@ template<typename _Ty>
 struct LockFreeWeakPtr;
 
 template<typename _Ty>
-struct LockFreePtr : public BaseLockFreePtr<_Ty, CountObj<_Ty>, MemoryManager<_Ty>>
+struct LockFreePtr : public BaseLockFreePtr<_Ty, SharedPtr<_Ty>, CountObj<_Ty>, MemoryManager<_Ty>>
 {
     using Type = _Ty;
-    using _BaseType = BaseLockFreePtr<_Ty, CountObj<_Ty>, MemoryManager<_Ty>>;
+    using _SharedPtr = SharedPtr<_Ty>;
+    using _BaseType = BaseLockFreePtr<_Ty, _SharedPtr, CountObj<_Ty>, MemoryManager<_Ty>>;
     using _BaseType::_BaseType;
     
     void operator=(LockFreePtr const& ptr);
@@ -33,20 +35,21 @@ struct LockFreePtr : public BaseLockFreePtr<_Ty, CountObj<_Ty>, MemoryManager<_T
 };
 
 template<typename _Ty>
-struct LockFreeWeakPtr : public BaseLockFreeWeakPtr<_Ty, CountObj<_Ty>, MemoryManager<_Ty>>
+struct LockFreeWeakPtr : public BaseLockFreeWeakPtr<_Ty, WeakPtr<_Ty>, CountObj<_Ty>, MemoryManager<_Ty>>
 {
-    using _BaseType = BaseLockFreeWeakPtr<_Ty, CountObj<_Ty>, MemoryManager<_Ty>>;
-
-    using SharedPtr = LockFreePtr<_Ty>;
-    using WeakPtr = LockFreeWeakPtr;
     using Type = _Ty;
+    using AtomicSharedPtr = LockFreePtr<_Ty>;
+    using AtomicWeakPtr = LockFreeWeakPtr;
+    using _WeakPtr = WeakPtr<_Ty>;
+    using _SharedPtr = SharedPtr<_Ty>;
+    using _BaseType = BaseLockFreeWeakPtr<_Ty, _WeakPtr, CountObj<_Ty>, MemoryManager<_Ty>>;
 
     using _BaseType::_BaseType;
 
-    constexpr LockFreeWeakPtr(SharedPtr const& shared_ptr);
+    constexpr LockFreeWeakPtr(AtomicSharedPtr const& shared_ptr);
 
-    constexpr auto operator=(SharedPtr const& ptr) -> WeakPtr&;
-    constexpr auto operator=(WeakPtr const& ptr) -> WeakPtr&;
+    constexpr auto operator=(AtomicSharedPtr const& ptr) -> AtomicWeakPtr&;
+    constexpr auto operator=(AtomicWeakPtr const& ptr) -> AtomicWeakPtr&;
 
     constexpr auto operator*() -> Type&;
     constexpr auto operator*() const -> Type const&;
@@ -57,7 +60,7 @@ struct LockFreeWeakPtr : public BaseLockFreeWeakPtr<_Ty, CountObj<_Ty>, MemoryMa
     constexpr auto operator==(void* ptr) const -> bool;
     constexpr operator bool() const;
 
-    constexpr auto get_shared() const -> SharedPtr;
+    constexpr auto get_shared() const -> AtomicSharedPtr;
 
 };
 

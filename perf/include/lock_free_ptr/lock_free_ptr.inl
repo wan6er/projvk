@@ -5,8 +5,14 @@ namespace utils
 template<typename _Ty>
 void LockFreePtr<_Ty>::operator=(LockFreePtr const& ptr)
 {
-    this->_obj.store(ptr._obj.load());
-    this->increment(this->_obj.load(std::memory_order_relaxed));
+    // this->store_impl(ptr.load_impl());   
+    auto _o = this->load_count(MemoryOrderRelaxed);
+    auto _n = ptr->load_count(MemoryOrderRelaxed);
+    if (_o != ptr) {
+        this->increment(_n);
+        this->decrement(_o);
+    }
+    this->store_count(_n, MemoryOrderRelaxed);
 }
 
 template<typename _Ty>
@@ -47,20 +53,20 @@ constexpr LockFreePtr<_Ty>::operator bool() const
 
     
 template<typename _Ty>
-constexpr LockFreeWeakPtr<_Ty>::LockFreeWeakPtr(SharedPtr const& shared_ptr)
+constexpr LockFreeWeakPtr<_Ty>::LockFreeWeakPtr(AtomicSharedPtr const& shared_ptr)
 {
-    this->store(shared_ptr.load());   
+    this->store_count(shared_ptr.load_count(MemoryOrderRelaxed), MemoryOrderAcquire);   
 }
 
 template<typename _Ty>
-constexpr auto LockFreeWeakPtr<_Ty>::operator=(SharedPtr const& ptr) -> WeakPtr&
+constexpr auto LockFreeWeakPtr<_Ty>::operator=(AtomicSharedPtr const& ptr) -> AtomicWeakPtr&
 {
-    this->_obj.store(ptr.load());
+    this->store_count(ptr.load_count(MemoryOrderRelaxed), MemoryOrderAcquire);
     return *this;
 }
 
 template<typename _Ty>
-constexpr auto LockFreeWeakPtr<_Ty>::operator=(WeakPtr const& ptr) -> WeakPtr&
+constexpr auto LockFreeWeakPtr<_Ty>::operator=(AtomicWeakPtr const& ptr) -> AtomicWeakPtr&
 {
     this->_obj.store(ptr.load());
     return *this;
@@ -104,9 +110,9 @@ constexpr LockFreeWeakPtr<_Ty>::operator bool() const
 }
 
 template<typename _Ty>
-constexpr auto LockFreeWeakPtr<_Ty>::get_shared() const -> SharedPtr
+constexpr auto LockFreeWeakPtr<_Ty>::get_shared() const -> AtomicSharedPtr
 {
-    return SharedPtr(this->load());
+    return AtomicSharedPtr(this->load());
 }
 
 

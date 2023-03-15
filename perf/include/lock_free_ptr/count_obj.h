@@ -12,6 +12,9 @@ struct CountObj
     alignas(alignof(_Ty)) unsigned int storage[sizeof(_Ty)];
     Atomic<unsigned int> ref_cnt;
 
+    CountObj() = default;
+    CountObj(CountObj const&) = delete;
+
     auto get() -> _Ty*;
     auto get() const -> _Ty const*;
 

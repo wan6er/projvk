@@ -2,46 +2,38 @@
 namespace utils
 {
     
-template<typename _Ty, typename _CountObj, typename _MemoryManager>
-constexpr BaseLockFreePtr<_Ty, _CountObj, _MemoryManager>::BaseLockFreePtr() :
-    _obj(nullptr)
+template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
+constexpr BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::BaseLockFreePtr() :
+    Base()
 {
 }
 
-template<typename _Ty, typename _CountObj, typename _MemoryManager>
-constexpr BaseLockFreePtr<_Ty, _CountObj, _MemoryManager>::BaseLockFreePtr(CountObjPtr ptr) :
-    _obj(ptr)
+template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
+constexpr BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::BaseLockFreePtr(CountPtr ptr) :
+    Base(ptr)
 {
-    this->increment(_obj.load(std::memory_order_relaxed));
+    this->increment(this->load_count(std::memory_order_relaxed));
 }
 
-template<typename _Ty, typename _CountObj, typename _MemoryManager>
-constexpr BaseLockFreePtr<_Ty, _CountObj, _MemoryManager>::BaseLockFreePtr(BaseLockFreePtr const& ptr) :
-    _obj(ptr._obj.load())
+template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
+constexpr BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::BaseLockFreePtr(BaseLockFreePtr const& ptr) :
+    Base(ptr)
 {
-    this->increment(_obj.load(std::memory_order_relaxed));
+    auto _count = this->load_count(std::memory_order_relaxed);
+    this->increment(_count);
+    
 }
 
-template<typename _Ty, typename _CountObj, typename _MemoryManager>
-BaseLockFreePtr<_Ty, _CountObj, _MemoryManager>::~BaseLockFreePtr()
+template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
+BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::~BaseLockFreePtr()
 {
-    if (this->decrement(_obj.load(std::memory_order_relaxed))) {
-        auto tmp = _obj.load(std::memory_order_relaxed);
-        _obj.store(nullptr, std::memory_order_acquire);
+    auto _count = this->load_count(std::memory_order_relaxed);
+    if (this->decrement(_count)) {
+        auto tmp = _count;
+        this->store_count(nullptr, std::memory_order_acquire);
         this->destroy(tmp);
     }
 }
 
-template<typename _Ty, typename _CountObj, typename _MemoryManager>
-constexpr auto BaseLockFreePtr<_Ty, _CountObj, _MemoryManager>::load() const -> CountObjPtr 
-{ 
-    return _obj.load(std::memory_order_relaxed); 
-}
-
-template<typename _Ty, typename _CountObj, typename _MemoryManager>
-constexpr void BaseLockFreePtr<_Ty, _CountObj, _MemoryManager>::store(CountObjPtr ptr)
-{
-    _obj.store(ptr, std::memory_order_relaxed);
-}
 
 } // namespace utils

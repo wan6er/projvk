@@ -4,6 +4,7 @@
 #include "perf_nodes.h"
 
 #include <iostream>
+#include <assert.h>
 
 template<typename _Ty>
 void queue_add_num(_Ty& deque, int start, int end)
@@ -98,52 +99,154 @@ void test_pool()
 
 }
 
-
-struct test1;
-struct test2;
-
-using test1_SharedPtr = utils::LockFreePtr<test1>;
-using test1_WeakPtr = utils::LockFreeWeakPtr<test1>;
-using test2_SharedPtr = utils::LockFreePtr<test2>;
-using test2_WeakPtr = utils::LockFreeWeakPtr<test2>;
-
-struct test1
+#include "lock_free_ptr/shared_ptr.h"
+void test_ring_ref()
 {
-    test1() {
-        std::cout << "test1 construct\n";
-    }
-    ~test1() {
-        std::cout << "test1 ~\n";
-    }
-    test2_WeakPtr ptr;
-};
+    static int test_c = 0;
 
-struct test2
-{
-    test2() {
-        std::cout << "test2 construct\n";
+    {
+
+        struct test1;
+        struct test2;
+
+        using test1_SharedPtr = utils::SharedPtr<test1>;
+        using test1_WeakPtr = utils::WeakPtr<test1>;
+        using test2_SharedPtr = utils::SharedPtr<test2>;
+        using test2_WeakPtr = utils::WeakPtr<test2>;
+
+        struct test1
+        {
+            test1() {
+                test_c++;
+            }
+            ~test1() {
+                test_c--;
+            }
+            test2_WeakPtr ptr;
+        };
+
+        struct test2
+        {
+            test2() {
+                test_c++;
+            }
+            ~test2() {
+                test_c--;
+            }
+            test1_WeakPtr ptr;
+        };
+
+        test1_SharedPtr tp1 = utils::make_shared<test1>();
+        test2_SharedPtr tp2 = utils::make_shared<test2>();
+
+        tp1->ptr = tp2;
+        tp2->ptr = tp1;
+
+        assert(test_c == 2);
     }
-    ~test2() {
-        std::cout << "test2 ~\n";
-    }
-    test1_WeakPtr ptr;
-};
+    assert(test_c == 0);
+}
 
 #include "lock_free_ptr/lock_free_ptr.h"
-void test_ref()
+void test_lockfree_ring_ref()
 {
-    test1_SharedPtr tp1 = utils::make_ptr<test1>();
-    test2_SharedPtr tp2 = utils::make_ptr<test2>();
+    static int test_c = 0;
+    {
 
-    tp1->ptr = tp2;
-    tp2->ptr = tp1;
+        struct test1;
+        struct test2;
+
+        using test1_SharedPtr = utils::LockFreePtr<test1>;
+        using test1_WeakPtr = utils::LockFreeWeakPtr<test1>;
+        using test2_SharedPtr = utils::LockFreePtr<test2>;
+        using test2_WeakPtr = utils::LockFreeWeakPtr<test2>;
+
+        struct test1
+        {
+            test1() {
+                test_c++;
+            }
+            ~test1() {
+                test_c--;
+            }
+            test2_WeakPtr ptr;
+        };
+
+        struct test2
+        {
+            test2() {
+                test_c++;
+            }
+            ~test2() {
+                test_c--;
+            }
+            test1_WeakPtr ptr;
+        };
+
+        test1_SharedPtr tp1 = utils::make_ptr<test1>();
+        test2_SharedPtr tp2 = utils::make_ptr<test2>();
+
+        tp1->ptr = tp2;
+        tp2->ptr = tp1;
+
+        assert(test_c == 2);
+
+    }
+    assert(test_c == 0);
 
 }
 
+void test_thread_ref()
+{
+    struct node;
+    using node_ptr = utils::SharedPtr<node>;
+    using atomic_node_ptr = utils::LockFreePtr<node>;
+
+    struct node
+    {
+        int data = 0;
+        node_ptr next = nullptr;
+
+        node() = default;
+        node(int a) : data(a) {}
+
+        ~node() {
+            // std::cout << "~node : " << data << ";\n";
+        }
+    };
+
+    auto push = [](atomic_node_ptr& head, int d) {
+        auto expect = head.load();
+        auto n = utils::make_shared<node>(d);
+        while (!head.compare_exchange_weak(expect, n));
+        n->next = expect;
+    };
+
+    atomic_node_ptr head;
+
+    auto push_test = [&]() {
+        for (int i = 0; i < 10000; ++i) {
+            push(head, i);
+        }
+    };
+    std::thread th1(push_test);
+    std::thread th2(push_test);
+    th1.join();
+    th2.join();
+
+    node_ptr ptr = head.load();
+    for (int i = 0; i < 20000 - 1; ++i) {
+        ptr = ptr->next;
+    }
+    assert(!(ptr == nullptr));
+
+}
 
 int main()
 {
-    test_ref();
+    // test_ring_ref();
+    // test_lockfree_ring_ref();
+    test_thread_ref();
 
     // for (int i = 0; i < 10000; ++i) {
     //     cperf::PerfNodes perf;

@@ -15,19 +15,21 @@ public:
     using ObjType = BaseLockFreePtr;
     using CountPtr = _CountObj*;
     using MemoryManager = _MemoryManager;
-    using _AtomicCountObj = Atomic<CountPtr>;
 
     constexpr BaseLockFreePtr();
     constexpr BaseLockFreePtr(CountPtr ptr);
     constexpr BaseLockFreePtr(BaseLockFreePtr const& ptr);
     virtual ~BaseLockFreePtr();
 
-protected:
-    // constexpr auto load() const -> CountObjPtr;
-    // constexpr void store(CountObjPtr ptr);
+    constexpr auto load(MemoryOrder order = MemoryOrderRelaxed) const -> _Derived;
+    constexpr void store(_Derived ptr, MemoryOrder order = MemoryOrderRelaxed);
+    constexpr bool compare_exchange_weak(_Derived& expected, _Derived const& desired, MemoryOrder order = MemoryOrderRelaxed);
+    constexpr bool compare_exchange_strong(_Derived const& expected, _Derived const& desired, MemoryOrder order = MemoryOrderRelaxed) volatile;
 
 protected:
-    // _AtomicCountObj _obj;
+    constexpr bool compare_swap_impl(CountPtr expected, CountPtr desired, MemoryOrder order = MemoryOrderRelaxed);
+
+protected:
 
 };
 

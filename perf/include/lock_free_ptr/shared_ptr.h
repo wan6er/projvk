@@ -34,8 +34,11 @@ struct SharedPtr :
     constexpr auto operator->() -> Type*;
     constexpr auto operator->() const -> Type const*;
     
-    constexpr auto operator==(void* ptr) const -> bool;
-    constexpr operator bool() const;
+    template<typename __Ptr>
+    constexpr auto operator==(__Ptr&& ptr) const -> bool;
+    template<typename __Ptr>
+    constexpr auto operator!=(__Ptr&& ptr) const -> bool;
+    // constexpr operator bool() const;
 
     friend class WeakPtr<_Ty>;
 };
@@ -47,8 +50,8 @@ struct WeakPtr :
 {
     using Type = _Ty;
     using _SharedPtr = SharedPtr<_Ty>;
-    using _BaseType = BaseSharedPtrImpl<_Ty, CountObj<_Ty>, WeakPtr<_Ty>>;
-    using _BaseType::_BaseType;
+    using _Base = BaseSharedPtrImpl<_Ty, CountObj<_Ty>, WeakPtr<_Ty>>;
+    using _Base::_Base;
     
     constexpr auto operator=(WeakPtr const& ptr) -> WeakPtr&;
     constexpr auto operator=(_SharedPtr const& ptr) -> WeakPtr&;
@@ -59,8 +62,11 @@ struct WeakPtr :
     constexpr auto operator->() -> Type*;
     constexpr auto operator->() const -> Type const*;
     
-    constexpr auto operator==(void* ptr) const -> bool;
-    constexpr operator bool() const;
+    template<typename __Ptr>
+    constexpr auto operator==(__Ptr&& ptr) const -> bool;
+    template<typename __Ptr>
+    constexpr auto operator!=(__Ptr&& ptr) const -> bool;
+    // constexpr operator bool() const;
 
     constexpr auto get_shared() const -> _SharedPtr;
 

@@ -19,7 +19,7 @@ public:
     constexpr BaseSharedPtrImpl(BaseSharedPtrImpl const& ptr);
     virtual ~BaseSharedPtrImpl();
 
-    constexpr auto get_count() -> CountPtr&;
+    constexpr auto get_count_ref() -> CountPtr&;
     constexpr auto get_count() const -> CountPtr;
     // constexpr void store_count(CountPtr count);
 

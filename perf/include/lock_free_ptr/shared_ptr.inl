@@ -36,13 +36,14 @@ SharedPtr<_Ty>::~SharedPtr()
 template<typename _Ty>
 void SharedPtr<_Ty>::operator=(SharedPtr const& ptr)
 {
-    auto old = this->_obj;
-    this->increment(ptr._obj);
-    this->_obj = ptr._obj;
-    if (old != this->_obj) {
-        this->decrement(old);
+    auto _n = ptr.get_count();
+    if (*this != ptr) {
+        this->increment(_n);
+        this->decrement(this->get_count());
     }
+    this->get_count_ref() = _n;
 }
+
 
 template<typename _Ty>
 constexpr auto SharedPtr<_Ty>::operator*() -> Type&
@@ -69,16 +70,25 @@ constexpr auto SharedPtr<_Ty>::operator->() const -> Type const*
 }
 
 template<typename _Ty>
-constexpr auto SharedPtr<_Ty>::operator==(void* ptr) const -> bool
+template<typename __Ptr>
+constexpr auto SharedPtr<_Ty>::operator==(__Ptr&& ptr) const -> bool
 {
-    return this->_obj == ptr;
+    return this->get_count() == reinterpret_cast<void*>(ptr.get_count());
 }
 
 template<typename _Ty>
-constexpr SharedPtr<_Ty>::operator bool() const
+template<typename __Ptr>
+constexpr auto SharedPtr<_Ty>::operator!=(__Ptr&& ptr) const -> bool
 {
-    return this->_obj != nullptr;
+    return this->get_count() != reinterpret_cast<void*>(ptr.get_count());
 }
+
+
+// template<typename _Ty>
+// constexpr SharedPtr<_Ty>::operator bool() const
+// {
+//     return this->_obj != nullptr;
+// }
 
     
 template<typename _Ty>
@@ -122,16 +132,25 @@ constexpr auto WeakPtr<_Ty>::operator->() const -> Type const*
 
 
 template<typename _Ty>
-constexpr auto WeakPtr<_Ty>::operator==(void* ptr) const -> bool
+template<typename __Ptr>
+constexpr auto WeakPtr<_Ty>::operator==(__Ptr&& ptr) const -> bool
 {
-    return this->_obj == ptr;
+    return this->get_count() == reinterpret_cast<void*>(ptr.get_count());
 }
 
 template<typename _Ty>
-constexpr WeakPtr<_Ty>::operator bool() const
+template<typename __Ptr>
+constexpr auto WeakPtr<_Ty>::operator!=(__Ptr&& ptr) const -> bool
 {
-    return this->_obj != nullptr;
+    return this->get_count() != reinterpret_cast<void*>(ptr.get_count());
 }
+
+
+// template<typename _Ty>
+// constexpr WeakPtr<_Ty>::operator bool() const
+// {
+//     return this->_obj != nullptr;
+// }
 
 template<typename _Ty>
 constexpr auto WeakPtr<_Ty>::get_shared() const -> _SharedPtr

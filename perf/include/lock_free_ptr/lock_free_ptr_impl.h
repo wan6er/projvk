@@ -23,17 +23,8 @@ public:
     constexpr BaseLockFreePtrImpl(BaseLockFreePtrImpl const& ptr);
     virtual ~BaseLockFreePtrImpl();
 
-    constexpr auto load(MemoryOrder order = MemoryOrderRelaxed) const -> _Derived;
-    constexpr void store(_Derived ptr, MemoryOrder order = MemoryOrderRelaxed);
-    constexpr bool compare_exchange_weak(_Derived& expected, _Derived const& desired, MemoryOrder order = MemoryOrderRelaxed);
-    constexpr bool compare_exchange_strong(_Derived const& expected, _Derived const& desired, MemoryOrder order = MemoryOrderRelaxed) volatile;
-
     constexpr auto load_count(MemoryOrder order = MemoryOrderRelaxed) const -> CountPtr;
     constexpr void store_count(CountPtr count, MemoryOrder order = MemoryOrderRelaxed);
-    
-protected:
-    // constexpr bool compare_exchange_weak_impl(CountPtr& expected, CountPtr desired, MemoryOrder order = MemoryOrderRelaxed) volatile;
-    constexpr bool compare_swap_impl(CountPtr expected, CountPtr desired, MemoryOrder order = MemoryOrderRelaxed);
 
 protected:
     _AtomicCountObj _obj;

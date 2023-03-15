@@ -17,8 +17,8 @@ struct LockFreePtr : public BaseLockFreePtr<_Ty, SharedPtr<_Ty>, CountObj<_Ty>, 
 {
     using Type = _Ty;
     using _SharedPtr = SharedPtr<_Ty>;
-    using _BaseType = BaseLockFreePtr<_Ty, _SharedPtr, CountObj<_Ty>, MemoryManager<_Ty>>;
-    using _BaseType::_BaseType;
+    using _Base = BaseLockFreePtr<_Ty, _SharedPtr, CountObj<_Ty>, MemoryManager<_Ty>>;
+    using _Base::_Base;
     
     void operator=(LockFreePtr const& ptr);
 
@@ -28,8 +28,11 @@ struct LockFreePtr : public BaseLockFreePtr<_Ty, SharedPtr<_Ty>, CountObj<_Ty>, 
     constexpr auto operator->() -> Type*;
     constexpr auto operator->() const -> Type const*;
     
-    constexpr auto operator==(void* ptr) const -> bool;
-    constexpr operator bool() const;
+    template<typename __Ptr>
+    constexpr auto operator==(__Ptr&& ptr) const -> bool;
+    template<typename __Ptr>
+    constexpr auto operator!=(__Ptr&& ptr) const -> bool;
+    // constexpr operator bool() const;
 
     friend class LockFreeWeakPtr<_Ty>;
 };
@@ -42,9 +45,9 @@ struct LockFreeWeakPtr : public BaseLockFreeWeakPtr<_Ty, WeakPtr<_Ty>, CountObj<
     using AtomicWeakPtr = LockFreeWeakPtr;
     using _WeakPtr = WeakPtr<_Ty>;
     using _SharedPtr = SharedPtr<_Ty>;
-    using _BaseType = BaseLockFreeWeakPtr<_Ty, _WeakPtr, CountObj<_Ty>, MemoryManager<_Ty>>;
+    using _Base = BaseLockFreeWeakPtr<_Ty, _WeakPtr, CountObj<_Ty>, MemoryManager<_Ty>>;
 
-    using _BaseType::_BaseType;
+    using _Base::_Base;
 
     constexpr LockFreeWeakPtr(AtomicSharedPtr const& shared_ptr);
 
@@ -57,8 +60,11 @@ struct LockFreeWeakPtr : public BaseLockFreeWeakPtr<_Ty, WeakPtr<_Ty>, CountObj<
     constexpr auto operator->() -> Type*;
     constexpr auto operator->() const -> Type const*;
 
-    constexpr auto operator==(void* ptr) const -> bool;
-    constexpr operator bool() const;
+    template<typename __Ptr>
+    constexpr auto operator==(__Ptr&& ptr) const -> bool;
+    template<typename __Ptr>
+    constexpr auto operator!=(__Ptr&& ptr) const -> bool;
+    // constexpr operator bool() const;
 
     constexpr auto get_shared() const -> AtomicSharedPtr;
 

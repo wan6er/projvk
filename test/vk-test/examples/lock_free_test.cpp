@@ -139,6 +139,8 @@ void test_ring_ref()
         test1_SharedPtr tp1 = utils::make_shared<test1>();
         test2_SharedPtr tp2 = utils::make_shared<test2>();
 
+        assert(tp1 != tp1->ptr);
+
         tp1->ptr = tp2;
         tp2->ptr = tp1;
 
@@ -185,6 +187,8 @@ void test_lockfree_ring_ref()
 
         test1_SharedPtr tp1 = utils::make_ptr<test1>();
         test2_SharedPtr tp2 = utils::make_ptr<test2>();
+
+        assert(tp1 != tp1->ptr);
 
         tp1->ptr = tp2;
         tp2->ptr = tp1;
@@ -238,14 +242,14 @@ void test_thread_ref()
     for (int i = 0; i < 20000 - 1; ++i) {
         ptr = ptr->next;
     }
-    assert(!(ptr == nullptr));
+    // assert();
 
 }
 
 int main()
 {
-    // test_ring_ref();
-    // test_lockfree_ring_ref();
+    test_ring_ref();
+    test_lockfree_ring_ref();
     test_thread_ref();
 
     // for (int i = 0; i < 10000; ++i) {

@@ -3,7 +3,6 @@
 #include "lock_free_ptr_base.h"
 #include "lock_free_weak_ptr_base.h"
 #include "shared_ptr.h"
-#include "count_obj.h"
 #include "memory_manager.h"
 
 namespace utils
@@ -16,8 +15,11 @@ template<typename _Ty>
 struct LockFreePtr : public BaseLockFreePtr<_Ty, SharedPtr<_Ty>, CountObj<_Ty>, MemoryManager<_Ty>>
 {
     using Type = _Ty;
+    
     using _SharedPtr = SharedPtr<_Ty>;
-    using _Base = BaseLockFreePtr<_Ty, _SharedPtr, CountObj<_Ty>, MemoryManager<_Ty>>;
+    using _CO = CountObj<_Ty>;
+    using _MM = MemoryManager<_Ty>;
+    using _Base = BaseLockFreePtr<_Ty, _SharedPtr, _CO, _MM >;
     using _Base::_Base;
     
     void operator=(LockFreePtr const& ptr);

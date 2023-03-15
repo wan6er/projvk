@@ -35,4 +35,10 @@ int main(void)
 
 }
 
+#else
+
+int main(void)
+{
+}
+
 #endif

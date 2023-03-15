@@ -9,7 +9,7 @@ namespace utils
 template<typename _Ty>
 struct CountObj
 {
-    alignas(alignof(_Ty)) unsigned int storage[sizeof(_Ty)];
+    alignas(alignof(_Ty)) unsigned int storage[sizeof(_Ty)] = {};
     Atomic<unsigned int> ref_cnt;
 
     CountObj() : ref_cnt(0) {}

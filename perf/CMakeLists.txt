@@ -5,6 +5,7 @@ set(PROJ_NAME "perf")
 project(${PROJ_NAME})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+# message("${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 file(GLOB PROJ_SRC 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"

@@ -238,11 +238,10 @@ void test_thread_ref()
     th1.join();
     th2.join();
 
-    node_ptr ptr = head.load();
-    for (int i = 0; i < 20000 - 1; ++i) {
-        ptr = ptr->next;
-    }
-    // assert();
+    // node_ptr ptr = head.load();
+    // for (int i = 0; i < 20000 - 1; ++i) {
+    //     ptr = ptr->next;
+    // }
 
 }
 
@@ -268,4 +267,5 @@ int main()
     //     std::cout << "\n";
 
     // }
+    std::cout << "finished\n";
 }

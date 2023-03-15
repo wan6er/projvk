@@ -4,37 +4,38 @@ namespace utils
 
 
 template<typename _Ty>
-void MemoryManager<_Ty>::destroy(_CountObjPtr ptr)
+void MemoryManager<_Ty>::destroy(_CountPtr ptr)
 {
     delete ptr;
 }
     
 template<typename _Ty>
-void MemoryManager<_Ty>::increment(_CountObjPtr obj)
+void MemoryManager<_Ty>::increment(_CountPtr obj)
 {
     if (obj != nullptr) {
-        obj->add_refs(std::memory_order_seq_cst);
+        obj->add_refs(MemoryOrderSeqCst);
     }
 }
 
 template<typename _Ty>
-void MemoryManager<_Ty>::increment_relaxed(_CountObjPtr obj)
+void MemoryManager<_Ty>::increment_relaxed(_CountPtr obj)
 {
     if (obj != nullptr) {
-        obj->add_refs(std::memory_order_relaxed);
+        obj->add_refs(MemoryOrderRelaxed);
     }
 }
 
 template<typename _Ty>
-bool MemoryManager<_Ty>::decrement(_CountObjPtr obj)
+bool MemoryManager<_Ty>::decrement(_CountPtr obj)
 {
 
     if (obj != nullptr) { 
-        if (obj->ref_cnt.load(std::memory_order_release) == 1) {
+        obj->sub_refs(MemoryOrderRelease);
+        if (obj->ref_cnt.load(MemoryOrderAcquire) == 0) {
+            atomic_thread_fence(MemoryOrderRelease);
             obj->release();
             return true;
         }
-        obj->sub_refs(std::memory_order_relaxed);
     }
     return false;
 }

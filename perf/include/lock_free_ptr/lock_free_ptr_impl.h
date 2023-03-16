@@ -17,13 +17,15 @@ class BaseLockFreePtrImpl : public std::enable_if_t<std::is_base_of_v<BaseMemory
 
 public:
     
-    constexpr BaseLockFreePtrImpl();
-    constexpr BaseLockFreePtrImpl(CountPtr ptr);
-    constexpr BaseLockFreePtrImpl(BaseLockFreePtrImpl const& ptr);
+    BaseLockFreePtrImpl();
+    BaseLockFreePtrImpl(CountPtr ptr);
+    BaseLockFreePtrImpl(BaseLockFreePtrImpl const& ptr);
     virtual ~BaseLockFreePtrImpl();
 
-    constexpr auto load_count(MemoryOrder order = MemoryOrderRelaxed) const -> CountPtr;
-    constexpr void store_count(CountPtr count, MemoryOrder order = MemoryOrderRelaxed);
+    auto load_count(MemoryOrder order = MemoryOrderRelaxed) const -> CountPtr;
+    void store_count(CountPtr count, MemoryOrder order = MemoryOrderRelaxed);
+    auto empty() const -> bool { return load_count() == nullptr; }
+    
 
 protected:
     _AtomicCountObj _obj;

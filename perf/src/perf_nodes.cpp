@@ -16,8 +16,8 @@ void PerfNodes::begin(_Key name)
 
 void PerfNodes::end(_Key name)
 {
-    PerfNode& node = _map[name]->get_head().value()->val;
-    node.set_end();
+    // PerfNode& node = _map[name]->top().value()->val;
+    // node.set_end();
 }
 
 auto PerfNodes::dump() -> Map

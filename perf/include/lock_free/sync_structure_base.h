@@ -3,9 +3,11 @@
 
 #include "perf_basic.h"
 
-#include <atomic>
+#include "lock_free_ptr/shared_ptr.h"
+#include "compatible_atomic.h"
 #include <optional>
 #include <functional>
+#include <iostream>
 
 namespace utils
 {
@@ -26,60 +28,55 @@ struct _Node
 {
     using ValueType = _Ty;
     using NodeType = _Node<ValueType>;
-    using NodePtrType = _PtrType<NodeType>;
+    using NodePtr = SharedPtr<NodeType>;
 
     _Ty val;
-    NodePtrType next;
+    NodePtr next;
 
     _Node() noexcept = default;
-    _Node(_Ty const& val, NodePtrType next) : val(val), next(next) {}
+    _Node(_Ty const& val, NodePtr next) : val(val), next(next) {}
     _Node(_Ty const& val) : _Node(val, nullptr) {}
     _Node(_Node const& val) = default;
+
+    ~_Node() { 
+        if constexpr (std::is_same_v<_Ty, int>) {
+            // std::cout << "~Node:" << val << "; "; 
+        }
+    }
+
+    operator ValueType() const { return val; }
 
 };
 
 class __SyncStructureBase
 {
-    using LockFreeNum = std::atomic<size_t>;
-
+    // using LockFreeNum = Atomic<size_t>;
 protected:
 
-    template<typename _RetType>
-    auto _announce(std::function<_RetType()> func) -> std::optional<_RetType>
-    {
-        _ann_lf.fetch_add(1, std::memory_order_acq_rel);
-        std::optional<_RetType> ret = func();        
-        _ann_lf.fetch_sub(1, std::memory_order_acq_rel);
-        return ret;
-    }
+    // template<typename _RetType>
+    // auto _announce(std::function<_RetType()> func) -> std::optional<_RetType>
+    // {
+    //     _ann_lf.fetch_add(1, MemoryOrderAcqRel);
+    //     std::optional<_RetType> ret = func();        
+    //     _ann_lf.fetch_sub(1, MemoryOrderAcqRel);
+    //     return ret;
+    // }
 
-    void _announce(std::function<void()> func)
-    {
-        _ann_lf.fetch_add(1, std::memory_order_acq_rel);
-        func();
-        _ann_lf.fetch_sub(1, std::memory_order_acq_rel);
-    }
+    // void _announce(std::function<void()> func)
+    // {
+    //     _ann_lf.fetch_add(1, MemoryOrderAcqRel);
+    //     func();
+    //     _ann_lf.fetch_sub(1, MemoryOrderAcqRel);
+    // }
 
-    void _wait_announce(size_t wait_time = 0)
-    {
-        while (_ann_lf.load(std::memory_order_relaxed) != 0);
-    }
+    // void _wait_announce(size_t wait_time = 0)
+    // {
+    //     while (_ann_lf.load(MemoryOrderRelaxed) != 0);
+    // }
 
-    template<typename _Ty, typename..._Args>
-    _Ty* new_obj(_Args&&...args) {
-        return new _Ty(std::forward<_Args>(args)...);
-    }
-    
-    template<typename _Ty>
-    void del_obj(_Ty*& node) {
-        _Ty* tmp = node;
-        node = nullptr;
-        std::atomic_thread_fence(std::memory_order_acquire);
-        delete tmp;
-    }
 
 private:
-    LockFreeNum _ann_lf = 0;
+    // LockFreeNum _ann_lf = 0;
 
 };
 

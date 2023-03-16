@@ -24,11 +24,12 @@ public:
     using TaskType = std::function<void()>;
     using ATStateType = std::atomic<ThreadState>;
     using ATTaskQueue = LockFreeStack<std::function<void()>>;
+    using SharedTaskPtr = ATTaskQueue::SharedNodePtr;
 
     virtual ~TasksState();
 
     void push(TaskType task);
-    auto pop() -> std::optional<TaskType>;
+    auto pop() -> SharedTaskPtr;
     size_t size() { return queue.size(); }
 
     virtual void start();

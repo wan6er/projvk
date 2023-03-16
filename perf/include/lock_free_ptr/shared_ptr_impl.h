@@ -21,6 +21,7 @@ public:
 
     constexpr auto get_count_ref() -> CountPtr&;
     constexpr auto get_count() const -> CountPtr;
+    constexpr auto empty() const -> bool { return _obj == nullptr; }
     // constexpr void store_count(CountPtr count);
 
 protected:

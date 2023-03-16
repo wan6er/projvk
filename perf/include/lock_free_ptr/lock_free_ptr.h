@@ -15,6 +15,8 @@ template<typename _Ty>
 struct LockFreePtr : public BaseLockFreePtr<_Ty, SharedPtr<_Ty>, CountObj<_Ty>, MemoryManager<_Ty>>
 {
     using Type = _Ty;
+    using AtomicWeakPtr = LockFreeWeakPtr<_Ty>;
+    using _CountObj = CountObj<_Ty>;
     using _Base = BaseLockFreePtr<_Ty, SharedPtr<_Ty>, CountObj<_Ty>, MemoryManager<_Ty>>;
     using _Base::_Base;
   
@@ -31,6 +33,7 @@ struct LockFreePtr : public BaseLockFreePtr<_Ty, SharedPtr<_Ty>, CountObj<_Ty>, 
     template<typename __Ptr>
     constexpr auto operator!=(__Ptr&& ptr) const -> bool;
     // constexpr operator bool() const;
+    // auto get_snapshot() const -> AtomicWeakPtr { return AtomicWeakPtr(new _CountObj(this->load_count())); }
 
     friend class LockFreeWeakPtr<_Ty>;
 };

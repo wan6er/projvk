@@ -81,8 +81,8 @@ void BaseThreadExecutorImpl<_TaskState>::_task_loop()
     while (_state->get_state() != ThreadState::STOPPED) {
 
         auto local_task = _state->pop();
-        if (local_task) {
-            (*local_task)();
+        if (!local_task.empty()) {
+            static_cast<TaskType>(*local_task)();
         } else {
             _has_waited.store(1);
             _wait_task_push();

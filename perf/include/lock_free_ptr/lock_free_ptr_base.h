@@ -15,18 +15,18 @@ public:
     using ObjType = BaseLockFreePtr;
     using CountPtr = _CountObj*;
 
-    constexpr BaseLockFreePtr();
-    constexpr BaseLockFreePtr(CountPtr ptr);
-    constexpr BaseLockFreePtr(BaseLockFreePtr const& ptr);
+    BaseLockFreePtr();
+    BaseLockFreePtr(CountPtr ptr);
+    BaseLockFreePtr(BaseLockFreePtr const& ptr);
     virtual ~BaseLockFreePtr();
 
-    constexpr auto load(MemoryOrder order = MemoryOrderRelaxed) const -> _Derived;
-    constexpr void store(_Derived ptr, MemoryOrder order = MemoryOrderRelaxed);
-    constexpr bool compare_exchange_weak(_Derived& expected, _Derived const& desired, MemoryOrder order = MemoryOrderRelaxed);
-    constexpr bool compare_exchange_strong(_Derived const& expected, _Derived const& desired, MemoryOrder order = MemoryOrderRelaxed) volatile;
+    auto load(MemoryOrder order = MemoryOrderRelaxed) const -> _Derived;
+    void store(_Derived ptr, MemoryOrder order = MemoryOrderRelaxed);
+    bool compare_exchange_weak(_Derived& expected, _Derived const& desired, MemoryOrder order = MemoryOrderRelaxed);
+    bool compare_exchange_strong(_Derived const& expected, _Derived const& desired, MemoryOrder order = MemoryOrderRelaxed) volatile;
 
 protected:
-    constexpr bool compare_swap_impl(CountPtr expected, CountPtr desired, MemoryOrder order = MemoryOrderRelaxed);
+    bool compare_swap_impl(CountPtr expected, CountPtr desired, MemoryOrder order = MemoryOrderRelaxed);
 
 protected:
 

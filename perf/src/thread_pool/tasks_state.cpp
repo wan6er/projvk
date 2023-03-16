@@ -12,7 +12,7 @@ void TasksState::push(TaskType task)
     queue.push(task);
 }
 
-auto TasksState::pop() -> std::optional<TaskType>
+auto TasksState::pop() -> SharedTaskPtr
 {
     return queue.pop();
 }

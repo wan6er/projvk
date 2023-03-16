@@ -37,9 +37,10 @@ template<typename _Ty>
 void SharedPtr<_Ty>::operator=(SharedPtr const& ptr)
 {
     auto _n = ptr.get_count();
+    auto _o = this->get_count();
     if (*this != ptr) {
         this->increment(_n);
-        this->decrement(this->get_count());
+        this->decrement(_o);
     }
     this->get_count_ref() = _n;
 }

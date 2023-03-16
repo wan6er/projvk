@@ -6,7 +6,7 @@ namespace utils
 
 template class CPERF_API BaseThreadPool<ThreadExecutor, ThreadExecutor::TasksStateType>;
 // template class CPERF_API BaseThreadPool<ThreadExecutor>;
-template class CPERF_API BaseThreadPool<LockFreeThreadExecutor, LockFreeThreadExecutor::TasksStateType>;
+// template class CPERF_API BaseThreadPool<LockFreeThreadExecutor, LockFreeThreadExecutor::TasksStateType>;
 
 } // namespace utils
 

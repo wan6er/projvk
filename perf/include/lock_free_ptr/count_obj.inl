@@ -16,15 +16,15 @@ auto CountObj<_Ty>::get() const -> _Ty const*
 }
 
 template<typename _Ty>
-void CountObj<_Ty>::add_refs(std::memory_order order)
+auto CountObj<_Ty>::add_refs(MemoryOrder order) -> RefCount
 {
-    ref_cnt.fetch_add(1, order);
+    return ref_cnt.fetch_add(1, order);
 }
 
 template<typename _Ty>
-void CountObj<_Ty>::sub_refs(std::memory_order order)
+auto CountObj<_Ty>::sub_refs(MemoryOrder order) -> RefCount
 {
-    ref_cnt.fetch_sub(1, order);
+    return ref_cnt.fetch_sub(1, order);
 }
 
 template<typename _Ty>

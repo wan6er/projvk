@@ -15,17 +15,18 @@ class BaseLockFreeWeakPtr :
 
 public:
 
-    constexpr BaseLockFreeWeakPtr();
-    constexpr BaseLockFreeWeakPtr(BaseLockFreeWeakPtr const& ptr);
+    BaseLockFreeWeakPtr();
+    // BaseLockFreeWeakPtr(_CountObj const& obj);
+    BaseLockFreeWeakPtr(BaseLockFreeWeakPtr const& ptr);
     virtual ~BaseLockFreeWeakPtr();
 
-    constexpr auto load(MemoryOrder order = MemoryOrderRelaxed) const -> _Derived;
-    constexpr void store(_Derived ptr, MemoryOrder order = MemoryOrderRelaxed);
-    constexpr bool compare_exchange_weak(_Derived& expected, _Derived const& desired, MemoryOrder order = MemoryOrderRelaxed);
-    constexpr bool compare_exchange_strong(_Derived const& expected, _Derived const& desired, MemoryOrder order = MemoryOrderRelaxed) volatile;
+    auto load(MemoryOrder order = MemoryOrderRelaxed) const -> _Derived;
+    void store(_Derived ptr, MemoryOrder order = MemoryOrderRelaxed);
+    bool compare_exchange_weak(_Derived& expected, _Derived const& desired, MemoryOrder order = MemoryOrderRelaxed);
+    bool compare_exchange_strong(_Derived const& expected, _Derived const& desired, MemoryOrder order = MemoryOrderRelaxed) volatile;
 
 protected:
-    constexpr bool compare_swap_impl(CountPtr expected, CountPtr desired, MemoryOrder order = MemoryOrderRelaxed);
+    bool compare_swap_impl(CountPtr expected, CountPtr desired, MemoryOrder order = MemoryOrderRelaxed);
 
 protected:
     // _AtomicCountObj _obj;

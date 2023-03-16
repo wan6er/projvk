@@ -9,17 +9,20 @@ namespace utils
 template<typename _Ty>
 struct CountObj
 {
+    using RefCount = unsigned int;
+
     alignas(alignof(_Ty)) unsigned int storage[sizeof(_Ty)] = {};
-    Atomic<unsigned int> ref_cnt;
+    Atomic<RefCount> ref_cnt;
 
     CountObj() : ref_cnt(0) {}
     CountObj(CountObj const&) = delete;
+    // CountObj(CountObj const& c) : ref_cnt(c.ref_cnt.load(MemoryOrderRelaxed)) { memcpy(storage, c.storage, sizeof(storage)); }
 
     auto get() -> _Ty*;
     auto get() const -> _Ty const*;
 
-    void add_refs(std::memory_order order = std::memory_order_seq_cst);
-    void sub_refs(std::memory_order order = std::memory_order_seq_cst);
+    auto add_refs(MemoryOrder order = MemoryOrderSeqCst) -> RefCount;
+    auto sub_refs(MemoryOrder order = MemoryOrderSeqCst) -> RefCount;
 
     template<typename...__Args>
     void construct(__Args&&...args);

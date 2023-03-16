@@ -14,7 +14,6 @@ public:
     using Base = BaseLockFreePtrImpl<_Ty, _CountObj, _Derived, _MemoryManager>;
     using ObjType = BaseLockFreePtr;
     using CountPtr = _CountObj*;
-    using MemoryManager = _MemoryManager;
 
     constexpr BaseLockFreePtr();
     constexpr BaseLockFreePtr(CountPtr ptr);

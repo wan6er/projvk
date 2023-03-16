@@ -10,10 +10,10 @@ template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryMa
 class BaseLockFreeWeakPtr : 
     public BaseLockFreePtrImpl<_Ty, _CountObj, _Derived, _MemoryManager>
 {
-public:
     using Base = BaseLockFreePtrImpl<_Ty, _CountObj, _Derived, _MemoryManager>;
     using CountPtr = _CountObj*;
-    using MemoryManager = _MemoryManager;
+
+public:
 
     constexpr BaseLockFreeWeakPtr();
     constexpr BaseLockFreeWeakPtr(BaseLockFreeWeakPtr const& ptr);

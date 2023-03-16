@@ -219,11 +219,14 @@ void test_thread_ref()
         }
     };
 
+    static utils::Atomic<int> size = 0;
+
     auto push = [](atomic_node_ptr& head, int d) {
         auto expect = head.load();
         auto n = utils::make_shared<node>(d);
         while (!head.compare_exchange_weak(expect, n));
         n->next = expect;
+        size++;
     };
 
     atomic_node_ptr head;
@@ -238,13 +241,14 @@ void test_thread_ref()
     th1.join();
     th2.join();
 
-    // node_ptr ptr = head.load();
-    // for (int i = 0; i < 20000 - 1; ++i) {
-    //     ptr = ptr->next;
-    // }
+    node_ptr ptr = head.load();
+    for (int i = 0; i < size - 1; ++i) {
+        ptr = ptr->next;
+    }
 
 }
 
+#include <map>
 int main()
 {
     test_ring_ref();

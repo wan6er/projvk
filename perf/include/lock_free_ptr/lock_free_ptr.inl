@@ -63,7 +63,8 @@ constexpr auto LockFreePtr<_Ty>::operator!=(__Ptr&& ptr) const -> bool
 template<typename _Ty>
 constexpr LockFreeWeakPtr<_Ty>::LockFreeWeakPtr(AtomicSharedPtr const& shared_ptr)
 {
-    this->store_count(shared_ptr.load_count(MemoryOrderRelaxed), MemoryOrderAcquire);   
+    // this->store_count(shared_ptr.load_count(MemoryOrderRelaxed), MemoryOrderAcquire);   
+    (*this) = shared_ptr;
 }
 
 template<typename _Ty>

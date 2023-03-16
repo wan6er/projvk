@@ -34,7 +34,7 @@ constexpr auto BaseLockFreePtrImpl<_Ty, _CountObj, _Derived, _MemoryManager>::lo
 template<typename _Ty, typename _CountObj, typename _Derived, typename _MemoryManager>
 constexpr void BaseLockFreePtrImpl<_Ty, _CountObj, _Derived, _MemoryManager>::store_count(CountPtr ptr, MemoryOrder order)
 {
-    return _obj.store(ptr, order);
+    return _obj.store(ptr);
 }
 
 

@@ -10,13 +10,12 @@ namespace utils
 template<typename _Ty, typename _CountObj, typename _Derived, typename _MemoryManager>
 class BaseLockFreePtrImpl : public std::enable_if_t<std::is_base_of_v<BaseMemoryManager, _MemoryManager>, _MemoryManager>
 {
-    // static_assert(std::is_base_of_v<BaseLockFreePtrImpl<_Ty, _CountObj, _Derived>, _Derived>);
-
-public:
     using ValPtr = _Ty*;
     using ConstValPtr = _Ty const*;
     using CountPtr = _CountObj*;
     using _AtomicCountObj = Atomic<CountPtr>;
+
+public:
     
     constexpr BaseLockFreePtrImpl();
     constexpr BaseLockFreePtrImpl(CountPtr ptr);

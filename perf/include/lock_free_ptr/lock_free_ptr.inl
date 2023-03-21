@@ -58,7 +58,6 @@ constexpr auto LockFreePtr<_Ty>::operator!=(__Ptr&& ptr) const -> bool
 // {
 //     return this->_obj.load(MemoryOrderRelaxed) != nullptr;
 // }
-
     
 template<typename _Ty>
 constexpr LockFreeWeakPtr<_Ty>::LockFreeWeakPtr(AtomicSharedPtr const& shared_ptr)
@@ -136,9 +135,9 @@ constexpr auto LockFreeWeakPtr<_Ty>::get_shared() const -> AtomicSharedPtr
 template<typename __Ty, typename...__Args>
 auto make_ptr(__Args&&...args) -> LockFreePtr<__Ty>
 {
-    using _CountObj = CountObj<__Ty>;
+    using _CountObj = CountObjR<__Ty>;
     using _LockFreePtr = LockFreePtr<__Ty>;
-    auto count_obj = new _CountObj;
+    _CountObj count_obj;
     count_obj->construct(std::forward<__Args>(args)...);
 
     return _LockFreePtr(count_obj);

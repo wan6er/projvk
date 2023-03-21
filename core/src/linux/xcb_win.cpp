@@ -1,8 +1,10 @@
 #include "linux/xcb_win.h"
 
+/*
 #if defined(linux)
 
 #include <stdlib.h>
+
 
 namespace __xcb
 {
@@ -124,3 +126,5 @@ void XCBWindow::deinit()
 
 
 #endif
+
+*/

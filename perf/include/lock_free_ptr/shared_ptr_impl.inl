@@ -9,7 +9,7 @@ constexpr BaseSharedPtrImpl<_Ty, _CountObj, _Derived>::BaseSharedPtrImpl() :
 }
 
 template<typename _Ty, typename _CountObj, typename _Derived>
-constexpr BaseSharedPtrImpl<_Ty, _CountObj, _Derived>::BaseSharedPtrImpl(CountPtr ptr) :
+constexpr BaseSharedPtrImpl<_Ty, _CountObj, _Derived>::BaseSharedPtrImpl(_CountObj ptr) :
     _obj(ptr)
 {
 }
@@ -26,13 +26,13 @@ BaseSharedPtrImpl<_Ty, _CountObj, _Derived>::~BaseSharedPtrImpl()
 }
 
 template<typename _Ty, typename _CountObj, typename _Derived>
-constexpr auto BaseSharedPtrImpl<_Ty, _CountObj, _Derived>::get_count_ref() -> CountPtr&
+constexpr auto BaseSharedPtrImpl<_Ty, _CountObj, _Derived>::get_count_ref() -> _CountObj&
 {
     return _obj;
 }
 
 template<typename _Ty, typename _CountObj, typename _Derived>
-constexpr auto BaseSharedPtrImpl<_Ty, _CountObj, _Derived>::get_count() const -> CountPtr
+constexpr auto BaseSharedPtrImpl<_Ty, _CountObj, _Derived>::get_count() const -> _CountObj
 {
     return _obj;
 }

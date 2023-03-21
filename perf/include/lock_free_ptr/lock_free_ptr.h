@@ -12,12 +12,12 @@ template<typename _Ty>
 struct LockFreeWeakPtr;
 
 template<typename _Ty>
-struct LockFreePtr : public BaseLockFreePtr<_Ty, SharedPtr<_Ty>, CountObj<_Ty>, MemoryManager<_Ty>>
+struct LockFreePtr : public BaseLockFreePtr<_Ty, SharedPtr<_Ty>, CountObjR<_Ty>, MemoryManager<_Ty, CountObjR<_Ty>>>
 {
     using Type = _Ty;
     using AtomicWeakPtr = LockFreeWeakPtr<_Ty>;
-    using _CountObj = CountObj<_Ty>;
-    using _Base = BaseLockFreePtr<_Ty, SharedPtr<_Ty>, CountObj<_Ty>, MemoryManager<_Ty>>;
+    using _CountObj = CountObjR<_Ty>;
+    using _Base = BaseLockFreePtr<_Ty, SharedPtr<_Ty>, _CountObj, MemoryManager<_Ty, _CountObj>>;
     using _Base::_Base;
   
     void operator=(LockFreePtr const& ptr);
@@ -39,12 +39,13 @@ struct LockFreePtr : public BaseLockFreePtr<_Ty, SharedPtr<_Ty>, CountObj<_Ty>, 
 };
 
 template<typename _Ty>
-struct LockFreeWeakPtr : public BaseLockFreeWeakPtr<_Ty, WeakPtr<_Ty>, CountObj<_Ty>, MemoryManager<_Ty>>
+struct LockFreeWeakPtr : public BaseLockFreeWeakPtr<_Ty, WeakPtr<_Ty>, CountObjR<_Ty>, MemoryManager<_Ty, CountObjR<_Ty>>>
 {
     using Type = _Ty;
     using AtomicSharedPtr = LockFreePtr<_Ty>;
     using AtomicWeakPtr = LockFreeWeakPtr;
-    using _Base = BaseLockFreeWeakPtr<_Ty, WeakPtr<_Ty>, CountObj<_Ty>, MemoryManager<_Ty>>;
+    using _CountObj = CountObjR<_Ty>;
+    using _Base = BaseLockFreeWeakPtr<_Ty, WeakPtr<_Ty>, _CountObj, MemoryManager<_Ty, _CountObj>>;
     using _Base::_Base;
 
     constexpr LockFreeWeakPtr() = default;
@@ -71,6 +72,7 @@ struct LockFreeWeakPtr : public BaseLockFreeWeakPtr<_Ty, WeakPtr<_Ty>, CountObj<
 
 template<typename __Ty, typename...__Args>
 auto make_ptr(__Args&&...args) -> LockFreePtr<__Ty>;
+
 
 
 } // namespace utils

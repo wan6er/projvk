@@ -1,4 +1,5 @@
 
+
 namespace utils
 {
     
@@ -9,10 +10,16 @@ BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::BaseLockFreePtr() :
 }
 
 template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
-BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::BaseLockFreePtr(CountPtr ptr) :
+BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::BaseLockFreePtr(_CountObj ptr) :
     Base(ptr)
 {
     this->increment(this->load_count(std::memory_order_relaxed));
+}
+
+template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
+BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::BaseLockFreePtr(void* ptr) :
+    BaseLockFreePtr(_CountObj(ptr))
+{
 }
 
 template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
@@ -29,51 +36,72 @@ BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::~BaseLockFreePtr()
 {
     auto _count = this->load_count(std::memory_order_relaxed);
     if (this->decrement(_count)) {
-        auto tmp = _count;
+        // auto tmp = _count;
         this->store_count(nullptr, std::memory_order_acquire);
-        this->destroy(tmp);
+        // this->destroy(tmp);
     }
 }
 
 template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
-auto BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::load(MemoryOrder order) const -> _Derived 
+void BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::load(_Derived& ptr, MemoryOrder order) 
 { 
-    return _Derived(this->load_count(order));
+    // std::lock_guard<std::mutex> locker(mtx);
+    auto cnt_obj = this->load_count(order);
+    read_cnt_add(cnt_obj);
+    ptr.swap(cnt_obj);
+    read_cnt_sub(cnt_obj);
 }
 
 template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
 void BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::store(_Derived ptr, MemoryOrder order)
 {
-    store_count(ptr.get_count(), order);
+    _Derived _obj;
+    load(_obj);
+    while (compare_swap_weak(_obj, ptr));
 }
 
 template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
 bool BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::compare_exchange_weak(_Derived& expected, _Derived const& desired, MemoryOrder order)
 {
-    if (!compare_swap_impl(expected.get_count(), desired.get_count(), order)) {
-        expected = load();
-        return false;
-    }
-    return true;
-}
-
-template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
-bool BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::compare_exchange_strong(_Derived const& expected, _Derived const& desired, MemoryOrder order) volatile
-{
-    return compare_swap_impl(expected.get_count(), desired.get_count(), order);
-}
-
-template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
-bool BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::compare_swap_impl(CountPtr expected, CountPtr desired, MemoryOrder order)
-{
-    if (this->_obj.compare_exchange_strong(expected, desired, order)) {
-        this->increment(desired);
-        this->decrement(expected);
+    if (compare_swap_impl(expected, desired, order)) {
         return true;
     }
+    load(expected);
     return false;
 }
 
+template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
+bool BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::compare_exchange_strong(_Derived const& expected, _Derived const& desired, MemoryOrder order)
+{
+    return compare_swap_impl(expected, desired, order);
+}
+
+template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
+bool BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::compare_swap_impl(_Derived const& expected, _Derived const& desired, MemoryOrder order)
+{
+    auto d_cnt = desired.get_count().add_cnt();
+    auto e_cnt = expected.get_count();
+    
+    if (e_cnt.r_cnt == 0 && this->_obj.compare_exchange_strong(e_cnt, d_cnt, order)) {
+        this->increment(d_cnt);
+        read_cnt_sub(d_cnt);
+        this->decrement(e_cnt);
+        return true;
+    } 
+    return false;
+}
+
+template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
+void BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::read_cnt_add(_CountObj& cnt)
+{
+    while (!this->_obj.compare_exchange_weak(cnt, cnt.add_cnt()));
+}
+
+template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
+void BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::read_cnt_sub(_CountObj& cnt)
+{
+    while (!this->_obj.compare_exchange_weak(cnt, cnt.sub_cnt()));
+}
 
 
 } // namespace utils

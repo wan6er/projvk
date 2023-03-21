@@ -13,18 +13,21 @@ struct WeakPtr;
     
 template<typename _Ty>
 struct SharedPtr :  
-    public BaseSharedPtrImpl<_Ty, CountObj<_Ty>, SharedPtr<_Ty>>, 
-    public MemoryManager<_Ty>
+    public BaseSharedPtrImpl<_Ty, CountObjR<_Ty>, SharedPtr<_Ty>>, 
+    public MemoryManager<_Ty, CountObjR<_Ty>>
 {
     using Type = _Ty;
-    using _CountPtr = CountObj<_Ty>*;
-    using _Base = BaseSharedPtrImpl<_Ty, CountObj<_Ty>, SharedPtr<_Ty>>;
-    // using _BaseType::_BaseType;
+    using _CountPtr = CountObjR<_Ty>;
+    using _Base = BaseSharedPtrImpl<_Ty, _CountPtr, SharedPtr<_Ty>>;
+    // using _Base::_Base;
 
     constexpr SharedPtr();
     constexpr SharedPtr(_CountPtr count);
+    constexpr SharedPtr(void* ptr);
     constexpr SharedPtr(SharedPtr const& ptr);
     virtual ~SharedPtr();
+        
+    void swap(_CountPtr const& ptr);
     
     void operator=(SharedPtr const& ptr);
 
@@ -45,12 +48,12 @@ struct SharedPtr :
 
 template<typename _Ty>
 struct WeakPtr :  
-    public BaseSharedPtrImpl<_Ty, CountObj<_Ty>, WeakPtr<_Ty>>, 
-    public MemoryManager<_Ty>
+    public BaseSharedPtrImpl<_Ty, CountObjR<_Ty>, WeakPtr<_Ty>>, 
+    public MemoryManager<_Ty, CountObjR<_Ty>>
 {
     using Type = _Ty;
     using _SharedPtr = SharedPtr<_Ty>;
-    using _Base = BaseSharedPtrImpl<_Ty, CountObj<_Ty>, WeakPtr<_Ty>>;
+    using _Base = BaseSharedPtrImpl<_Ty, CountObjR<_Ty>, WeakPtr<_Ty>>;
     using _Base::_Base;
     
     constexpr auto operator=(WeakPtr const& ptr) -> WeakPtr&;

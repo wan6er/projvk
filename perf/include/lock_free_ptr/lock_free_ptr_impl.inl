@@ -9,7 +9,7 @@ BaseLockFreePtrImpl<_Ty, _CountObj, _Derived, _MemoryManager>::BaseLockFreePtrIm
 }
 
 template<typename _Ty, typename _CountObj, typename _Derived, typename _MemoryManager>
-BaseLockFreePtrImpl<_Ty, _CountObj, _Derived, _MemoryManager>::BaseLockFreePtrImpl(CountPtr ptr) :
+BaseLockFreePtrImpl<_Ty, _CountObj, _Derived, _MemoryManager>::BaseLockFreePtrImpl(_CountObj ptr) :
     _obj(ptr)
 {
 }
@@ -32,13 +32,13 @@ BaseLockFreePtrImpl<_Ty, _CountObj, _Derived, _MemoryManager>::~BaseLockFreePtrI
 }
 
 template<typename _Ty, typename _CountObj, typename _Derived, typename _MemoryManager>
-auto BaseLockFreePtrImpl<_Ty, _CountObj, _Derived, _MemoryManager>::load_count(MemoryOrder order) const -> CountPtr
+auto BaseLockFreePtrImpl<_Ty, _CountObj, _Derived, _MemoryManager>::load_count(MemoryOrder order) const -> _CountObj
 {
     return _obj.load(order);
 }
 
 template<typename _Ty, typename _CountObj, typename _Derived, typename _MemoryManager>
-void BaseLockFreePtrImpl<_Ty, _CountObj, _Derived, _MemoryManager>::store_count(CountPtr ptr, MemoryOrder order)
+void BaseLockFreePtrImpl<_Ty, _CountObj, _Derived, _MemoryManager>::store_count(_CountObj ptr, MemoryOrder order)
 {
     return _obj.store(ptr);
 }

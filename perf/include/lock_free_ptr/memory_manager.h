@@ -9,17 +9,16 @@
 namespace utils
 {
 
-template<typename _Ty>
+template<typename _Ty, typename _CountObj>
 struct MemoryManager : public BaseMemoryManager
 {
     // using _CountObj = CountObj<_Ty>;
-    using _CountPtr = CountObj<_Ty>*;
 
-    void destroy(_CountPtr ptr);
+    void destroy(_CountObj ptr);
 
-    void increment(_CountPtr obj);
-    void increment_relaxed(_CountPtr obj);
-    bool decrement(_CountPtr obj);
+    void increment(_CountObj obj);
+    void increment_relaxed(_CountObj obj);
+    bool decrement(_CountObj obj);
 
 };
     

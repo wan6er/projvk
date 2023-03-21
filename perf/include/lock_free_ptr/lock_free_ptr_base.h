@@ -13,20 +13,23 @@ class BaseLockFreePtr :
 public:
     using Base = BaseLockFreePtrImpl<_Ty, _CountObj, _Derived, _MemoryManager>;
     using ObjType = BaseLockFreePtr;
-    using CountPtr = _CountObj*;
 
     BaseLockFreePtr();
-    BaseLockFreePtr(CountPtr ptr);
+    BaseLockFreePtr(_CountObj ptr);
+    BaseLockFreePtr(void* ptr);
     BaseLockFreePtr(BaseLockFreePtr const& ptr);
     virtual ~BaseLockFreePtr();
 
-    auto load(MemoryOrder order = MemoryOrderRelaxed) const -> _Derived;
+    void load(_Derived& ptr, MemoryOrder order = MemoryOrderRelaxed);
     void store(_Derived ptr, MemoryOrder order = MemoryOrderRelaxed);
     bool compare_exchange_weak(_Derived& expected, _Derived const& desired, MemoryOrder order = MemoryOrderRelaxed);
-    bool compare_exchange_strong(_Derived const& expected, _Derived const& desired, MemoryOrder order = MemoryOrderRelaxed) volatile;
+    bool compare_exchange_strong(_Derived const& expected, _Derived const& desired, MemoryOrder order = MemoryOrderRelaxed);
 
 protected:
-    bool compare_swap_impl(CountPtr expected, CountPtr desired, MemoryOrder order = MemoryOrderRelaxed);
+    void read_cnt_add(_CountObj& cnt);
+    void read_cnt_sub(_CountObj& cnt);
+
+    bool compare_swap_impl(_Derived const& expected, _Derived const& desired, MemoryOrder order = MemoryOrderRelaxed);
 
 protected:
 

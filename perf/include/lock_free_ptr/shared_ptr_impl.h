@@ -12,20 +12,19 @@ class BaseSharedPtrImpl
 public:
     using ValPtr = _Ty*;
     using ConstValPtr = _Ty const*;
-    using CountPtr = _CountObj*;
     
     constexpr BaseSharedPtrImpl();
-    constexpr BaseSharedPtrImpl(CountPtr ptr);
+    constexpr BaseSharedPtrImpl(_CountObj ptr);
     constexpr BaseSharedPtrImpl(BaseSharedPtrImpl const& ptr);
     virtual ~BaseSharedPtrImpl();
 
-    constexpr auto get_count_ref() -> CountPtr&;
-    constexpr auto get_count() const -> CountPtr;
+    constexpr auto get_count_ref() -> _CountObj&;
+    constexpr auto get_count() const -> _CountObj;
     constexpr auto empty() const -> bool { return _obj == nullptr; }
-    // constexpr void store_count(CountPtr count);
+    // constexpr void store_count(_CountObj count);
 
 protected:
-    CountPtr _obj;
+    _CountObj _obj;
 
 };
 

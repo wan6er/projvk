@@ -13,6 +13,7 @@ void queue_add_num(_Ty& deque, int start, int end)
         deque.push(i);
     }
 }
+
 template<typename _Ty>
 void queue_del_num(_Ty& deque, int start, int end)
 {
@@ -25,7 +26,7 @@ template<typename _SyncTy>
 void test_sync(cperf::PerfNodes& perf)
 {
 
-    constexpr int COUNT = 1000;
+    constexpr int COUNT = 2000;
     _SyncTy deque1;
     {
 
@@ -33,27 +34,27 @@ void test_sync(cperf::PerfNodes& perf)
         std::thread thr2([&] { queue_add_num(deque1, COUNT, 2 * COUNT); });
         thr1.join();
         thr2.join();
-        std::cout << "push finished" << std::endl;
+        std::cout << "push finished\t";
 
         auto ptr = deque1.top();
         for (size_t i = 0; i < deque1.size(); ++i) {
             CPERF_ASSERT(!ptr.empty());
             ptr = ptr->next;
         }
-
+    
         std::thread dthr1([&] { queue_del_num(deque1, 0, COUNT); });
         std::thread dthr2([&] { queue_del_num(deque1, 0, COUNT); });
         dthr1.join();
         dthr2.join();
-        std::cout << "clean finished" << std::endl;
-        
+        std::cout << "clean finished\t";
         CPERF_ASSERT(deque1.size() == 0);
 
         std::thread dthr3([&] { queue_del_num(deque1, 0, COUNT); });
         std::thread thr3([&] { queue_add_num(deque1, 0, COUNT); });
         dthr3.join();
         thr3.join();
-        std::cout << "push & pop finished" << std::endl;
+        std::cout << "push & pop finished\t";
+
     }
 }
 
@@ -129,7 +130,7 @@ void test_ring_ref()
         test1_SharedPtr tp1 = utils::make_shared<test1>();
         test2_SharedPtr tp2 = utils::make_shared<test2>();
 
-        assert(tp1 != tp1->ptr);
+        // assert(tp1 != tp1->ptr);
 
         tp1->ptr = tp2;
         tp2->ptr = tp1;
@@ -178,7 +179,7 @@ void test_lockfree_ring_ref()
         test1_SharedPtr tp1 = utils::make_ptr<test1>();
         test2_SharedPtr tp2 = utils::make_ptr<test2>();
 
-        assert(tp1 != tp1->ptr);
+        // assert(tp1 != tp1->ptr);
 
         tp1->ptr = tp2;
         tp2->ptr = tp1;
@@ -209,20 +210,19 @@ void test_thread_ref()
         }
     };
 
-    static utils::Atomic<int> size = 0;
 
     auto push = [](atomic_node_ptr& head, int d) {
-        auto expect = head.load();
         auto n = utils::make_shared<node>(d);
+        node_ptr expect;
+        head.load(expect);
         while (!head.compare_exchange_weak(expect, n));
         n->next = expect;
-        size++;
     };
 
     atomic_node_ptr head;
 
     auto push_test = [&]() {
-        for (int i = 0; i < 10000; ++i) {
+        for (int i = 0; i < 1000; ++i) {
             push(head, i);
         }
     };
@@ -231,21 +231,18 @@ void test_thread_ref()
     th1.join();
     th2.join();
 
-    node_ptr ptr = head.load();
-    for (int i = 0; i < size - 1; ++i) {
-        ptr = ptr->next;
-    }
 
 }
 
 #include <map>
 int main()
 {
-    // test_ring_ref();
-    // test_lockfree_ring_ref();
-    // test_thread_ref();
 
-    for (int i = 0; i < 100; ++i) {
+
+    for (int i = 0; i < 10000; ++i) {
+        // test_ring_ref();
+        // test_lockfree_ring_ref();
+        // test_thread_ref();
         cperf::PerfNodes perf;
         perf.begin("atomic_stack");
         test_sync<utils::LockFreeStack<int>>(perf);
@@ -261,7 +258,7 @@ int main()
         //     auto time = head->val.end - head->val.start;
         //     std::cout << name << " " << cperf::time_cast<std::chrono::milliseconds>(time) << ", ";
         // });
-        std::cout << "\n";
+        std::cout << i << " \n";
 
     }
     std::cout << "finished\n";

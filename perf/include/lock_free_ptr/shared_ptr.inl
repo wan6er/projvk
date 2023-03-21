@@ -1,7 +1,6 @@
 
 namespace utils
 {
-
     
 template<typename _Ty>
 constexpr SharedPtr<_Ty>::SharedPtr() :
@@ -13,8 +12,13 @@ template<typename _Ty>
 constexpr SharedPtr<_Ty>::SharedPtr(_CountPtr count) :
     _Base(count)
 {
-        // this->_obj->add_refs(std::memory_order_relaxed);
     this->increment(this->_obj);
+}
+
+template<typename _Ty>
+constexpr SharedPtr<_Ty>::SharedPtr(void* ptr) :
+    SharedPtr(_CountPtr(ptr))
+{
 }
 
 template<typename _Ty>
@@ -32,7 +36,18 @@ SharedPtr<_Ty>::~SharedPtr()
         this->_obj = nullptr;
     }
 }
-    
+
+template<typename _Ty>
+void SharedPtr<_Ty>::swap(_CountPtr const& ptr)
+{
+    auto _o = this->get_count();
+    if (_o != ptr) {
+        this->increment(ptr);
+        this->decrement(_o);
+    }
+    this->get_count_ref() = ptr;
+}
+
 template<typename _Ty>
 void SharedPtr<_Ty>::operator=(SharedPtr const& ptr)
 {
@@ -74,14 +89,14 @@ template<typename _Ty>
 template<typename __Ptr>
 constexpr auto SharedPtr<_Ty>::operator==(__Ptr&& ptr) const -> bool
 {
-    return this->get_count() == reinterpret_cast<void*>(ptr.get_count());
+    return this->get_count() == ptr.get_count();
 }
 
 template<typename _Ty>
 template<typename __Ptr>
 constexpr auto SharedPtr<_Ty>::operator!=(__Ptr&& ptr) const -> bool
 {
-    return this->get_count() != reinterpret_cast<void*>(ptr.get_count());
+    return this->get_count() != ptr.get_count();
 }
 
 
@@ -163,9 +178,10 @@ constexpr auto WeakPtr<_Ty>::get_shared() const -> _SharedPtr
 template<typename __Ty, typename...__Args>
 auto make_shared(__Args&&...args) -> SharedPtr<__Ty>
 {
-    using _CountObj = CountObj<__Ty>;
+    using _CountObj = CountObjR<__Ty>;
     using _SharedPtr = SharedPtr<__Ty>;
-    auto count_obj = new _CountObj;
+    
+    _CountObj count_obj;
     count_obj->construct(std::forward<__Args>(args)...);
 
     return _SharedPtr(count_obj);

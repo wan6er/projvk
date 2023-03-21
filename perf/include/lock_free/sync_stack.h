@@ -28,7 +28,7 @@ public:
     void push(_Ty const& t)
     {
         auto node = make_shared<NodeType>(t);
-        node->next = head.load(MemoryOrderRelaxed);
+        head.load(node->next, MemoryOrderRelaxed);
         while (!head.compare_exchange_weak(node->next, node));
         _size++;
     }
@@ -40,16 +40,19 @@ public:
         if (_s == 0) {
             return nullptr;
         }
-
-        SharedNodePtr node = head.load(MemoryOrderRelaxed);
-        CPERF_ASSERT(!node.empty());
+        
+        // static std::mutex mtx;
+        SharedNodePtr node; 
+        head.load(node, MemoryOrderRelaxed);
         while (!head.compare_exchange_weak(node, node->next));
         return node;
     }
 
     SharedNodePtr top() 
     {
-        return head.load(MemoryOrderRelaxed);    
+        SharedNodePtr node;
+        head.load(node, MemoryOrderRelaxed);
+        return node;    
     }
 
     size_t size() const

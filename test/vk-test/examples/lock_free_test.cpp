@@ -1,6 +1,8 @@
 #include "thread_pool/thread_pool.h"
 // #include "lock_free/sync_queue.h"
 #include "lock_free/sync_stack.h"
+#include "lock_free_ptr/lock_free_ptrs.h"
+#include "lock_free_ptr/shared_ptrs.h"
 #include "perf_nodes.h"
 
 #include <iostream>
@@ -17,9 +19,14 @@ void queue_add_num(_Ty& deque, int start, int end)
 template<typename _Ty>
 void queue_del_num(_Ty& deque, int start, int end)
 {
+    typename _Ty::SharedNodePtr ptr;
     for (int i = start; i < end; ++i) {
-        deque.pop();
+        ptr = deque.pop();
+        if (!ptr.empty()) {
+            // std::cout << ptr->val << ";\t";
+        }
     }
+    // std::cout << "\n";
 }
 
 template<typename _SyncTy>
@@ -32,16 +39,16 @@ void test_sync(cperf::PerfNodes& perf)
 
         std::thread thr1([&] { queue_add_num(deque1, 0, COUNT); });
         std::thread thr2([&] { queue_add_num(deque1, COUNT, 2 * COUNT); });
-        thr1.join();
         thr2.join();
-        std::cout << "push finished\t";
+        thr1.join();
+        // std::cout << "push finished\t";
 
         auto ptr = deque1.top();
         for (size_t i = 0; i < deque1.size(); ++i) {
             CPERF_ASSERT(!ptr.empty());
             ptr = ptr->next;
         }
-    
+
         std::thread dthr1([&] { queue_del_num(deque1, 0, COUNT); });
         std::thread dthr2([&] { queue_del_num(deque1, 0, COUNT); });
         dthr1.join();
@@ -51,41 +58,49 @@ void test_sync(cperf::PerfNodes& perf)
 
         std::thread dthr3([&] { queue_del_num(deque1, 0, COUNT); });
         std::thread thr3([&] { queue_add_num(deque1, 0, COUNT); });
+        std::thread dthr4([&] { queue_del_num(deque1, 0, COUNT); });
+        std::thread thr4([&] { queue_add_num(deque1, 0, COUNT); });
+        dthr4.join();
+        thr4.join();
         dthr3.join();
         thr3.join();
         std::cout << "push & pop finished\t";
 
+        ptr = deque1.top();
+        for (size_t i = 0; i < deque1.size(); ++i) {
+            CPERF_ASSERT(!ptr.empty());
+            ptr = ptr->next;
+        }
+ 
     }
 }
 
 void test_pool()
 {
-    int a = 0;
+    std::atomic<int> a = 0;
+    int const COUNT = 5000;
     {
         utils::ThreadPool tasks(4);
-        tasks.pause();
+        // tasks.pause();
 
-        for (int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < COUNT; ++i) {
             tasks.push([&]() {
                 // std::this_thread::yield();
                 a++;
             });
         }
-        tasks.start();
         tasks.wait_done();
-        std::cout << "small task finished" << std::endl;
+        CPERF_ASSERT(a == COUNT);
 
-        tasks.pause();
         tasks.push([&]() {
-            for (int i = 0; i < 1000; ++i) {
+            for (int i = 0; i < COUNT; ++i) {
                 // std::this_thread::yield();
                 a++;
             }
         });
-        // start = std::chrono::system_clock::now();
-        tasks.start();
         tasks.wait_done();        
-        std::cout << "one task finished" << std::endl;
+        // std::cout << "one task finished\t";
+        CPERF_ASSERT(a == COUNT * 2);
     }
 
 }
@@ -210,7 +225,6 @@ void test_thread_ref()
         }
     };
 
-
     auto push = [](atomic_node_ptr& head, int d) {
         auto n = utils::make_shared<node>(d);
         node_ptr expect;
@@ -237,18 +251,16 @@ void test_thread_ref()
 #include <map>
 int main()
 {
-
-
     for (int i = 0; i < 10000; ++i) {
         // test_ring_ref();
         // test_lockfree_ring_ref();
         // test_thread_ref();
         cperf::PerfNodes perf;
-        perf.begin("atomic_stack");
+        // perf.begin("atomic_stack");
         test_sync<utils::LockFreeStack<int>>(perf);
-        perf.end("atomic_stack");
+        // perf.end("atomic_stack");
         // perf.begin("atomic_queue");
-        // test_sync<utils::LockFreeQueue<int>>(perf);
+        test_sync<utils::LockFreeQueue<int>>(perf);
         // perf.end("atomic_queue");
         // perf.begin("pool");
         // test_pool();
@@ -258,7 +270,7 @@ int main()
         //     auto time = head->val.end - head->val.start;
         //     std::cout << name << " " << cperf::time_cast<std::chrono::milliseconds>(time) << ", ";
         // });
-        std::cout << i << " \n";
+        std::cout << "tested " << i << " \n";
 
     }
     std::cout << "finished\n";

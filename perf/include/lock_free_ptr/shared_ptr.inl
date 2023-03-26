@@ -19,6 +19,7 @@ template<typename _Ty>
 constexpr SharedPtr<_Ty>::SharedPtr(void* ptr) :
     SharedPtr(_CountPtr(ptr))
 {
+    // this->increment(this->_obj);
 }
 
 template<typename _Ty>
@@ -181,7 +182,7 @@ auto make_shared(__Args&&...args) -> SharedPtr<__Ty>
     using _CountObj = CountObjR<__Ty>;
     using _SharedPtr = SharedPtr<__Ty>;
     
-    _CountObj count_obj;
+    _CountObj count_obj(make_count_obj<__Ty>());
     count_obj->construct(std::forward<__Args>(args)...);
 
     return _SharedPtr(count_obj);

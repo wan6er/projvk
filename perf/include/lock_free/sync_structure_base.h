@@ -4,6 +4,7 @@
 #include "perf_basic.h"
 
 #include "lock_free_ptr/shared_ptr.h"
+#include "lock_free_ptr/lock_free_ptr.h"
 #include "compatible_atomic.h"
 #include <optional>
 #include <functional>
@@ -38,15 +39,54 @@ struct _Node
     _Node(_Ty const& val) : _Node(val, nullptr) {}
     _Node(_Node const& val) = default;
 
-    ~_Node() { 
-        if constexpr (std::is_same_v<_Ty, int>) {
-            // std::cout << "~Node:" << val << "; "; 
-        }
-    }
+    ~_Node() {}
 
     operator ValueType() const { return val; }
 
 };
+
+// template<typename _Ty>
+// struct _LockFreeNode
+// {
+//     using ValueType = _Ty;
+//     using NodeType = _LockFreeNode<ValueType>;
+//     using NodePtr = SharedPtr<NodeType>;
+
+//     _Ty val;
+//     NodePtr next;
+
+//     _LockFreeNode() noexcept = default;
+//     _LockFreeNode(_Ty const& val, NodePtr next) : val(val), next(next) {}
+//     _LockFreeNode(_Ty const& val) : _LockFreeNode(val, nullptr) {}
+//     _LockFreeNode(_LockFreeNode const& val) = default;
+
+//     ~_LockFreeNode() {}
+
+//     operator ValueType() const { return val; }
+
+// };
+
+// template<typename _Ty>
+// struct _DoubleNode
+// {
+//     using ValueType = _Ty;
+//     using NodeType = _Node<ValueType>;
+//     using NodePtr = LockFreePtr<NodeType>;
+
+//     _Ty val;
+//     NodePtr last;
+//     NodePtr next;
+
+//     _DoubleNode() noexcept = default;
+//     _DoubleNode(_Ty const& val, NodePtr last, NodePtr next) : val(val), last(last), next(next) {}
+//     _DoubleNode(_Ty const& val) : _DoubleNode(val, nullptr, nullptr) {}
+//     _DoubleNode(_DoubleNode const& val) = default;
+
+//     ~_DoubleNode() {}
+
+//     operator ValueType() const { return val; }
+
+// };
 
 class __SyncStructureBase
 {

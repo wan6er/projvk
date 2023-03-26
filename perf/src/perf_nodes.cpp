@@ -6,12 +6,12 @@ namespace cperf
 
 void PerfNodes::begin(_Key name)
 {
-    PerfNode node;
-    node.set_start();
-    if (_map.find(name) == _map.end()) {
-        _map.emplace(name, utils::make_ptr<PerfNodeQueue>());
-    }
-    _map[name]->push(node);
+    // PerfNode node;
+    // node.set_start();
+    // if (_map.find(name) == _map.end()) {
+    //     _map.emplace(name, utils::make_ptr<PerfNodeQueue>());
+    // }
+    // _map[name]->push(node);
 }
 
 void PerfNodes::end(_Key name)

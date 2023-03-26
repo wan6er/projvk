@@ -4,12 +4,12 @@ namespace utils
 
 template<typename _Ty, typename _CountObj, typename _Derived>
 constexpr BaseSharedPtrImpl<_Ty, _CountObj, _Derived>::BaseSharedPtrImpl() :
-    _obj(nullptr)
+    _obj()
 {
 }
 
 template<typename _Ty, typename _CountObj, typename _Derived>
-constexpr BaseSharedPtrImpl<_Ty, _CountObj, _Derived>::BaseSharedPtrImpl(_CountObj ptr) :
+constexpr BaseSharedPtrImpl<_Ty, _CountObj, _Derived>::BaseSharedPtrImpl(_CountObj& ptr) :
     _obj(ptr)
 {
 }
@@ -21,12 +21,13 @@ constexpr BaseSharedPtrImpl<_Ty, _CountObj, _Derived>::BaseSharedPtrImpl(BaseSha
 }
 
 template<typename _Ty, typename _CountObj, typename _Derived>
-BaseSharedPtrImpl<_Ty, _CountObj, _Derived>::~BaseSharedPtrImpl()
+constexpr auto BaseSharedPtrImpl<_Ty, _CountObj, _Derived>::get_count_ref() -> _CountObj&
 {
+    return _obj;
 }
 
 template<typename _Ty, typename _CountObj, typename _Derived>
-constexpr auto BaseSharedPtrImpl<_Ty, _CountObj, _Derived>::get_count_ref() -> _CountObj&
+constexpr auto BaseSharedPtrImpl<_Ty, _CountObj, _Derived>::get_count_ref() const -> _CountObj const&
 {
     return _obj;
 }

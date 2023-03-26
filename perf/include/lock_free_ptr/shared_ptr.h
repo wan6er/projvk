@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __SHARED_PTR_H__
+#define __SHARED_PTR_H__
 
 #include "shared_ptr_impl.h"
 #include "count_obj.h"
@@ -28,6 +29,8 @@ struct SharedPtr :
     virtual ~SharedPtr();
         
     void swap(_CountPtr const& ptr);
+
+    auto get_ptr() { return this->_obj.get(); }
     
     void operator=(SharedPtr const& ptr);
 
@@ -42,6 +45,8 @@ struct SharedPtr :
     template<typename __Ptr>
     constexpr auto operator!=(__Ptr&& ptr) const -> bool;
     // constexpr operator bool() const;
+    
+    constexpr auto empty() const -> bool { return this->get_count() == nullptr; }
 
     friend class WeakPtr<_Ty>;
 };
@@ -81,3 +86,5 @@ auto make_shared(__Args&&...args) -> SharedPtr<__Ty>;
 } // namespace utils
 
 #include "shared_ptr.inl"
+
+#endif

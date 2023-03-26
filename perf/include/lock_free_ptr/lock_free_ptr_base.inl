@@ -13,13 +13,16 @@ template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryMa
 BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::BaseLockFreePtr(_CountObj ptr) :
     Base(ptr)
 {
-    this->increment(this->load_count(std::memory_order_relaxed));
+    auto cnt = this->load_count(MemoryOrderRelaxed);
+    this->increment(cnt);
 }
 
 template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
 BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::BaseLockFreePtr(void* ptr) :
     BaseLockFreePtr(_CountObj(ptr))
 {
+    auto cnt = this->load_count(MemoryOrderRelaxed);
+    this->increment(cnt);
 }
 
 template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
@@ -35,11 +38,8 @@ template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryMa
 BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::~BaseLockFreePtr()
 {
     auto _count = this->load_count(std::memory_order_relaxed);
-    if (this->decrement(_count)) {
-        // auto tmp = _count;
-        this->store_count(nullptr, std::memory_order_acquire);
-        // this->destroy(tmp);
-    }
+    this->decrement(_count);
+    this->store_count(_count, std::memory_order_acquire);
 }
 
 template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
@@ -57,7 +57,7 @@ void BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::store(_Derived p
 {
     _Derived _obj;
     load(_obj);
-    while (compare_swap_weak(_obj, ptr));
+    while (!compare_exchange_weak(_obj, ptr));
 }
 
 template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>

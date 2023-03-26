@@ -39,7 +39,7 @@ private:
 template<typename _Ty>
 using _ListNode = utils::_Node<_Ty>;
 
-// using _ReadNodesCallback = std::function<void(_Key, _ListNode<PerfNode> const*)>;
-// CPERF_API void read_nodes(Map const& map, _ReadNodesCallback callback);
+using _ReadNodesCallback = std::function<void(_Key, _ListNode<PerfNode> const*)>;
+CPERF_API void read_nodes(Map const& map, _ReadNodesCallback callback);
 
 } // namespace name

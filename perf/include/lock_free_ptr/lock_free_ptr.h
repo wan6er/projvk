@@ -73,8 +73,6 @@ struct LockFreeWeakPtr : public BaseLockFreeWeakPtr<_Ty, WeakPtr<_Ty>, CountObjR
 template<typename __Ty, typename...__Args>
 auto make_ptr(__Args&&...args) -> LockFreePtr<__Ty>;
 
-
-
 } // namespace utils
 
 #include "lock_free_ptr.inl"

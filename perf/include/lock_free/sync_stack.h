@@ -35,16 +35,12 @@ public:
 
     SharedNodePtr pop()
     {
-        auto _s = _size.load(MemoryOrderRelaxed);
-        while (_s != 0 && !_size.compare_exchange_weak(_s, _s - 1));
-        if (_s == 0) {
-            return nullptr;
-        }
-        
-        // static std::mutex mtx;
         SharedNodePtr node; 
         head.load(node, MemoryOrderRelaxed);
-        while (!head.compare_exchange_weak(node, node->next));
+        while (!node.empty() && !head.compare_exchange_weak(node, node->next));
+        if (!node.empty()) {
+            _size.fetch_sub(1, MemoryOrderSeqCst);
+        }
         return node;
     }
 

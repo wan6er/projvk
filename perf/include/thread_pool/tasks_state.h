@@ -3,6 +3,7 @@
 
 #include "perf_basic.h"
 #include "lock_free/sync_stack.h"
+#include "lock_free/sync_queue.h"
 
 #include <atomic>
 #include <functional>

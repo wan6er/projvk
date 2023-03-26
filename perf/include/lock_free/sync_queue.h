@@ -2,7 +2,7 @@
 #define __SYNC_QUEUE_H__
 
 #include "sync_structure_base.h"
-#include "lock_free_ptr/lock_free_ptr.h"
+#include "lock_free_ptr/lock_free_ptrs.h"
 
 #include <thread>
 #include <iostream>
@@ -13,57 +13,107 @@ namespace utils
 template<typename _Ty>
 class LockFreeQueue : public __SyncStructureBase
 {
+    constexpr static unsigned int HEADI = 0;
+    constexpr static unsigned int TAILI = 1;
+
     using ValueType = _Ty;
     using NodeType = _Node<ValueType>;
-    using SharedNodePtr = SharedPtr<NodeType>;
-    using LockFreeNodePtr = LockFreePtr<NodeType>;
+    using LockFreeNodePtrs = LockFreePtrs<NodeType, 2>;
     using LockFreeSize = Atomic<size_t>;
 
 public:
+    using SharedNodePtr = SharedPtr<NodeType>;
+    using SharedNodePtrs = SharedPtrs<NodeType, 2>;
+
     LockFreeQueue() noexcept = default;
     
     LockFreeQueue(LockFreeQueue const&) = default; 
 
     ~LockFreeQueue()
     {
-        // clean();
+        clean();
     }
 
-    void push(_Ty const& t)
+    void push(_Ty const& t) 
     {
         auto node = make_shared<NodeType>(t);
-        auto _s = _size.fetch_add(1, MemoryOrderRelease);
-        if (_s == 0) {
 
+        SharedNodePtrs _ptrs, _next, _none;
+
+        ptrs.load(_ptrs);
+
+        do {
+            _next = _ptrs;
+            _next.swap(TAILI, node.get_ptr());
+            if (_next[HEADI] == nullptr) {
+                _next.swap(HEADI, node.get_ptr());
+            }
+        } while (!ptrs.compare_exchange_weak(_ptrs, _next));
+
+        if (_ptrs[TAILI] != nullptr) {
+            (*_ptrs[TAILI])->next = node;
         }
+
+        _size.fetch_add(1);
+
     }
     
     SharedNodePtr pop()
     {
-        auto _s = _size.load(MemoryOrderRelaxed);
-        while (_s != 0 && !_size.compare_exchange_weak(_s, _s - 1));
-        if (_s == 0) {
-            return nullptr;
-        }
+        bool poped = false;
+        SharedNodePtr _ret;
+        SharedNodePtrs _ptrs, _next;
+        ptrs.load(_ptrs);
+        do {
+            _next = _ptrs;
+            if (_next[HEADI] != nullptr) {
+                auto _next_ptr = (*_next[HEADI])->next.get_ptr();
+                _next.swap(HEADI, _next_ptr);
+                if (_next_ptr == nullptr) {
+                    if (_ptrs[HEADI] != _ptrs[TAILI]) {
+                        break;
+                    }
+                    _next.swap(TAILI, nullptr);
+                }
+            } else {
+                break;
+            }
+        } while (!(poped = ptrs.compare_exchange_weak(_ptrs, _next)));
 
-        SharedNodePtr node = head.load(MemoryOrderRelaxed);
-        while (!head.compare_exchange_weak(node, node->next));
-        return node;
+        if (poped) {
+            _size.fetch_sub(1);
+            _ret.swap(_ptrs[HEADI]);
+        }
+        return _ret;
     }
 
     SharedNodePtr top() 
     {
-        return head.load(MemoryOrderRelaxed);    
+        SharedNodePtrs _ptrs;
+        ptrs.load(_ptrs);
+        return SharedNodePtr(_ptrs[HEADI]);
     }
 
     size_t size() const
     {
+        // SharedNodePtrs _ptrs;
+        // ptrs.load(_ptrs);
+        // return size_t(_ptrs[SIZEI]);
         return _size;
     }
 
+    void clean()
+    {
+        auto item = pop();
+        while (!item.empty()) {
+            item = pop();
+        }
+    }
+
+protected:
+
 private:
-    LockFreeNodePtr head = nullptr;
-    LockFreeNodePtr tail = nullptr;
+    LockFreeNodePtrs ptrs;
     LockFreeSize _size = 0;
 
 };

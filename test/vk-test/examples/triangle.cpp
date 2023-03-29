@@ -40,14 +40,21 @@
 #ifdef WIN32
 #include "win32/surface_win32.h"
 #include "win32/win.h"
+#elif linux
+#include "linux/xcb_win.h"
+#include "linux/surface_xcb.h"
 #endif
 
 int main()
 {
 
     std::vector<std::string> instance_extensions = {
-        VK_KHR_SURFACE_EXTENSION_NAME,
+#ifdef WIN32
         VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+#elif linux
+        VK_KHR_XCB_SURFACE_EXTENSION_NAME,
+#endif
+        VK_KHR_SURFACE_EXTENSION_NAME,
         VK_EXT_DEBUG_UTILS_EXTENSION_NAME
     };
     std::vector<std::string> instance_layers = {
@@ -70,6 +77,11 @@ int main()
 #ifdef WIN32
     Windows win("triangle", width, height);
     cvk::SurfaceWin32 surface(instance, win.instance(), win);
+#elif linux
+    XCBWindow win;
+    win.create("triangle", width, height);
+    win.show();
+    cvk::SurfaceXCB surface(instance, win.get_connection(), win.get_window());
 #else
 #error unsupport platform
 #endif
@@ -78,6 +90,7 @@ int main()
     std::vector<VkSurfaceFormatKHR> formats;
     __cvk::get_surface_formats(device.get_physical_device(), surface, formats);
     CVK_ASSERT(formats.size() > 0);
+    auto format = formats[0].format;
     cvk::Swapchain swapchain(device, device.get_physical_device(), surface, { VK_PRESENT_MODE_FIFO_KHR }, formats[0]);
     swapchain.create();
     std::cout << "init swapchain\n";
@@ -99,7 +112,7 @@ int main()
         .add_color(0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
         .set_depth(1);
     render_pass
-        .add_attachment(VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+        .add_attachment(format, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
         .add_attachment(VK_FORMAT_D16_UNORM, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
     CVK_ASSERT(render_pass.create() == VK_SUCCESS);
     std::cout << "init renderpass\n";
@@ -220,8 +233,9 @@ int main()
     cvk::Queue graphics_queue(device, graphics_index);
 
     std::cout << "prepare finish\n";
+    uint32_t event = 0;
+    while (win.poll_event(event)) {
 
-    win.run([&]{ 
         uint32_t cur_index = swapchain.acquire(acquire_semaphore);
 
         CVK_ASSERT(command_buffer.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) == VK_SUCCESS);
@@ -248,6 +262,6 @@ int main()
         // CVK_ASSERT(vkResetFences(device, 1, &(VkFence CONST_REFERENCE)wait_fence) == VK_SUCCESS);
 
         swapchain.present(graphics_queue, {});
+    }
 
-    });
 }

@@ -3,7 +3,7 @@
 #if defined(linux)
 
 #include "cvk/vk_header.h"
-#include <xcb/xcb.h>
+#include "base/base_window.h"
 
 namespace __xcb
 {
@@ -14,26 +14,32 @@ namespace __xcb
     CVK_API void show_window(xcb_connection_t* conn, uint32_t win_id);
     CVK_API void flush(xcb_connection_t* conn);
     CVK_API void disconnect(xcb_connection_t* conn);
-    CVK_API void pull_event(xcb_generic_event_t*& event, xcb_connection_t* conn);
+    CVK_API void poll_event(xcb_generic_event_t*& event, xcb_connection_t* conn);
+    CVK_API int check_connection_error(xcb_connection_t* conn);
     // CVK_API void show_window();
 } // namespace __xcb
 
-class CVK_API XCBWindow
+class CVK_API XCBWindow : public __base::Window
 {
 public:
     XCBWindow();
     ~XCBWindow();
 
-    void create(uint32_t width, uint32_t height);
-    void show();
+    bool create(std::string title, uint32_t width, uint32_t height);
+    bool poll_event(uint32_t& event);
+    bool show();
+
     void flush();
 
-    bool pull_event(xcb_generic_event_t*& event);
-    void free_event(xcb_generic_event_t* event);
+    xcb_connection_t* get_connection() const;
+    xcb_window_t get_window() const;
 
 protected:
     void init();
     void deinit();
+
+    bool poll_event_impl(xcb_generic_event_t*& event);
+    void free_event_impl(xcb_generic_event_t* event);
 
 private:
     xcb_connection_t* _conn = nullptr;

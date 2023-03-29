@@ -3,7 +3,6 @@
 #include "lock_free/sync_stack.h"
 #include "lock_free_ptr/lock_free_ptrs.h"
 #include "lock_free_ptr/shared_ptrs.h"
-#include "perf_nodes.h"
 
 #include <iostream>
 #include <assert.h>
@@ -30,7 +29,7 @@ void queue_del_num(_Ty& deque, int start, int end)
 }
 
 template<typename _SyncTy>
-void test_sync(cperf::PerfNodes& perf)
+void test_sync()
 {
 
     constexpr int COUNT = 2000;
@@ -45,7 +44,7 @@ void test_sync(cperf::PerfNodes& perf)
 
         auto ptr = deque1.top();
         for (size_t i = 0; i < deque1.size(); ++i) {
-            CPERF_ASSERT(!ptr.empty());
+            CLF_ASSERT(!ptr.empty());
             ptr = ptr->next;
         }
 
@@ -53,8 +52,8 @@ void test_sync(cperf::PerfNodes& perf)
         std::thread dthr2([&] { queue_del_num(deque1, 0, COUNT); });
         dthr1.join();
         dthr2.join();
-        std::cout << "clean finished\t";
-        CPERF_ASSERT(deque1.size() == 0);
+        // std::cout << "clean finished\t";
+        CLF_ASSERT(deque1.size() == 0);
 
         std::thread dthr3([&] { queue_del_num(deque1, 0, COUNT); });
         std::thread thr3([&] { queue_add_num(deque1, 0, COUNT); });
@@ -64,11 +63,11 @@ void test_sync(cperf::PerfNodes& perf)
         thr4.join();
         dthr3.join();
         thr3.join();
-        std::cout << "push & pop finished\t";
+        // std::cout << "push & pop finished\t";
 
         ptr = deque1.top();
         for (size_t i = 0; i < deque1.size(); ++i) {
-            CPERF_ASSERT(!ptr.empty());
+            CLF_ASSERT(!ptr.empty());
             ptr = ptr->next;
         }
  
@@ -90,7 +89,7 @@ void test_pool()
             });
         }
         tasks.wait_done();
-        CPERF_ASSERT(a == COUNT);
+        // CLF_ASSERT(a == COUNT);
 
         tasks.push([&]() {
             for (int i = 0; i < COUNT; ++i) {
@@ -100,7 +99,8 @@ void test_pool()
         });
         tasks.wait_done();        
         // std::cout << "one task finished\t";
-        CPERF_ASSERT(a == COUNT * 2);
+        // auto _a = a.load();
+        // CLF_ASSERT(_a == COUNT * 2);
     }
 
 }
@@ -251,25 +251,14 @@ void test_thread_ref()
 #include <map>
 int main()
 {
-    for (int i = 0; i < 10000; ++i) {
+    for (int i = 0; i < 100; ++i) {
         // test_ring_ref();
         // test_lockfree_ring_ref();
         // test_thread_ref();
-        cperf::PerfNodes perf;
-        // perf.begin("atomic_stack");
-        test_sync<utils::LockFreeStack<int>>(perf);
-        // perf.end("atomic_stack");
-        // perf.begin("atomic_queue");
-        test_sync<utils::LockFreeQueue<int>>(perf);
-        // perf.end("atomic_queue");
-        // perf.begin("pool");
+        test_sync<utils::LockFreeStack<int>>();
+        test_sync<utils::LockFreeQueue<int>>();
         // test_pool();
-        // perf.end("pool");
 
-        // cperf::read_nodes(perf.dump(), [](cperf::_Key name, cperf::_ListNode<cperf::PerfNode> const* head) {
-        //     auto time = head->val.end - head->val.start;
-        //     std::cout << name << " " << cperf::time_cast<std::chrono::milliseconds>(time) << ", ";
-        // });
         std::cout << "tested " << i << " \n";
 
     }

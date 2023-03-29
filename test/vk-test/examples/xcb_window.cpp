@@ -1,35 +1,53 @@
 #if defined(linux)
 
 #include "linux/xcb_win.h"
+#include <inttypes.h>
 #include <iostream>
 
 int main(void)
 {
-    uint32_t done = 0;
-    xcb_generic_event_t *e;
 
+    uint32_t e = 0;
     XCBWindow win;
-    win.create(100, 100);
+    win.create("", 100, 100);
     win.show();
 
     // event loop
-    while (!done)
+    while (win.poll_event(e))
     {
-        if (win.pull_event(e))
-        {
-            switch (e->response_type & 0x7f)
+        if (e != XCBWindow::EVENT_NONE) {
+            switch (e)
             {
-            case XCB_DESTROY_NOTIFY:
-                done = 1;
-                break;
-            case XCB_EXPOSE:
-                break;
-            case XCB_KEY_PRESS:
-                // done = 1;
+            case XCB_MOTION_NOTIFY: {
+                // xcb_motion_notify_event_t *motion = (xcb_motion_notify_event_t *)e;
+                // printf ("Mouse moved in window %" PRIu32 ", at coordinates (%" PRIi16 ",%" PRIi16 ")\n",
+                //         motion->event, motion->event_x, motion->event_y );
                 break;
             }
-            std::cout << int(e->response_type) << "\n";
-            win.free_event(e);
+            case XCB_EXPOSE: {
+                // auto exposed = reinterpret_cast<xcb_expose_event_t*>(e);
+                // std::cout << "resize [" << exposed->width << "," << exposed->height << "]\n";
+                break;
+            }
+            case XCB_FOCUS_IN:
+                std::cout << "focus in\n";
+                break;
+            case XCB_FOCUS_OUT:
+                std::cout << "focus out\n";
+                break;
+            case XCB_KEY_PRESS: {
+                // auto key_event = reinterpret_cast<xcb_key_press_event_t*>(e);
+                // std::cout << "key [" << (int) key_event->detail << "] pressd\n";
+                break;
+            }
+            case XCB_KEY_RELEASE: {
+                // auto key_event = reinterpret_cast<xcb_key_press_event_t*>(e);
+                // std::cout << "key [" << (int) key_event->detail << "] released\n";
+                break;
+            }
+            default:
+                std::cout << e << "\n";
+            }
         }
     }
 

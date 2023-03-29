@@ -11,7 +11,7 @@ namespace cvk
     public:
         using cvk::BaseMemorized<Buffer>::BaseMemorized;
 
-        inline VkResult create(VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, VkMemoryPropertyFlags property, uint32_t size, VkBufferUsageFlags usage) 
+        inline VkResult create(VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, VkMemoryPropertyFlags property, uint32_t size, VkBufferUsageFlags usage)
         {
             return cvk::BaseMemorized<Buffer>::create(properties, property, size, usage);
         }

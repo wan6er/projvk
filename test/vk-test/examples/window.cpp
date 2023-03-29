@@ -1,6 +1,8 @@
 #include "win32/win.h"
 #include <iostream>
 
+#ifdef WIN32
+
 int main(int argc, char* argv[])
 {
     uint32_t width = 1024;
@@ -32,3 +34,11 @@ int main(int argc, char* argv[])
     
     return 0;
 }
+
+#else
+
+int main()
+{
+}
+
+#endif

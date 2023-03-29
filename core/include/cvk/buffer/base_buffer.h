@@ -22,7 +22,7 @@ namespace cvk
         operator VkBuffer() const;
         auto info() -> VkBufferCreateInfo&;
 
-        virtual VkResult create(uint32_t size, VkBufferUsageFlags usage);
+        VkResult create(uint32_t size, VkBufferUsageFlags usage);
 
     protected:
         void release();

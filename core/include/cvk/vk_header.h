@@ -8,49 +8,47 @@
 
 #if defined(WIN32)
 
-#include <windows.h>
-#include <vulkan/vulkan_win32.h>
+    #include <windows.h>
+    #include <vulkan/vulkan_win32.h>
 
-#if defined(BUILD_CVK)
-#define CVK_API __declspec(dllexport)
-// #define CVK_API [[gnu::dllexport]]
-#else
-#define CVK_API __declspec(dllimport)
-// #define CVK_API [[gnu::dllimport]]
-// #define CVK_API
-#endif
+    #if defined(BUILD_CVK)
+        #define CVK_API __declspec(dllexport)
+        // #define CVK_API [[gnu::dllexport]]
+    #else
+        #define CVK_API __declspec(dllimport)
+        // #define CVK_API [[gnu::dllimport]]
+        // #define CVK_API
+    #endif
 
-#elif defined(linux)
 
-#if defined(BUILD_CVK)
-#define CVK_API 
-#else
-#define CVK_API 
-#endif
-
-#endif
-
-#if defined(NDEBUG)
-
-#define CVK_ASSERT(expression) do { if (!(expression)) {} } while (false)
-
-#else 
-
-#include <iostream>
-
-#if defined(WIN32)
-
-extern "C" __declspec(dllimport) void DebugBreak();
-
-#define CVK_PRINT_FILE_LINE(msg, ...) printf("%s:%d error %s :" msg "\n", __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
-#define CVK_ASSERT(expression) do { if (!(expression)) { CVK_PRINT_FILE_LINE("%s", #expression); DebugBreak(); } } while (false)
+    #if defined(NDEBUG)
+        #include <iostream>
+        #define CVK_ASSERT(expression) do { if (!(expression)) {} } while (false)
+        extern "C" __declspec(dllimport) void DebugBreak();
+        #define CVK_PRINT_FILE_LINE(msg, ...) printf("%s:%d error %s :" msg "\n", __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
+        #define CVK_ASSERT(expression) do { if (!(expression)) { CVK_PRINT_FILE_LINE("%s", #expression); DebugBreak(); } } while (false)
+    #else
+        #define CVK_ASSERT(expression) do { if (!(expression)) {} } while (false)
+    #endif
 
 #elif defined(linux)
 
-#define CVK_PRINT_FILE_LINE(msg, ...) printf("%s:%d error %s :" msg "\n", __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
-#define CVK_ASSERT(expression) do { if (!(expression)) { CVK_PRINT_FILE_LINE("%s", #expression); __builtin_trap(); } } while (false)
+    #include <xcb/xcb.h>
+    #include <vulkan/vulkan_xcb.h>
 
-#endif
+    #if defined(BUILD_CVK)
+        #define CVK_API 
+    #else
+        #define CVK_API 
+    #endif
+
+    #if defined(NDEBUG)
+        #define CVK_ASSERT(expression) do { if (!(expression)) {} } while (false)
+    #else
+        #include <iostream>
+        #define CVK_PRINT_FILE_LINE(msg, ...) printf("%s:%d error %s :" msg "\n", __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
+        #define CVK_ASSERT(expression) do { if (!(expression)) { CVK_PRINT_FILE_LINE("%s", #expression); __builtin_trap(); } } while (false)
+    #endif
 
 #endif
 

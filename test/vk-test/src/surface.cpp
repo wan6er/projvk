@@ -60,7 +60,11 @@ TEST_FUNC_BEGIN("surface")
 
     std::vector<std::string> instance_extensions = {
         VK_KHR_SURFACE_EXTENSION_NAME,
+#ifdef WIN32
         VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+#elif linux
+        VK_KHR_XCB_SURFACE_EXTENSION_NAME,
+#endif
         VK_EXT_DEBUG_UTILS_EXTENSION_NAME
     };
     std::vector<std::string> instance_layers = {
@@ -75,9 +79,19 @@ TEST_FUNC_BEGIN("surface")
     VkPhysicalDeviceFeatures device_features = {};
     cvk::Device device(devices[0], device_extensions, device_features, VK_QUEUE_GRAPHICS_BIT);
 
+
+    uint32_t width = 1024;
+    uint32_t height = 720;
 #ifdef WIN32
-    Windows win("surface", 1024, 720);
+    Windows win;
+    win.create("surface", width, height);
+    win.show();
     cvk::SurfaceWin32 surface(instance, win.instance(), win);
+#elif linux
+    XCBWindow win;
+    win.create("surface", width, height);
+    win.show();
+    cvk::SurfaceXCB surface(instance, win.get_connection(), win.get_window());
 #else
 #error unsupport platform
 #endif

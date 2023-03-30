@@ -1,5 +1,6 @@
 #include "linux/surface_xcb.h"
 
+#ifdef linux
 namespace __cvk
 {
     
@@ -13,3 +14,5 @@ CVK_API VkResult create_xcb_surface(VkInstance instance, xcb_connection_t* conne
 }
 
 } // namespace __cvk
+
+#endif

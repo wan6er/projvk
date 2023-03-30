@@ -36,7 +36,7 @@ public:
 
     void push(_Ty const& t) 
     {
-        auto node = make_shared<NodeType>(t);
+        auto node = make_cshared<NodeType>(t);
 
         SharedNodePtrs _ptrs, _next, _none;
 

@@ -61,6 +61,7 @@ void load_vertex(cvk::Device CONST_REFERENCE device, std::string filename, std::
         i++;
     }
 
+    node_buffers.reserve(nodes.size());
     for (auto& node : nodes) {
         node_buffers.emplace_back(device);
 

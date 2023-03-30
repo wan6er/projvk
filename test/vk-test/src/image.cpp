@@ -20,6 +20,8 @@ TEST_FUNC_BEGIN("image")
     std::vector<std::string> instance_extensions = {
 #ifdef WIN32
         VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+#elif linux
+        VK_KHR_XCB_SURFACE_EXTENSION_NAME,
 #endif
         VK_KHR_SURFACE_EXTENSION_NAME,
         VK_EXT_DEBUG_UTILS_EXTENSION_NAME
@@ -38,9 +40,17 @@ TEST_FUNC_BEGIN("image")
     cvk::Device device(devices[0], device_extensions, device_features, VK_QUEUE_GRAPHICS_BIT);
 
     uint32_t width = 1024, height = 720;
+
 #ifdef WIN32
-    Windows win("image", width, height);
+    Windows win;
+    win.create("image", width, height);
+    win.show();
     cvk::SurfaceWin32 surface(instance, win.instance(), win);
+#elif linux
+    XCBWindow win;
+    win.create("image", width, height);
+    win.show();
+    cvk::SurfaceXCB surface(instance, win.get_connection(), win.get_window());
 #else
 #error unsupport platform
 #endif

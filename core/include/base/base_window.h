@@ -16,6 +16,7 @@ public:
 
     virtual bool create(std::string title, uint32_t width, uint32_t height) = 0;
     virtual bool poll_event(uint32_t& event) = 0;
+    virtual void free_event() = 0;
     virtual bool show() = 0;
 
 };

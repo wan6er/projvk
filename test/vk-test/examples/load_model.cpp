@@ -42,7 +42,11 @@ int main()
 
     std::vector<std::string> instance_extensions = {
         VK_KHR_SURFACE_EXTENSION_NAME,
+#ifdef WIN32
         VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+#elif linux
+        VK_KHR_XCB_SURFACE_EXTENSION_NAME,
+#endif
         VK_EXT_DEBUG_UTILS_EXTENSION_NAME
     };
     std::vector<std::string> instance_layers = {
@@ -61,12 +65,18 @@ int main()
     uint32_t width = 1024;
     uint32_t height = 720;
 #ifdef WIN32
-    Windows win("model", width, height);
+    Windows win;
+    win.create("triangle", width, height);
+    win.show();
     cvk::SurfaceWin32 surface(instance, win.instance(), win);
+#elif linux
+    XCBWindow win;
+    win.create("triangle", width, height);
+    win.show();
+    cvk::SurfaceXCB surface(instance, win.get_connection(), win.get_window());
 #else
 #error unsupport platform
 #endif
-
     std::vector<VkSurfaceFormatKHR> formats;
     __cvk::get_surface_formats(device.get_physical_device(), surface, formats);
     CVK_ASSERT(formats.size() > 0);
@@ -110,6 +120,7 @@ int main()
     CVK_ASSERT(frag_shader.create() == VK_SUCCESS);
 
     std::vector<glm::mat4> ubo = {
+        glm::mat4(1.0),
         glm::lookAt(glm::vec3(-20, 20, -20), glm::vec3(0, 0, 0), glm::vec3(0, -1, 0)),
         glm::perspective(glm::radians(60.f), static_cast<float>(width / height), 0.1f, 100.0f)
     };
@@ -155,6 +166,7 @@ int main()
     CVK_ASSERT(layout.create() == VK_SUCCESS);
 
     cvk::GraphicsPipeline pipeline(device, render_pass, layout);
+    pipeline.rasterization().polygonMode = VK_POLYGON_MODE_LINE;
     pipeline.vertex_input().add_binding(0, sizeof(Vertex))
         .add_attribute(0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, POSITION))
         .add_attribute(1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, NORMAL))
@@ -193,7 +205,8 @@ int main()
 
     cvk::Queue graphics_queue(device, graphics_index);
 
-    win.run([&]{ 
+    uint32_t msg = 0;
+    while (win.poll_event(msg)) {
         uint32_t cur_index = swapchain.acquire(acquire_semaphore);
 
         CVK_ASSERT(command_buffer.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) == VK_SUCCESS);
@@ -225,5 +238,6 @@ int main()
 
         swapchain.present(graphics_queue, {});
 
-    });
+        win.free_event();
+    }
 }

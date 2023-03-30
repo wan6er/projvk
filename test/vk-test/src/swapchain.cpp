@@ -21,7 +21,11 @@ TEST_FUNC_BEGIN("swapchain")
 
     std::vector<std::string> instance_extensions = {
         VK_KHR_SURFACE_EXTENSION_NAME,
+#ifdef WIN32
         VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+#elif linux
+        VK_KHR_XCB_SURFACE_EXTENSION_NAME,
+#endif
         VK_EXT_DEBUG_UTILS_EXTENSION_NAME
     };
     std::vector<std::string> instance_layers = {
@@ -38,32 +42,24 @@ TEST_FUNC_BEGIN("swapchain")
     cvk::Device device(devices[0], device_extensions, device_features, VK_QUEUE_GRAPHICS_BIT);
 
     uint32_t width = 1024, height = 720;
+
 #ifdef WIN32
-    Windows win("swapchain", width, height);
+    Windows win;
+    win.create("swapchain", width, height);
+    win.show();
     cvk::SurfaceWin32 surface(instance, win.instance(), win);
+#elif linux
+    XCBWindow win;
+    win.create("swapchain", width, height);
+    win.show();
+    cvk::SurfaceXCB surface(instance, win.get_connection(), win.get_window());
 #else
 #error unsupport platform
 #endif
     std::vector<VkSurfaceFormatKHR> formats;
     __cvk::get_surface_formats(device.get_physical_device(), surface, formats);
     CHECK(formats.size() > 0);
-    {
-        VkSwapchainKHR swapchain;
-        VkResult result = __cvk::create_swapchain(device.get_physical_device(), device, surface, swapchain, 
-            { VK_PRESENT_MODE_FIFO_KHR },
-            formats[0],
-            width, height, 2,
-            1, 
-            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
-        );
-        CHECK(result == VK_SUCCESS);
 
-        std::vector<VkImage> images;
-        __cvk::get_swapchain_images(device, swapchain, images);
-        CHECK(images.size() > 0);
-
-        __cvk::destroy_swapchain(device, swapchain);
-    }   
 
     {
         cvk::Swapchain swapchain(device, device.get_physical_device(), surface, { VK_PRESENT_MODE_FIFO_KHR }, formats[0]);

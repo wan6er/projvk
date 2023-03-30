@@ -142,8 +142,8 @@ void test_ring_ref()
             test1_WeakPtr ptr;
         };
 
-        test1_SharedPtr tp1 = utils::make_shared<test1>();
-        test2_SharedPtr tp2 = utils::make_shared<test2>();
+        test1_SharedPtr tp1 = utils::make_cshared<test1>();
+        test2_SharedPtr tp2 = utils::make_cshared<test2>();
 
         // assert(tp1 != tp1->ptr);
 
@@ -226,7 +226,7 @@ void test_thread_ref()
     };
 
     auto push = [](atomic_node_ptr& head, int d) {
-        auto n = utils::make_shared<node>(d);
+        auto n = utils::make_cshared<node>(d);
         node_ptr expect;
         head.load(expect);
         while (!head.compare_exchange_weak(expect, n));
@@ -251,6 +251,7 @@ void test_thread_ref()
 #include <map>
 int main()
 {
+
     for (int i = 0; i < 100; ++i) {
         // test_ring_ref();
         // test_lockfree_ring_ref();

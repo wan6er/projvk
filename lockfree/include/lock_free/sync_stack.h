@@ -25,9 +25,9 @@ public:
         clean();
     }
 
-    void push(_Ty const& t)
+    void push(_Ty t)
     {
-        auto node = make_shared<NodeType>(t);
+        SharedNodePtr node(make_cshared<NodeType>(t));
         head.load(node->next, MemoryOrderRelaxed);
         while (!head.compare_exchange_weak(node->next, node));
         _size++;

@@ -3,6 +3,7 @@
 #if defined(WIN32)
 
 #include "cvk/vk_header.h"
+#include "base/base_window.h"
 
 #include <Windows.h>
 
@@ -29,11 +30,16 @@ struct CVK_API WinInfo
     bool size_changed;
 };
 
-class CVK_API Windows
+class CVK_API Windows : public __base::Window
 {
 public:
-    Windows(const std::string& win_name, uint32_t width, uint32_t height, WNDPROC proc = __win::DefaultWinProc);
+    Windows();
     ~Windows();
+    
+    bool create(std::string title, uint32_t width, uint32_t height);
+    bool show();
+    bool poll_event(uint32_t& message);
+    void free_event();
 
     operator HWND() const {
         return _hWnd;
@@ -42,10 +48,8 @@ public:
     HINSTANCE instance() const { return _hInstance; }
     HDC dc() { return GetDC(*this); }
 
-    void show();
     int dispatch(std::function<void()> process);
 
-    bool poll_event(uint32_t& message);
     void update();
 
     void run(std::function<void()> process);

@@ -4,8 +4,7 @@ namespace utils
 {
     
 template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
-BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::BaseLockFreePtr() :
-    Base()
+BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::BaseLockFreePtr()
 {
 }
 

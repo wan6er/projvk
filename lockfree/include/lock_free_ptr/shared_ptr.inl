@@ -177,7 +177,7 @@ constexpr auto WeakPtr<_Ty>::get_shared() const -> _SharedPtr
 
 
 template<typename __Ty, typename...__Args>
-auto make_shared(__Args&&...args) -> SharedPtr<__Ty>
+auto make_cshared(__Args&&...args) -> SharedPtr<__Ty>
 {
     using _CountObj = CountObjR<__Ty>;
     using _SharedPtr = SharedPtr<__Ty>;

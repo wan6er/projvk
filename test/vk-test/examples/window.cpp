@@ -8,9 +8,9 @@ int main(int argc, char* argv[])
     uint32_t width = 1024;
     uint32_t height = 720;
 
-    Windows win("model", width, height);
+    Windows win;
+    win.create("model", width, height);
     win.show();
-    win.invalidate();
 
     bool should_close = false;
     uint32_t msg = 0;
@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
                 break;
             }
 
-            win.update();
+            win.free_event();
         }
     }
     

@@ -49,7 +49,7 @@ template<typename _Ty>
 struct CountObjR
 {
     using _CountPtr = CountObj<_Ty>*;
-    volatile _CountPtr ptr = nullptr;
+    _CountPtr ptr = nullptr;
     uintptr_t r_cnt = 0;
 
     CountObjR() {}
@@ -79,7 +79,7 @@ struct CountObjs
     constexpr static unsigned int size = _Size;
     using _CountPtr = CountObj<_Ty>*;
     using _CountPtrs = _CountPtr[size];
-    _CountPtr ptr[size] = {};
+    _CountPtrs ptr = {};
     uintptr_t r_cnt = 0;
 
     CountObjs() {}

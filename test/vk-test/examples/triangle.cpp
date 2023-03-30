@@ -75,7 +75,9 @@ int main()
     uint32_t width = 1024;
     uint32_t height = 720;
 #ifdef WIN32
-    Windows win("triangle", width, height);
+    Windows win;
+    win.create("triangle", width, height);
+    win.show();
     cvk::SurfaceWin32 surface(instance, win.instance(), win);
 #elif linux
     XCBWindow win;
@@ -262,6 +264,8 @@ int main()
         // CVK_ASSERT(vkResetFences(device, 1, &(VkFence CONST_REFERENCE)wait_fence) == VK_SUCCESS);
 
         swapchain.present(graphics_queue, {});
+
+        win.free_event();
     }
 
 }

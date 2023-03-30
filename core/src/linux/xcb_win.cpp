@@ -95,15 +95,20 @@ bool XCBWindow::create(std::string title, uint32_t width, uint32_t height)
 bool XCBWindow::poll_event(uint32_t& event)
 {
     bool _ret = false;
-    xcb_generic_event_t* event_ptr = nullptr;
     event = EVENT_NONE;
-    if ((_ret = poll_event_impl(event_ptr))) {
-        if (event_ptr) {
-            event = event_ptr->response_type & ~0x80;
-            free_event_impl(event_ptr);
+    if ((_ret = poll_event_impl(_event_ptr))) {
+        if (_event_ptr) {
+            event = _event_ptr->response_type & ~0x80;
         }
     }
     return _ret;
+}
+
+void XCBWindow::free_event()
+{
+    if (_event_ptr) {
+        free_event_impl(_event_ptr);
+    }
 }
 
 bool XCBWindow::show()

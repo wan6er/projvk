@@ -12,7 +12,7 @@ class BaseLockFreePtrImpl : public std::enable_if_t<std::is_base_of_v<BaseMemory
 {
     using ValPtr = _Ty*;
     using ConstValPtr = _Ty const*;
-    using _AtomicCountObj = Atomic<_CountObj>;
+    using _AtomicCountObj = Atomic< std::remove_reference_t<_CountObj> >;
 
 public:
     

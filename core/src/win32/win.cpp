@@ -25,21 +25,8 @@ LRESULT WINAPI __win::DefaultWinProc(HWND hWnd, UINT wMsg, WPARAM wParam, LPARAM
     return DefWindowProc(hWnd, wMsg, wParam, lParam);
 }
 
-Windows::Windows(const std::string& win_name, uint32_t width, uint32_t height, WNDPROC proc)
+Windows::Windows()
 {
-    _hInstance = GetModuleHandle(win_name.c_str());
-    if (!__win::register_cls(win_name, _hInstance, proc)) {
-        CLogE("Could not register window class %s", win_name.c_str());
-    }
-
-    __win::adjust_screen(width, height);
-
-    _hWnd = __win::create_win(win_name, _hInstance, width, height);
-    if (!_hWnd) {
-        CLogE("Could not create window %s", win_name.c_str());
-    }
-
-    SetWindowLongPtr(_hWnd, GWLP_USERDATA, (LONG_PTR)&_info);
 }
 
 Windows::~Windows()
@@ -48,23 +35,54 @@ Windows::~Windows()
     __win::unregister_cls(_name, _hInstance);
 }
 
+bool Windows::create(std::string title, uint32_t width, uint32_t height)
+{
+    _hInstance = GetModuleHandle(title.c_str());
+    if (!__win::register_cls(title, _hInstance, __win::DefaultWinProc)) {
+        // CLogE("Could not register window class %s", win_name.c_str());
+        return false;
+    }
+
+    __win::adjust_screen(width, height);
+
+    _hWnd = __win::create_win(title, _hInstance, width, height);
+    if (!_hWnd) {
+        // CLogE("Could not create window %s", win_name.c_str());
+        return false;
+    }
+
+    SetWindowLongPtr(_hWnd, GWLP_USERDATA, (LONG_PTR)&_info);
+    return true;
+}
+
 void Windows::run(std::function<void()> process)
 {
     Windows::show();
     while(!Windows::dispatch(process));
 }
 
-void Windows::show()
+bool Windows::show()
 {
     ShowWindow(_hWnd, 1);
     UpdateWindow(_hWnd);
+    return true;
 }
 
 bool Windows::poll_event(uint32_t& message)
 {
-    bool ret = PeekMessage(&_msg, 0, 0, 0, PM_REMOVE);
-    message = _msg.message;
-    return ret;
+    bool has_event = PeekMessage(&_msg, 0, 0, 0, PM_REMOVE);
+    if (has_event) {
+        message = _msg.message;
+        if (message == WM_QUIT) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void Windows::free_event()
+{
+    update();
 }
 
 void Windows::update()

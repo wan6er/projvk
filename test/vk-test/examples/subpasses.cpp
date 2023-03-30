@@ -42,7 +42,11 @@ int main(int argc, char *argv[])
 
     std::vector<std::string> instance_extensions = {
         VK_KHR_SURFACE_EXTENSION_NAME,
+#ifdef WIN32
         VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+#elif linux
+        VK_KHR_XCB_SURFACE_EXTENSION_NAME,
+#endif
         VK_EXT_DEBUG_UTILS_EXTENSION_NAME
     };
     std::vector<std::string> instance_layers = {
@@ -62,8 +66,15 @@ int main(int argc, char *argv[])
     uint32_t height = 720;
 
 #ifdef WIN32
-    Windows win("model", width, height);
+    Windows win;
+    win.create("triangle", width, height);
+    win.show();
     cvk::SurfaceWin32 surface(instance, win.instance(), win);
+#elif linux
+    XCBWindow win;
+    win.create("triangle", width, height);
+    win.show();
+    cvk::SurfaceXCB surface(instance, win.get_connection(), win.get_window());
 #else
 #error unsupport platform
 #endif
@@ -265,8 +276,7 @@ int main(int argc, char *argv[])
 
     bool should_close = false;
     uint32_t msg = 0;
-    win.show();
-    while(!should_close) {
+    while (win.poll_event(msg)) {
 
         uint32_t cur_index = swapchain.acquire(acquire_semaphore);
 
@@ -312,13 +322,7 @@ int main(int argc, char *argv[])
 
         swapchain.present(graphics_queue, {});
 
-        if (win.poll_event(msg)) {
-            if (msg == WM_QUIT) {
-                should_close = true;
-                break;
-            }
-            win.update();
-        }
+        win.free_event();
     }
 
     return 0;

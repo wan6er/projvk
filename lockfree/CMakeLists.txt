@@ -4,8 +4,6 @@ set(PROJ_NAME "lockfree")
 
 project(${PROJ_NAME})
 
-set(CMAKE_CXX_FLAGS "-g")
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 # message("${CMAKE_CURRENT_SOURCE_DIR}/include")
 

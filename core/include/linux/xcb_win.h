@@ -27,6 +27,7 @@ public:
 
     bool create(std::string title, uint32_t width, uint32_t height);
     bool poll_event(uint32_t& event);
+    void free_event();
     bool show();
 
     void flush();
@@ -44,6 +45,7 @@ protected:
 private:
     xcb_connection_t* _conn = nullptr;
     xcb_screen_t* _screen = nullptr;
+    xcb_generic_event_t* _event_ptr = nullptr;
     xcb_window_t _win_id = 0;
 
 };

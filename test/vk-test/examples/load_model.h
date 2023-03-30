@@ -49,6 +49,7 @@ void load_vertex(cvk::Device CONST_REFERENCE device, std::string filename, std::
     gltfContext.LoadASCIIFromFile(&gltfModel, &error, &warning, filename);
     std::vector<cgltf::Node<Vertex, uint16_t>> nodes;
     uint32_t i = 0;
+    nodes.reserve(gltfModel.nodes.size());
     for (auto& node : gltfModel.nodes) {
         if (node.mesh < 0) {
             continue;

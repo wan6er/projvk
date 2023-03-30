@@ -13,7 +13,7 @@ NodeTransform::NodeTransform() :
 
 glm::mat4 NodeTransform::to_matrix() const 
 {
-    return glm::translate(glm::mat4(1.0f), translation);// * glm::mat4(rotation) * glm::scale(glm::mat4(1.0f), scale);
+    return glm::translate(glm::mat4(1.0f), translation) * glm::mat4(rotation) * glm::scale(glm::mat4(1.0f), scale);
 }
 
 } // namespace cgltf

@@ -166,7 +166,6 @@ int main()
     CVK_ASSERT(layout.create() == VK_SUCCESS);
 
     cvk::GraphicsPipeline pipeline(device, render_pass, layout);
-    pipeline.rasterization().polygonMode = VK_POLYGON_MODE_LINE;
     pipeline.vertex_input().add_binding(0, sizeof(Vertex))
         .add_attribute(0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, POSITION))
         .add_attribute(1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, NORMAL))

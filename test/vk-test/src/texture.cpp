@@ -12,6 +12,7 @@
 #include "ktx.h"
 
 #include <string>
+#include <memory.h>
 
 
 TEST_FUNC_BEGIN("texture")

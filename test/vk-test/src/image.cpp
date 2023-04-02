@@ -10,9 +10,13 @@
 #include "cvk/initialize/image_initialize.h"
 #include "cvk/initialize/memory_initialize.h"
 
+
 #ifdef WIN32
-#include "win32/surface_win32.h"
-#include "win32/win.h"
+    #include "win32/surface_win32.h"
+    #include "win32/win.h"
+#elif linux
+    #include "linux/win_xcb.h"
+    #include "linux/surface_xcb.h"
 #endif
 
 TEST_FUNC_BEGIN("image")

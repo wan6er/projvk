@@ -30,7 +30,6 @@ std::vector<char> load_file(std::string CONST_REFERENCE path)
     {
         size_t size = is.tellg();
         is.seekg(0, std::ios::beg);
-        // char* shaderCode = new char[size];
         std::vector<char> file(size);
         is.read(file.data(), size);
         is.close();

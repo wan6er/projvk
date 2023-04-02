@@ -55,4 +55,6 @@ void load_texture(cvk::Device CONST_REFERENCE device, std::string filename, uint
 
     CVK_ASSERT(queue.submit({ transfer_buf }, fence) == VK_SUCCESS);
     CVK_ASSERT(fence.wait() == VK_SUCCESS);
+
+    ktxTexture_Destroy(target);
 }

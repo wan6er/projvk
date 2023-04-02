@@ -20,9 +20,13 @@
 #include "cvk/initialize/memory_initialize.h"
 #include "utils/file.h"
 
+
 #ifdef WIN32
-#include "win32/surface_win32.h"
-#include "win32/win.h"
+    #include "win32/surface_win32.h"
+    #include "win32/win.h"
+#elif linux
+    #include "linux/win_xcb.h"
+    #include "linux/surface_xcb.h"
 #endif
 
 void test_pipeline_attachment() 
@@ -113,6 +117,8 @@ TEST_FUNC_BEGIN("renderpass")
     std::vector<std::string> instance_extensions = {
 #ifdef WIN32
         VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+#elif linux
+        VK_KHR_XCB_SURFACE_EXTENSION_NAME,
 #endif
         VK_KHR_SURFACE_EXTENSION_NAME,
         VK_EXT_DEBUG_UTILS_EXTENSION_NAME

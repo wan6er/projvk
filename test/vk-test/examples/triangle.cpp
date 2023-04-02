@@ -41,7 +41,7 @@
 #include "win32/surface_win32.h"
 #include "win32/win.h"
 #elif linux
-#include "linux/xcb_win.h"
+#include "linux/win_xcb.h"
 #include "linux/surface_xcb.h"
 #endif
 
@@ -261,11 +261,10 @@ int main()
             .submit({ command_buffer }, wait_fence);
         CVK_ASSERT(wait_fence.wait() == VK_SUCCESS);
         CVK_ASSERT(wait_fence.reset() == VK_SUCCESS);
-        // CVK_ASSERT(vkResetFences(device, 1, &(VkFence CONST_REFERENCE)wait_fence) == VK_SUCCESS);
+        CVK_ASSERT(vkResetFences(device, 1, &(VkFence CONST_REFERENCE)wait_fence) == VK_SUCCESS);
 
         swapchain.present(graphics_queue, {});
 
         win.free_event();
     }
-
 }

@@ -34,8 +34,11 @@
 
 
 #ifdef WIN32
-#include "win32/surface_win32.h"
-#include "win32/win.h"
+    #include "win32/surface_win32.h"
+    #include "win32/win.h"
+#elif linux
+    #include "linux/win_xcb.h"
+    #include "linux/surface_xcb.h"
 #endif
 
 int main()
@@ -89,6 +92,7 @@ int main()
     std::vector<VkSurfaceFormatKHR> formats;
     __cvk::get_surface_formats(device.get_physical_device(), surface, formats);
     CVK_ASSERT(formats.size() > 0);
+    auto color_format = formats[0].format;
     cvk::Swapchain swapchain(device, device.get_physical_device(), surface, { VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_FIFO_KHR }, formats[0]);
     swapchain.create();
 
@@ -155,7 +159,7 @@ int main()
         .add_attachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
         .add_attachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
 
-        .add_attachment(VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+        .add_attachment(color_format, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
         .add_attachment(VK_FORMAT_D16_UNORM, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
     CVK_ASSERT(render_pass.create() == VK_SUCCESS);
 

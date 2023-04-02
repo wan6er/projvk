@@ -12,6 +12,8 @@
 #include "cvk/fence.h"
 #include "cvk/initialize/memory_initialize.h"
 
+#include <memory.h>
+
 TEST_FUNC_BEGIN("memory")
 
     std::vector<std::string> instance_extensions = {
@@ -32,24 +34,6 @@ TEST_FUNC_BEGIN("memory")
     VkPhysicalDeviceFeatures device_features = {};
     cvk::Device device(devices[0], device_extensions, device_features, VK_QUEUE_GRAPHICS_BIT);
     
-    // vkCmdCopyBuffer()
-    // uint32_t index;
-    // __cvk::get_memory_type(device.get_memory_properties(), , VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, index);
-    // cvk::Memory memory(device, 10, 0);
-    {
-        VkBuffer buffer;
-        VkBufferCreateInfo bufferCreateInfo = {};
-        bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-        bufferCreateInfo.size = 65536;
-        bufferCreateInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-
-        auto result = vkCreateBuffer(device, &bufferCreateInfo, nullptr, &buffer);
-        CHECK(result == VK_SUCCESS);
-
-        VkMemoryRequirements requirement;
-        vkGetBufferMemoryRequirements(device, buffer, &requirement);
-    }
-
     {
         VkBuffer buffer;
         VkBufferCreateInfo info = {};

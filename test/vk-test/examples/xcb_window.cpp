@@ -1,6 +1,6 @@
 #if defined(linux)
 
-#include "linux/xcb_win.h"
+#include "linux/win_xcb.h"
 #include <inttypes.h>
 #include <iostream>
 
@@ -12,7 +12,6 @@ int main(void)
     win.create("", 100, 100);
     win.show();
 
-    // event loop
     while (win.poll_event(e))
     {
         if (e != XCBWindow::EVENT_NONE) {
@@ -49,6 +48,8 @@ int main(void)
                 std::cout << e << "\n";
             }
         }
+
+        win.free_event();
     }
 
 }

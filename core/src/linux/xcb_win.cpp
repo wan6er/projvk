@@ -1,4 +1,4 @@
-#include "linux/xcb_win.h"
+#include "linux/win_xcb.h"
 
 #if defined(linux)
 
@@ -34,7 +34,6 @@ void create_window(xcb_connection_t* conn, xcb_screen_t* screen, uint32_t win_id
 		XCB_EVENT_MASK_KEY_RELEASE |
 		XCB_EVENT_MASK_KEY_PRESS |
 		XCB_EVENT_MASK_POINTER_MOTION |
-        XCB_EVENT_MASK_RESIZE_REDIRECT|
         XCB_EVENT_MASK_FOCUS_CHANGE|
         XCB_EVENT_MASK_ENTER_WINDOW   | 
         XCB_EVENT_MASK_LEAVE_WINDOW   |
@@ -108,6 +107,7 @@ void XCBWindow::free_event()
 {
     if (_event_ptr) {
         free_event_impl(_event_ptr);
+        _event_ptr = nullptr;
     }
 }
 

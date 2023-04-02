@@ -17,8 +17,11 @@
 #include "utils/vector_util.h"
 
 #ifdef WIN32
-#include "win32/surface_win32.h"
-#include "win32/win.h"
+    #include "win32/surface_win32.h"
+    #include "win32/win.h"
+#elif linux
+    #include "linux/win_xcb.h"
+    #include "linux/surface_xcb.h"
 #endif
 
 TEST_FUNC_BEGIN("framebuffer")

@@ -380,7 +380,7 @@ ktxTextureInt_constructFromStream(ktxTextureInt* This,
                     free(pKvd);
                     return result;
                 }
-            } else {
+            // } else {
                 super->kvDataLen = kvdLen;
                 super->kvData = pKvd;
             }

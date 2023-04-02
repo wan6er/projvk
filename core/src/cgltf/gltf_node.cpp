@@ -1,5 +1,7 @@
 #include "cgltf/gltf_node.h"
-#include "glm/gtc/matrix_transform.hpp"
+
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace cgltf
 {
@@ -13,7 +15,7 @@ NodeTransform::NodeTransform() :
 
 glm::mat4 NodeTransform::to_matrix() const 
 {
-    return glm::translate(glm::mat4(1.0f), translation) * glm::mat4(rotation) * glm::scale(glm::mat4(1.0f), scale);
+    return glm::translate(glm::mat4(1.0f), translation) * glm::mat4_cast(rotation) * glm::scale(glm::mat4(1.0f), scale);
 }
 
 } // namespace cgltf

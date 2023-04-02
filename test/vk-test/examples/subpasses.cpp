@@ -32,9 +32,13 @@
 #include "load_texture.h"
 #include "load_model.h"
 
+
 #ifdef WIN32
-#include "win32/surface_win32.h"
-#include "win32/win.h"
+    #include "win32/surface_win32.h"
+    #include "win32/win.h"
+#elif linux
+    #include "linux/win_xcb.h"
+    #include "linux/surface_xcb.h"
 #endif
 
 int main(int argc, char *argv[])

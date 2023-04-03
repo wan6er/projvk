@@ -57,6 +57,11 @@ void show_window(xcb_connection_t* conn, uint32_t win_id)
     xcb_map_window(conn, win_id);
 }
 
+void set_title(xcb_connection_t* conn, uint32_t win_id, std::string const& title)
+{
+    xcb_change_property(conn, XCB_PROP_MODE_REPLACE, win_id, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8/* bits */, title.size(), title.c_str());
+}
+
 void disconnect(xcb_connection_t* conn)
 {
     xcb_disconnect(conn);
@@ -88,6 +93,7 @@ bool XCBWindow::create(std::string title, uint32_t width, uint32_t height)
 {
     init();
     __xcb::create_window(_conn, _screen, _win_id, width, height);
+    __xcb::set_title(_conn, _win_id, title);
     return true;
 }
 

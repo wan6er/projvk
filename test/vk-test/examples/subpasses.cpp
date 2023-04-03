@@ -102,11 +102,11 @@ int main(int argc, char *argv[])
     CVK_ASSERT(graphics_index != UINT32_MAX);
     CVK_ASSERT(present_index != UINT32_MAX);
 
-    cvk::StandardInputAttachment2D position_attachment(device);
+    cvk::StandardColorAttachInput2D position_attachment(device);
     CVK_ASSERT(position_attachment.create(device.get_memory_properties(), VK_FORMAT_R16G16B16A16_SFLOAT, width, height) == VK_SUCCESS);
-    cvk::StandardInputAttachment2D normal_attachment(device);
+    cvk::StandardColorAttachInput2D normal_attachment(device);
     CVK_ASSERT(normal_attachment.create(device.get_memory_properties(), VK_FORMAT_R16G16B16A16_SFLOAT, width, height) == VK_SUCCESS);
-    cvk::StandardInputAttachment2D albedo_attachment(device);
+    cvk::StandardColorAttachInput2D albedo_attachment(device);
     CVK_ASSERT(albedo_attachment.create(device.get_memory_properties(), VK_FORMAT_R8G8B8A8_UNORM, width, height) == VK_SUCCESS);
 
     cvk::StandardDepthAttachment2D depth(device);

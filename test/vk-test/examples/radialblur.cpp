@@ -84,10 +84,11 @@ int main(int argc, char *argv[])
 #endif
 
     std::vector<VkClearValue> clear_values(5);
-    clear_values[2].color = { 0.1f, 0.2f, 0.4f, 1.0f };
-    clear_values[3].color = { 0.1f, 0.2f, 0.4f, 1.0f };
-    clear_values[4].depthStencil.depth = 1.0f;
-    clear_values[4].depthStencil.stencil = 0;
+    clear_values[3].color = { 0.0f, 0.0f, 0.0f, 0.0f };
+    clear_values[4].depthStencil = { 1.0, 0 };
+    std::vector<VkClearValue> radial_clear_value(1);
+    // clear_values[4].depthStencil.depth = 1.0f;
+    // clear_values[4].depthStencil.stencil = 0;
 
     VkRect2D render_area = {{0, 0}, {width, height}};
     VkViewport viewport = { 0.0f, 0.0f, (float)width, (float)height, 0.0f, 1.0f };
@@ -97,6 +98,7 @@ int main(int argc, char *argv[])
     CVK_ASSERT(formats.size() > 0);
     cvk::Swapchain swapchain(device, device.get_physical_device(), surface, { VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_FIFO_KHR }, formats[0]);
     swapchain.create();
+    auto format = formats[0].format;
 
     uint32_t graphics_index = UINT32_MAX, present_index = UINT32_MAX;
     __cvk::get_queue_family_index(device.get_physical_device(), VK_QUEUE_GRAPHICS_BIT, graphics_index);
@@ -104,15 +106,18 @@ int main(int argc, char *argv[])
     CVK_ASSERT(graphics_index != UINT32_MAX);
     CVK_ASSERT(present_index != UINT32_MAX);
 
-    cvk::StandardInputAttachment2D position_attachment(device);
+    cvk::StandardColorAttachInput2D position_attachment(device);
     CVK_ASSERT(position_attachment.create(device.get_memory_properties(), VK_FORMAT_R16G16B16A16_SFLOAT, width, height) == VK_SUCCESS);
-    cvk::StandardInputAttachment2D normal_attachment(device);
+    cvk::StandardColorAttachInput2D normal_attachment(device);
     CVK_ASSERT(normal_attachment.create(device.get_memory_properties(), VK_FORMAT_R16G16B16A16_SFLOAT, width, height) == VK_SUCCESS);
-    cvk::StandardInputAttachment2D albedo_attachment(device);
+    cvk::StandardColorAttachInput2D albedo_attachment(device);
     CVK_ASSERT(albedo_attachment.create(device.get_memory_properties(), VK_FORMAT_R8G8B8A8_UNORM, width, height) == VK_SUCCESS);
 
-    cvk::StandardDepthAttachment2D depth(device);
-    CVK_ASSERT(depth.create(device.get_memory_properties(), VK_FORMAT_D16_UNORM, width, height) == VK_SUCCESS);
+    cvk::StandardColorAttachTexture2D radial_attachment(device);
+    CVK_ASSERT(radial_attachment.create(device.get_memory_properties(), format, width, height) == VK_SUCCESS);
+
+    cvk::StandardDepthAttachment2D depth_attach(device);
+    CVK_ASSERT(depth_attach.create(device.get_memory_properties(), VK_FORMAT_D32_SFLOAT, width, height) == VK_SUCCESS);
 
     cvk::Sampler sampler(device);
     sampler.create();
@@ -127,38 +132,35 @@ int main(int argc, char *argv[])
         .add_input(0, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
         .add_input(1, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
         .add_input(2, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
-        .add_color(3, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
-        .set_depth(4);
+        .add_color(3, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
     render_pass.add_subpass_dependency(0, 1)
         .set_src(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)
         .set_dst(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_ACCESS_SHADER_READ_BIT);
+
     render_pass
         .add_attachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
         .add_attachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
         .add_attachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
 
-        .add_attachment(VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-        .add_attachment(VK_FORMAT_D16_UNORM, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+        .add_attachment(format, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+        .add_attachment(VK_FORMAT_D32_SFLOAT, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
     CVK_ASSERT(render_pass.create() == VK_SUCCESS);
 
-    std::vector<cvk::Framebuffer> framebuffers;
-    auto CONST_REFERENCE images = swapchain.get_images();
-    std::vector<cvk::ColorImageView2D> image_views2d;
-    for (auto i : images) {
-        CVK_ASSERT(image_views2d.emplace_back(device).create(swapchain.get_format(), i) == VK_SUCCESS);
-        framebuffers.emplace_back(device, render_pass, width, height).attaches(
-            (VkImageView)position_attachment,
-            (VkImageView)normal_attachment,
-            (VkImageView)albedo_attachment,
-            (VkImageView)image_views2d.back(),
-            (VkImageView)depth);
-        CVK_ASSERT(framebuffers.back().create() == VK_SUCCESS);
-    }
+    cvk::Framebuffer framebuffer(device, render_pass, width, height);
+    framebuffer.attaches(
+        (VkImageView)position_attachment,
+        (VkImageView)normal_attachment,
+        (VkImageView)albedo_attachment,
+        // (VkImageView)image_views2d.back(),
+        (VkImageView)radial_attachment,
+        (VkImageView)depth_attach);
+    CVK_ASSERT(framebuffer.create() == VK_SUCCESS);
 
 
     glm::vec3 view_pos = glm::vec3(0, 0, -20);
     std::vector<glm::mat4> ubo = {
-        glm::scale(glm::mat4(1.0f), glm::vec3(0.1)),
+        glm::scale(glm::mat4(1.0f), glm::vec3(1.0f)),
         glm::lookAt(view_pos, glm::vec3(0, 0, 0), glm::vec3(0, -1, 0)),
         glm::perspective(glm::radians(75.f), static_cast<float>(width / height), 0.1f, 100.0f)
     };
@@ -220,7 +222,6 @@ int main(int argc, char *argv[])
     light_descriptor[0].write(0, position_attachment.get_descriptor_info(VK_NULL_HANDLE, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
     light_descriptor[0].write(1, normal_attachment.get_descriptor_info(VK_NULL_HANDLE, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
     light_descriptor[0].write(2, albedo_attachment.get_descriptor_info(VK_NULL_HANDLE, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
-
     light_descriptor[0].write(3, light_ubo_buffer.get_descriptor_info());
 
     cvk::PipelineLayout light_layout(device);
@@ -229,7 +230,7 @@ int main(int argc, char *argv[])
 
     cvk::Shader composition_vert_shader(device, utils::load_file("shader/composition.vert.spv"));
     CVK_ASSERT(composition_vert_shader.create() == VK_SUCCESS);
-    cvk::Shader composition_frag_shader(device, utils::load_file("shader/composition.frag.spv"));
+    cvk::Shader composition_frag_shader(device, utils::load_file("shader/radial_composition.frag.spv"));
     CVK_ASSERT(composition_frag_shader.create() == VK_SUCCESS);
 
     cvk::GraphicsPipeline light_pipeline(device, render_pass, light_layout);
@@ -242,6 +243,52 @@ int main(int argc, char *argv[])
         .attach(VK_SHADER_STAGE_FRAGMENT_BIT, composition_frag_shader);
     CVK_ASSERT(light_pipeline.create() == VK_SUCCESS);
 
+
+
+    cvk::RenderPass radial_renderpass(device);
+    radial_renderpass.add_subpass(VK_PIPELINE_BIND_POINT_GRAPHICS)
+        .add_color(0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+    radial_renderpass.add_attachment(format, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+    CVK_ASSERT(radial_renderpass.create() == VK_SUCCESS);
+
+    // cvk::WritableUniformBuffer radial_ubo_buffer(device);
+    // CVK_ASSERT(radial_ubo_buffer.create(device.get_memory_properties(), sizeof(CompositionUBO)) == VK_SUCCESS);
+    // CVK_ASSERT(radial_ubo_buffer.upload(&light_ubo, sizeof(light_ubo)) == VK_SUCCESS);
+
+    cvk::Descriptor radial_descriptor(device);
+    radial_descriptor.add_layout()
+        .set(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)
+        .set(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 1);
+    CVK_ASSERT(radial_descriptor.create() == VK_SUCCESS);
+
+    radial_descriptor[0].write(0, radial_attachment.get_descriptor_info(sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+    // radial_descriptor[0].write(1, radial_ubo_buffer.get_descriptor_info());
+
+    cvk::Shader radial_frag(device, utils::load_file("shader/radial_multisample.frag.spv"));
+    CVK_ASSERT(radial_frag.create() == VK_SUCCESS);
+
+    cvk::PipelineLayout radial_layout(device);
+    radial_layout.attaches(static_cast<VkDescriptorSetLayout>(radial_descriptor[0].get_layout()));
+    CVK_ASSERT(radial_layout.create() == VK_SUCCESS);
+    cvk::GraphicsPipeline radial_pipeline(device, radial_renderpass, radial_layout);
+    radial_pipeline.viewport().attaches(render_area, viewport);
+    radial_pipeline.color_blend()
+        .attach(0xf, false);
+    radial_pipeline.shader()
+        .attach(VK_SHADER_STAGE_VERTEX_BIT, composition_vert_shader)
+        .attach(VK_SHADER_STAGE_FRAGMENT_BIT, radial_frag);
+    CVK_ASSERT(radial_pipeline.create() == VK_SUCCESS);
+
+    std::vector<cvk::Framebuffer> framebuffers;
+    auto CONST_REFERENCE images = swapchain.get_images();
+    std::vector<cvk::ColorImageView2D> image_views2d;
+    for (auto i : images) {
+        CVK_ASSERT(image_views2d.emplace_back(device).create(swapchain.get_format(), i) == VK_SUCCESS);
+        framebuffers.emplace_back(device, radial_renderpass, width, height).attaches(
+            (VkImageView)image_views2d.back());
+        CVK_ASSERT(framebuffers.back().create() == VK_SUCCESS);
+    }
+
     cvk::Semaphore acquire_semaphore(device);
     CVK_ASSERT(acquire_semaphore.create() == VK_SUCCESS);
     cvk::Fence wait_fence(device);
@@ -249,7 +296,7 @@ int main(int argc, char *argv[])
 
     cvk::Queue graphics_queue(device, graphics_index);
 
-    auto prepare_command = [&] (cvk::CommandBuffer cmd_buf, VkFramebuffer framebuffer)
+    auto prepare_command = [&] (cvk::CommandBuffer cmd_buf, VkFramebuffer cur_framebuffer)
     {
         CVK_ASSERT(cmd_buf.begin(0) == VK_SUCCESS);
 
@@ -267,8 +314,26 @@ int main(int argc, char *argv[])
             cmd_buf.cmd().bind_descriptor_sets(VK_PIPELINE_BIND_POINT_GRAPHICS, light_layout, { light_descriptor[0] });
             cmd_buf.cmd().draw(6);
         }
+        
+        // cmd_buf.cmd().next_subpass();
 
         cmd_buf.cmd().end_renderpass();
+
+
+        // vkCmdPipelineBarrier(cmd_buf.cmd().buffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,)
+
+        {
+            VkRenderPassBeginInfo radial_rp_begin = {};
+            __cvk::get_default_begin_renderpass_info(radial_renderpass, cur_framebuffer, radial_clear_value, render_area, radial_rp_begin);
+            cmd_buf.cmd().begin_renderpass(radial_rp_begin);
+
+            cmd_buf.cmd().bind_pipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, radial_pipeline);
+            cmd_buf.cmd().bind_descriptor_sets(VK_PIPELINE_BIND_POINT_GRAPHICS, radial_layout, { radial_descriptor[0] });
+            cmd_buf.cmd().draw(6);
+
+            cmd_buf.cmd().end_renderpass();
+        }
+
         cmd_buf.end();
     };
 
@@ -298,8 +363,9 @@ int main(int argc, char *argv[])
             .submit({ command_buffers[cur_index] }, wait_fence);
 
         time += benchmark.lap();
-        if (time_i++ == 5000) {
-            std::cout << "fps : " << (1000.0f * 5000.0f) / time << "\n";
+        time_i++;
+        if (time > 1000) {
+            std::cout << "fps : " << time_i << "\n";
             time = 0;
             time_i = 0;
         }

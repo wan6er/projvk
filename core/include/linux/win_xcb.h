@@ -12,6 +12,7 @@ namespace __xcb
     CVK_API void generat_win_id(xcb_window_t& win, xcb_connection_t* conn);
     CVK_API void create_window(xcb_connection_t* conn, xcb_screen_t* screen, uint32_t win_id, uint32_t width, uint32_t height);
     CVK_API void show_window(xcb_connection_t* conn, uint32_t win_id);
+    CVK_API void set_title(xcb_connection_t* conn, uint32_t win_id, std::string const& title);
     CVK_API void flush(xcb_connection_t* conn);
     CVK_API void disconnect(xcb_connection_t* conn);
     CVK_API void poll_event(xcb_generic_event_t*& event, xcb_connection_t* conn);

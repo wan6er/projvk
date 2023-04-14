@@ -14,11 +14,9 @@ set(PROJ_EXT_LIBS "")
 set(PROJ_EXT_INCLUDE_DIR "")
 
 if(LINUX)
-    set(PROJ_EXT_LIBS "${PROJ_EXT_LIBS};pthread")
-    if(${XCB_FOUND})
-        set(PROJ_EXT_INCLUDE_DIR "${PROJ_EXT_INCLUDE_DIR};${XCB_INCLUDE_DIR}")
-        set(PROJ_EXT_LIBS "${PROJ_EXT_LIBS};${XCB_LIBRARIES}")
-    endif()
+    set(PROJ_EXT_LIBS "pthread;${ProjDeps_LIBRARIES}")
+    set(PROJ_EXT_INCLUDE_DIR "${ProjDeps_INCLUDE_DIRS}")
+    
 endif()
 
 target_link_libraries(${PROJ_NAME} ${PROJ_LIBS} ${PROJ_EXT_LIBS})

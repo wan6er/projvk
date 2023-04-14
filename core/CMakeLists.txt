@@ -25,11 +25,9 @@ file(GLOB PROJ_SRC
 
 add_library(${PROJ_NAME} SHARED ${PROJ_SRC} ${EXTERNAL_SRC})
 
-target_include_directories(${PROJ_NAME} PUBLIC ${Vulkan_INCLUDE_DIR} PUBLIC ${tinygltf_INCLUDE_DIR} PUBLIC ${glm_INCLUDE_DIR} PUBLIC ktx)
+target_include_directories(${PROJ_NAME} PUBLIC ${ProjDeps_INCLUDE_DIRS} PUBLIC ${tinygltf_INCLUDE_DIR} PUBLIC ${glm_INCLUDE_DIR} PUBLIC ktx)
 
-target_link_libraries(${PROJ_NAME} ${Vulkan_LIBRARY} ktx)
-if(CMAKE_HOST_UNIX)
-    target_link_libraries(${PROJ_NAME} xcb)
-endif()
+link_directories(${ProjDeps_LIBRARY_DIR})
+target_link_libraries(${PROJ_NAME} ${ProjDeps_LIBRARIES} ktx)
 
 target_compile_definitions(${PROJ_NAME} PRIVATE BUILD_CVK PUBLIC TINYGLTF_IMPLEMENTATION PUBLIC STB_IMAGE_IMPLEMENTATION PUBLIC TINYGLTF_NO_STB_IMAGE_WRITE)

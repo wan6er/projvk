@@ -46,12 +46,19 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 
 # set(SDL2_DIR "C:/SDL2/msvc/cmake")
 # find_package(SDL2 REQUIRED)
-find_package(Vulkan REQUIRED)
+# find_package(Vulkan REQUIRED)
+
+
 find_package(core)
 find_package(lockfree)
 
+find_package(PkgConfig REQUIRED)
+
 if(${CMAKE_HOST_UNIX})
-    find_package(XCB REQUIRED)
+    # find_package(XCB REQUIRED)
+    pkg_check_modules(ProjDeps REQUIRED vulkan xcb)
+else()
+    pkg_check_modules(ProjDeps REQUIRED vulkan)
 endif()
 
 

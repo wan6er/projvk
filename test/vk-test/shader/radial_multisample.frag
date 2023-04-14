@@ -18,19 +18,14 @@ layout (location = 0) out vec4 outColor;
 
 void main()
 {
-    // vec4 prevColor = subpassLoad(inColor);
     const vec2 origin = vec2(0.5);
-    // vec2 stride = 1.0 / textureSize(inColor, 0) * 10;
+    const float stride = (1.0 / SAMPLES);
     outColor = texture(inColor, inPos);
-    // outColor = vec4(0.0);
 
-    // if (length(inPos - origin) < 0.3)
     for (int i = 0; i < SAMPLES; ++i) {
-        vec4 prevColor = texture(inColor, (inPos - origin) * 0.025 * i + origin);
-        outColor += prevColor * (1.0 / SAMPLES) * 0.3;
+        float proportion = (SAMPLES + i) * 0.5;
+        vec4 prevColor = texture(inColor, (inPos - origin) * stride * proportion + origin);
+        outColor += prevColor * stride * 0.3;
     }
 
-    // if (outColor.a == 0.0) {
-    //     discard;
-    // }
 }

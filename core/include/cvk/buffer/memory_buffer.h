@@ -6,14 +6,26 @@
 
 namespace cvk
 {
-    class MemoryBuffer : public cvk::BaseMemorized<Buffer>
+    class MemoryBuffer : public BaseMemorized<Buffer, Memory>
     {
+        using _Base = BaseMemorized<Buffer, Memory>;
+
     public:
-        using cvk::BaseMemorized<Buffer>::BaseMemorized;
+        using _Base::_Base;
 
         inline VkResult create(VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, VkMemoryPropertyFlags property, uint32_t size, VkBufferUsageFlags usage)
         {
-            return cvk::BaseMemorized<Buffer>::create(properties, property, size, usage);
+            // return cvk::BaseMemorized<Buffer>::create(properties, property, size, usage);
+            VkResult result = VK_SUCCESS;
+            if ((result = _Base::create_obj(size, usage))) {
+                return result;
+            }
+
+            if ((result = _Base::create_mem(properties, property))) {
+                return result;
+            }
+
+            return _Base::bind();
         }
 
     };

@@ -13,38 +13,45 @@ static VkMemoryPropertyFlags const MEMORY_WRITABLE = VK_MEMORY_PROPERTY_HOST_VIS
 static VkMemoryPropertyFlags const MEMORY_READABLE = MEMORY_WRITABLE | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
 static VkMemoryPropertyFlags const MEMORY_WRITABLE_FULL_SPEED = MEMORY_WRITABLE | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     
-    template<class _Base>
+    template<class _Base, class _Memory>
     class BaseMemorized : 
         public _Base,
-        public Memory
+        public _Memory
     {
     public:
+
         BaseMemorized(VkDevice device);
         virtual ~BaseMemorized() = default;
 
         template<class...__Args>
-        VkResult create(VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, VkMemoryPropertyFlags property, __Args&&...args);
+        VkResult create_obj(__Args&&...args);
+
+        template<class..._Args>
+        VkResult create_mem(VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, VkMemoryPropertyFlags property);
+
+        VkResult bind();
+
+        // template<class...__Args>
+        // VkResult create(VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, VkMemoryPropertyFlags property, __Args&&...args);
 
     protected:
-        // VkResult allocate_bind(VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, VkMemoryPropertyFlags property);
         
         using _Base::create;
-        using Memory::allocate;
+        using _Memory::allocate;
     };
 
     template<class _Base, VkMemoryPropertyFlags _Type>
     class BaseTypeMemorized : 
-        public BaseMemorized<_Base>
+        public BaseMemorized<_Base, Memory>
     {
+        using _Memory = Memory;
+
     public:
-        BaseTypeMemorized(VkDevice device) : BaseMemorized<_Base>(device) {}
+        BaseTypeMemorized(VkDevice device) : BaseMemorized<_Base, _Memory>(device) {}
         virtual ~BaseTypeMemorized() = default;
 
         template<class...__Args>
-        VkResult create(VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, __Args&&...args)
-        {
-            return BaseMemorized<_Base>::create(properties, _Type, std::forward<__Args>(args)...);
-        }
+        VkResult create(VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, __Args&&...args);
 
     protected:
         // using BaseMemorized<_Base>::create;

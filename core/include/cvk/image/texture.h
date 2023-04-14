@@ -10,12 +10,12 @@ namespace cvk::basic
 {
     
     class CVK_API Texture : 
-        public BaseMemorized<basic::Image>,
+        public BaseMemorized<basic::Image, Memory>,
         public basic::ImageView
     {
     public:
-        using _MemImageType = BaseMemorized<basic::Image>;
-        using _ImageViewType = basic::ImageView;
+        using _MemImage = BaseMemorized<basic::Image, Memory>;
+        using _ImageView = basic::ImageView;
 
         Texture(VkDevice device);
         virtual ~Texture() = default;

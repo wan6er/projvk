@@ -136,9 +136,9 @@ int main()
         float color[3];
     };
 
-    cvk::Shader vert_shader(device, utils::load_file("shader/triangle.vert.spv"));
+    cvk::Shader vert_shader(device, utils::load_file("bin/shader/triangle.vert.spv"));
     CVK_ASSERT(vert_shader.create() == VK_SUCCESS);
-    cvk::Shader frag_shader(device, utils::load_file("shader/triangle.frag.spv"));
+    cvk::Shader frag_shader(device, utils::load_file("bin/shader/triangle.frag.spv"));
     CVK_ASSERT(frag_shader.create() == VK_SUCCESS);
 
     std::cout << "init shader\n";

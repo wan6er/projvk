@@ -1,0 +1,4 @@
+break /home/zzj/mesa/src/gallium/frontends/lavapipe/lvp_device.c:1613
+break lvp_graphics_pipeline_create
+break spirv_to_nir
+break vtn_create_builder

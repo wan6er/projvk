@@ -45,6 +45,8 @@
 #include "linux/surface_xcb.h"
 #endif
 
+#include <thread>
+
 int main()
 {
 
@@ -224,7 +226,7 @@ int main()
     clear_values[0].color.float32[0] = 0.1f;
     clear_values[0].color.float32[1] = 0.2f;
     clear_values[0].color.float32[2] = 0.4f;
-    clear_values[0].color.float32[3] = 1.0f;
+    clear_values[0].color.float32[3] = 0.2f;
     clear_values[1].depthStencil.depth = 1.0f;
     clear_values[1].depthStencil.stencil = 0;
     VkRect2D render_area = {{0, 0}, {width, height}};
@@ -259,6 +261,9 @@ int main()
         graphics_queue
             .set_wait(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, { acquire_semaphore })
             .submit({ command_buffer }, wait_fence);
+        while (1) {
+            std::this_thread::yield();
+        }
         CVK_ASSERT(wait_fence.wait() == VK_SUCCESS);
         CVK_ASSERT(wait_fence.reset() == VK_SUCCESS);
         CVK_ASSERT(vkResetFences(device, 1, &(VkFence CONST_REFERENCE)wait_fence) == VK_SUCCESS);
@@ -266,5 +271,7 @@ int main()
         swapchain.present(graphics_queue, {});
 
         win.free_event();
+        
+        break;
     }
 }

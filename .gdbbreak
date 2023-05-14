@@ -1,4 +1,5 @@
 break lvp_graphics_pipeline_create
 break spirv_to_nir
 break llvmpipe_screen_late_init
-break llvmpipe_draw_vbo
+break vsplit_run_linear
+break lvp_physical_device_init

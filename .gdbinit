@@ -20,6 +20,6 @@ define setbp
     end
 end
 
-add-symbol-file /usr/local/lib/libvulkan_lvp.so
+add-symbol-file /usr/local/lib/x86_64-linux-gnu/libvulkan_lvp.so
 add-symbol-file lib/libcore.so
 source .gdbbreak

@@ -32,9 +32,15 @@ endfunction()
 function(install_shaders src_dir dst_dir)
     install_resource(${src_dir} ${dst_dir} *.vert)
     install_resource(${src_dir} ${dst_dir} *.frag)
+    install_resource(${src_dir} ${dst_dir} *.rgen)
+    install_resource(${src_dir} ${dst_dir} *.rchit)
+    install_resource(${src_dir} ${dst_dir} *.rmiss)
     file(GLOB shader_files 
         ${dst_dir}/*.vert
         ${dst_dir}/*.frag
+        ${dst_dir}/*.rgen
+        ${dst_dir}/*.rchit
+        ${dst_dir}/*.rmiss
     )
     foreach(shader_file ${shader_files})
         string(REGEX REPLACE ".+/(.+)" "\\1" shader_filename ${shader_file})

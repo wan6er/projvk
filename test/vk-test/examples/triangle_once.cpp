@@ -64,13 +64,15 @@ int main()
     };
     std::vector<std::string> device_extensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+        VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
+        VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
         // VK_EXT_DEBUG_MARKER_EXTENSION_NAME
     };
 
     cvk::Instance instance(instance_extensions, instance_layers);
     std::vector<VkPhysicalDevice>&& devices = instance.get_all_physical_device();
     VkPhysicalDeviceFeatures device_features = {};
-    cvk::Device device(devices[2], device_extensions, device_features, VK_QUEUE_GRAPHICS_BIT);
+    cvk::Device device(devices[1], device_extensions, device_features, VK_QUEUE_GRAPHICS_BIT);
 
     std::cout << "init device\n";
 
@@ -171,9 +173,11 @@ int main()
     {
         { {  1.0f,  1.0f, 0.5f }, { 1.0f, 0.0f, 0.0f } },
         { { -1.0f,  1.0f, 0.5f }, { 0.0f, 1.0f, 0.0f } },
-        { {  0.0f, -1.0f, 0.5f }, { 0.0f, 0.0f, 1.0f } }
+        { {  0.0f, -1.0f, 0.5f }, { 0.0f, 0.0f, 1.0f } },
     };
     uint32_t vertex_size = static_cast<uint32_t>(vertex.size()) * sizeof(Vertex);
+
+    std::cout << "vertex size : " << vertex_size << "\n";
 
     // Setup indices
     std::vector<uint32_t> index = { 0, 1, 2 };
@@ -253,7 +257,7 @@ int main()
         command_buffer.cmd().bind_vertex_buffer(vertex_buffer);
         command_buffer.cmd().set_viewport({ viewport });
         command_buffer.cmd().set_scissor({ render_area });
-        command_buffer.cmd().draw(3);
+        command_buffer.cmd().draw(6);
 
         command_buffer.cmd().end_renderpass();
         command_buffer.end();

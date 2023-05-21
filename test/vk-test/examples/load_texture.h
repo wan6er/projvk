@@ -16,7 +16,7 @@ void load_texture(cvk::Device CONST_REFERENCE device, std::string filename, uint
     ktxResult result = ktxTexture_CreateFromNamedFile(filename.c_str(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, &target);
     CVK_ASSERT(result == KTX_SUCCESS);
 
-    cvk::TransferSrcBuffer texture_stage(device);
+    cvk::BufferTransferSrc texture_stage(device);
     CVK_ASSERT(texture_stage.create(device.get_memory_properties(), target->dataSize) == VK_SUCCESS);
     CVK_ASSERT(texture_stage.upload(target->pData, texture_stage.get_size()) == VK_SUCCESS);
 

@@ -44,7 +44,19 @@ TEST_FUNC_BEGIN("device")
     CHECK(devices.size() > 0);
 
     VkPhysicalDeviceFeatures device_features = {};
-    cvk::Device device(devices[0], device_extensions, device_features, VK_QUEUE_GRAPHICS_BIT);
+    cvk::Device device(devices[0]);
+
+    device.add_extensions(
+#ifdef CVK_RAYTRACING
+        VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME
+#endif
+    );
+    device.add_device_features(
+#ifdef CVK_RAYTRACING
+        cvk::DeviceFeatureAcceleration()
+#endif
+    );
+    device.create();
 
     CHECK(static_cast<VkDevice>(device) != nullptr);
 

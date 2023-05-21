@@ -6,9 +6,11 @@
 
 namespace cvk
 {
-    class MemoryBuffer : public BaseMemorized<Buffer, Memory>
+
+    template<class _Buffer, class _Memory>
+    class BaseMemoryBuffer : public BaseMemorized<_Buffer, _Memory>
     {
-        using _Base = BaseMemorized<Buffer, Memory>;
+        using _Base = BaseMemorized<_Buffer, _Memory>;
 
     public:
         using _Base::_Base;
@@ -29,16 +31,20 @@ namespace cvk
         }
 
     };
+
+    using MemoryBuffer = BaseMemoryBuffer<Buffer, Memory>;
     
-    template<VkMemoryPropertyFlags _Property, VkBufferUsageFlags _Usage>
-    class BaseTypeMemoryBuffer : public MemoryBuffer
+    template<class _Buffer, class _Memory, VkMemoryPropertyFlags _Property, VkBufferUsageFlags _Usage>
+    class BaseTypeMemoryBuffer : public BaseMemoryBuffer<_Buffer, _Memory>
     {
+        using BaseMemoryBufferType = BaseMemoryBuffer<_Buffer, _Memory>;
+
     public:
-        using MemoryBuffer::MemoryBuffer;
+        using BaseMemoryBufferType::BaseMemoryBufferType;
 
         inline VkResult create(VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, uint32_t size) 
         {
-            return MemoryBuffer::create(properties, _Property, size, _Usage);
+            return BaseMemoryBufferType::create(properties, _Property, size, _Usage);
         }
 
     };

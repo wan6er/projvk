@@ -6,7 +6,7 @@ namespace cvk
 template<class _Base, class _Memory>
 BaseMemorized<_Base, _Memory>::BaseMemorized(VkDevice device) :
     _Base(device),
-    Memory(device)
+    _Memory(device)
 {
 }
 

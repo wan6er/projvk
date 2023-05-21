@@ -21,9 +21,9 @@
     #endif
 
 
-    #if defined(NDEBUG)
+    #if !defined(NDEBUG)
         #include <iostream>
-        #define CVK_ASSERT(expression) do { if (!(expression)) {} } while (false)
+        // #define CVK_ASSERT(expression) do { if (!(expression)) {} } while (false)
         extern "C" __declspec(dllimport) void DebugBreak();
         #define CVK_PRINT_FILE_LINE(msg, ...) printf("%s:%d error %s :" msg "\n", __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
         #define CVK_ASSERT(expression) do { if (!(expression)) { CVK_PRINT_FILE_LINE("%s", #expression); DebugBreak(); } } while (false)

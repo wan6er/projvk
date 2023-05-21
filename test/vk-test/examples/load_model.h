@@ -17,9 +17,9 @@
 
 struct NodeBuffers
 {
-    cvk::WritableVertexBuffer vertex;
-    cvk::WritableIndexBuffer index;
-    cvk::WritableUniformBuffer transform;
+    cvk::VertexBufferWritable vertex;
+    cvk::IndexBufferWritable index;
+    cvk::UniformBufferWritable transform;
 
     NodeBuffers(VkDevice device) :
         vertex(device), index(device), transform(device)
@@ -27,7 +27,7 @@ struct NodeBuffers
     }
 };
 
-// typedef utils::TupleUnion<NodeBuffersImpl, cvk::WritableVertexBuffer, cvk::WritableIndexBuffer, cvk::WritableUniformBuffer> NodeBuffers;
+// typedef utils::TupleUnion<NodeBuffersImpl, cvk::VertexBufferWritable, cvk::IndexBufferWritable, cvk::UniformBufferWritable> NodeBuffers;
 
 struct Vertex
 {

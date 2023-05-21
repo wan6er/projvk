@@ -11,7 +11,7 @@ namespace cvk
 static VkMemoryPropertyFlags const MEMORY_STANDARD = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 static VkMemoryPropertyFlags const MEMORY_WRITABLE = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 static VkMemoryPropertyFlags const MEMORY_READABLE = MEMORY_WRITABLE | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
-static VkMemoryPropertyFlags const MEMORY_WRITABLE_FULL_SPEED = MEMORY_WRITABLE | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+static VkMemoryPropertyFlags const MEMORY_WRITABLE_SPEED = MEMORY_WRITABLE | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     
     template<class _Base, class _Memory>
     class BaseMemorized : 
@@ -19,7 +19,6 @@ static VkMemoryPropertyFlags const MEMORY_WRITABLE_FULL_SPEED = MEMORY_WRITABLE 
         public _Memory
     {
     public:
-
         BaseMemorized(VkDevice device);
         virtual ~BaseMemorized() = default;
 
@@ -31,13 +30,10 @@ static VkMemoryPropertyFlags const MEMORY_WRITABLE_FULL_SPEED = MEMORY_WRITABLE 
 
         VkResult bind();
 
-        // template<class...__Args>
-        // VkResult create(VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, VkMemoryPropertyFlags property, __Args&&...args);
-
     protected:
-        
         using _Base::create;
         using _Memory::allocate;
+
     };
 
     template<class _Base, VkMemoryPropertyFlags _Type>

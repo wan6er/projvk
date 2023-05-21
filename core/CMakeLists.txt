@@ -10,6 +10,8 @@ file(GLOB PROJ_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cgltf/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/base/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/device/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/memory/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/buffer/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/image/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/pipe/*.cpp

@@ -27,7 +27,11 @@ TEST_FUNC_BEGIN("texture")
     cvk::Instance instance(instance_extensions, instance_layers);
     std::vector<VkPhysicalDevice>&& devices = instance.get_all_physical_device();
     VkPhysicalDeviceFeatures device_features = {};
-    cvk::Device device(devices[0], device_extensions, device_features, VK_QUEUE_GRAPHICS_BIT);
+    cvk::Device device(devices[0]);
+    device.add_extensions(
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    );
+    device.create(VK_QUEUE_GRAPHICS_BIT);
 
 
     std::string filename = "texture/colored_glass_rgba.ktx";
@@ -58,7 +62,8 @@ TEST_FUNC_BEGIN("texture")
     }
 
     {
-        uint32_t transfer_queue_index = device.get_queue_family_index(VK_QUEUE_GRAPHICS_BIT);
+        uint32_t transfer_queue_index = -1;
+        __cvk::get_queue_family_index(device.get_physical_device(), VK_QUEUE_GRAPHICS_BIT, transfer_queue_index);
         cvk::CommandPool cmd_pool(device, transfer_queue_index);
         cmd_pool.transient();
         CHECK(cmd_pool.create() == VK_SUCCESS);
@@ -68,7 +73,7 @@ TEST_FUNC_BEGIN("texture")
         cvk::Fence fence(device);
         CHECK(fence.create() == VK_SUCCESS);
 
-        cvk::TransferSrcBuffer src(device);
+        cvk::BufferTransferSrc src(device);
         CHECK(src.create(device.get_memory_properties(), ktxTexture_GetSize(target)) == VK_SUCCESS);
 
         cvk::StandardTexture2D texture(device);

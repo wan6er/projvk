@@ -32,7 +32,11 @@ TEST_FUNC_BEGIN("memory")
     cvk::Instance instance(instance_extensions, instance_layers);
     std::vector<VkPhysicalDevice>&& devices = instance.get_all_physical_device();
     VkPhysicalDeviceFeatures device_features = {};
-    cvk::Device device(devices[0], device_extensions, device_features, VK_QUEUE_GRAPHICS_BIT);
+    cvk::Device device(devices[0]);
+    device.add_extensions(
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    );
+    device.create(VK_QUEUE_GRAPHICS_BIT);
     
     {
         VkBuffer buffer;
@@ -45,7 +49,9 @@ TEST_FUNC_BEGIN("memory")
         __cvk::get_memory_requirement(device, buffer, requirement);
 
         VkDeviceMemory memory;
-        result = __cvk::alloc_memory(device, device.get_memory_properties(), requirement, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, memory);
+        VkMemoryAllocateInfo memory_alloc_info {};
+        __cvk::get_memory_allocate_info(device, device.get_memory_properties(), requirement, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, memory_alloc_info);
+        result = __cvk::alloc_memory(device, memory_alloc_info, memory);
         CHECK(result == VK_SUCCESS);
 
         result = __cvk::bind_memory(device, buffer, memory);
@@ -92,7 +98,8 @@ TEST_FUNC_BEGIN("memory")
         CHECK(result == VK_SUCCESS);
     }
     {
-        uint32_t transfer_queue_index = device.get_queue_family_index(VK_QUEUE_GRAPHICS_BIT);
+        uint32_t transfer_queue_index = -1;
+        __cvk::get_queue_family_index(device.get_physical_device(), VK_QUEUE_TRANSFER_BIT, transfer_queue_index);
         cvk::CommandPool cmd_pool(device, transfer_queue_index);
         cmd_pool.transient();
         CHECK(cmd_pool.create() == VK_SUCCESS);
@@ -102,10 +109,10 @@ TEST_FUNC_BEGIN("memory")
         cvk::Fence fence(device);
         CHECK(fence.create() == VK_SUCCESS);
 
-        cvk::TransferSrcBuffer src_buffer(device);
+        cvk::BufferTransferSrc src_buffer(device);
         CHECK(src_buffer.create(device.get_memory_properties(), 512) == VK_SUCCESS);
 
-        cvk::StandardUniformBuffer uniform_buffer(device);
+        cvk::UniformBuffer uniform_buffer(device);
         CHECK(uniform_buffer.create(device.get_memory_properties(), 512) == VK_SUCCESS);
         
         VkBufferCopy copy = {};

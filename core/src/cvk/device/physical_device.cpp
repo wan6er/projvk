@@ -1,4 +1,4 @@
-#include "cvk/physical_device.h"
+#include "cvk/device/physical_device.h"
 #include "cvk/initialize/device_initialize.h"
 
 namespace cvk

@@ -93,7 +93,7 @@ private:
 
     cvk::Sampler _sampler;
     cvk::StandardTexture2D _texture;
-    cvk::WritableUniformBuffer _uniform;
+    cvk::UniformBufferWritable _uniform;
     std::vector<NodeBuffers> _obj_buffers;
 
     cvk::DescriptorSetLayout _descriptor_layout;

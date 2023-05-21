@@ -3,12 +3,12 @@
 namespace utils
 {
 
-ClonedObj::ClonedObj(bool is_cloned) :
+constexpr ClonedObj::ClonedObj(bool is_cloned) :
     _is_cloned(is_cloned)
 {
 }
 
-ClonedObj::ClonedObj(const ClonedObj& obj) :
+constexpr ClonedObj::ClonedObj(const ClonedObj& obj) :
     _is_cloned(obj._is_cloned)
 {
 }

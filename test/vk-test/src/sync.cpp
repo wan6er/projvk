@@ -20,7 +20,11 @@ TEST_FUNC_BEGIN("sync")
     cvk::Instance instance(instance_extensions, instance_layers);
     std::vector<VkPhysicalDevice>&& devices = instance.get_all_physical_device();
     VkPhysicalDeviceFeatures device_features = {};
-    cvk::Device device(devices[0], device_extensions, device_features, VK_QUEUE_GRAPHICS_BIT);
+    cvk::Device device(devices[0]);
+    device.add_extensions(
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    );
+    device.create(VK_QUEUE_GRAPHICS_BIT);
 
     VkFence fence;
     CHECK(__cvk::create_fence(device, fence) == VK_SUCCESS);

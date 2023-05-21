@@ -56,15 +56,15 @@ int main(int argc, char *argv[])
     std::vector<std::string> instance_layers = {
         "VK_LAYER_KHRONOS_validation"
     };
-    std::vector<std::string> device_extensions = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-        // VK_EXT_DEBUG_MARKER_EXTENSION_NAME
-    };
 
     cvk::Instance instance(instance_extensions, instance_layers);
     std::vector<VkPhysicalDevice>&& devices = instance.get_all_physical_device();
     VkPhysicalDeviceFeatures device_features = {};
-    cvk::Device device(devices[0], device_extensions, device_features, VK_QUEUE_GRAPHICS_BIT);
+    cvk::Device device(devices[0]);
+    device.add_extensions(
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    );
+    device.create(VK_QUEUE_GRAPHICS_BIT);
 
     uint32_t width = 1024;
     uint32_t height = 720;
@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
     light_ubo.viewPos = glm::vec4(view_pos, 1.0);
     light_ubo.color = glm::vec3(1.0);
     light_ubo.radius = 100.0;
-    cvk::WritableUniformBuffer light_ubo_buffer(device);
+    cvk::UniformBufferWritable light_ubo_buffer(device);
     CVK_ASSERT(light_ubo_buffer.create(device.get_memory_properties(), sizeof(CompositionUBO)) == VK_SUCCESS);
     CVK_ASSERT(light_ubo_buffer.upload(&light_ubo, sizeof(light_ubo)) == VK_SUCCESS);
 
@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
     radial_renderpass.add_attachment(format, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
     CVK_ASSERT(radial_renderpass.create() == VK_SUCCESS);
 
-    // cvk::WritableUniformBuffer radial_ubo_buffer(device);
+    // cvk::UniformBufferWritable radial_ubo_buffer(device);
     // CVK_ASSERT(radial_ubo_buffer.create(device.get_memory_properties(), sizeof(CompositionUBO)) == VK_SUCCESS);
     // CVK_ASSERT(radial_ubo_buffer.upload(&light_ubo, sizeof(light_ubo)) == VK_SUCCESS);
 

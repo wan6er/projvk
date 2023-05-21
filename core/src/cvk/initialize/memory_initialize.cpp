@@ -4,15 +4,15 @@
 namespace __cvk
 {
 
-CVK_API void get_default_memory_allocate_info(VkDevice device, VkPhysicalDeviceMemoryProperties CONST_REFERENCE all_properties, VkMemoryRequirements CONST_REFERENCE requirements, VkMemoryPropertyFlags properties, VkMemoryAllocateInfo& info)
+CVK_API void get_memory_allocate_info(VkDevice device, VkPhysicalDeviceMemoryProperties CONST_REFERENCE all_properties, VkMemoryRequirements CONST_REFERENCE requirements, VkMemoryPropertyFlags properties, VkMemoryAllocateInfo& info)
 {    
-    get_default_memory_allocate_info(device, all_properties, requirements.size, requirements.memoryTypeBits, properties, info);
+    get_memory_allocate_info(device, all_properties, requirements.size, requirements.memoryTypeBits, properties, info);
 }
 
-CVK_API void get_default_memory_allocate_info(VkDevice device, VkPhysicalDeviceMemoryProperties CONST_REFERENCE all_properties, uint32_t size, uint32_t memory_type, VkMemoryPropertyFlags properties, VkMemoryAllocateInfo& info)
+CVK_API void get_memory_allocate_info(VkDevice device, VkPhysicalDeviceMemoryProperties CONST_REFERENCE all_properties, uint32_t size, uint32_t memory_type, VkMemoryPropertyFlags properties, VkMemoryAllocateInfo& info)
 {    
     uint32_t memory_type_index = UINT32_MAX;
-    get_memory_type(all_properties, memory_type, properties, memory_type_index);
+    get_memory_property_index(all_properties, memory_type, properties, memory_type_index);
     CVK_ASSERT(memory_type_index < all_properties.memoryTypeCount);
 
     // VkMemoryAllocateInfo info = {};
@@ -22,12 +22,18 @@ CVK_API void get_default_memory_allocate_info(VkDevice device, VkPhysicalDeviceM
 
 CVK_API void get_default_memory_allocate_info(uint32_t size, uint32_t type_index, VkMemoryAllocateInfo& info)
 {
-	info = {};
+	// info = {};
     info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     info.allocationSize = size;
     info.memoryTypeIndex = type_index;
 	// return vkAllocateMemory(device, &memory_allocate_info, nullptr, &memory);
 }
+
+// CVK_API void get_default_memory_allocate_flag_info(VkMemoryAllocateFlags flags, VkMemoryAllocateFlagsInfo& info)
+// {
+//     info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
+//     info.flags = flags;
+// }
 
 CVK_API VkResult alloc_memory(VkDevice device, VkMemoryAllocateInfo CONST_REFERENCE info, VkDeviceMemory& memory)
 {
@@ -35,13 +41,13 @@ CVK_API VkResult alloc_memory(VkDevice device, VkMemoryAllocateInfo CONST_REFERE
 	return vkAllocateMemory(device, &info, nullptr, &memory);
 }
 
-CVK_API VkResult alloc_memory(VkDevice device, VkPhysicalDeviceMemoryProperties CONST_REFERENCE all_properties, VkMemoryRequirements CONST_REFERENCE requirements, VkMemoryPropertyFlags properties, VkDeviceMemory& memory)
-{
-    CVK_ASSERT(device != VK_NULL_HANDLE);
-    VkMemoryAllocateInfo info = {};
-    get_default_memory_allocate_info(device, all_properties, requirements, properties, info);
-	return alloc_memory(device, info, memory);
-}
+// CVK_API VkResult alloc_memory(VkDevice device, VkPhysicalDeviceMemoryProperties CONST_REFERENCE all_properties, VkMemoryRequirements CONST_REFERENCE requirements, VkMemoryPropertyFlags properties, VkDeviceMemory& memory)
+// {
+//     CVK_ASSERT(device != VK_NULL_HANDLE);
+//     VkMemoryAllocateInfo info = {};
+//     get_default_memory_allocate_info(device, all_properties, requirements, properties, info);
+// 	return alloc_memory(device, info, memory);
+// }
 
 CVK_API void free_memory(VkDevice device, VkDeviceMemory memory)
 {
@@ -114,7 +120,7 @@ CVK_API void unmap_memory(VkDevice device, VkDeviceMemory memory)
     vkUnmapMemory(device, memory);
 }
 
-CVK_API void get_memory_type(VkPhysicalDeviceMemoryProperties CONST_REFERENCE all_properties, uint32_t type, VkMemoryPropertyFlags properties, uint32_t& index)
+CVK_API void get_memory_property_index(VkPhysicalDeviceMemoryProperties CONST_REFERENCE all_properties, uint32_t type, VkMemoryPropertyFlags properties, uint32_t& index)
 {
     for (uint32_t i = 0; i < all_properties.memoryTypeCount; i++)
     {

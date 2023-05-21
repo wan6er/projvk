@@ -41,7 +41,11 @@ TEST_FUNC_BEGIN("image")
     cvk::Instance instance(instance_extensions, instance_layers);
     std::vector<VkPhysicalDevice>&& devices = instance.get_all_physical_device();
     VkPhysicalDeviceFeatures device_features = {};
-    cvk::Device device(devices[0], device_extensions, device_features, VK_QUEUE_GRAPHICS_BIT);
+    cvk::Device device(devices[0]);
+    device.add_extensions(
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    );
+    device.create(VK_QUEUE_GRAPHICS_BIT);
 
     uint32_t width = 1024, height = 720;
 
@@ -72,7 +76,9 @@ TEST_FUNC_BEGIN("image")
         VkMemoryRequirements mem_req;
         __cvk::get_memory_requirement(device, image, mem_req);
         VkDeviceMemory memory;
-        result = __cvk::alloc_memory(device, device.get_memory_properties(), mem_req, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, memory);
+        VkMemoryAllocateInfo memory_alloc_info = {};
+        __cvk::get_memory_allocate_info(device, device.get_memory_properties(), mem_req, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, memory_alloc_info);
+        result = __cvk::alloc_memory(device, memory_alloc_info, memory);
         CHECK(result == VK_SUCCESS);
         result = vkBindImageMemory(device, image, memory, 0);
         CHECK(result == VK_SUCCESS);

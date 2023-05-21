@@ -21,6 +21,8 @@ endif()
 
 target_link_libraries(${PROJ_NAME} ${PROJ_LIBS} ${PROJ_EXT_LIBS})
 target_include_directories(${PROJ_NAME} PRIVATE ${PROJ_INCLUDE_DIR})
+# message("def ${CVK_COMPILE_DEF}")
+# target_compile_definitions(${PROJ_NAME} PRIVATE "${CVK_COMPILE_DEF}")
 
 set_target_properties(${PROJ_NAME} PROPERTIES DEBUG_POSTFIX "_d")
 
@@ -44,7 +46,7 @@ function(install_shaders src_dir dst_dir)
     )
     foreach(shader_file ${shader_files})
         string(REGEX REPLACE ".+/(.+)" "\\1" shader_filename ${shader_file})
-        execute_process(COMMAND glslangValidator -V ${shader_file} -o "${dst_dir}/${shader_filename}.spv" -g)
+        execute_process(COMMAND glslangValidator --target-env vulkan1.3 -V ${shader_file} -o "${dst_dir}/${shader_filename}.spv" -g)
         # message("compiled shader ${shader_filename}.spv")
     endforeach()
     file(REMOVE ${shader_files})

@@ -62,7 +62,7 @@ TEST_FUNC_BEGIN("command")
         // render_pass.add_attachment(VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
         // CVK_ASSERT(render_pass.create() == VK_SUCCESS);
 
-        // cvk::StandardColorAttachment2D color_buf(device);
+        // cvk::ColorAttachment2D color_buf(device);
         // CHECK(color_buf.create(device.get_memory_properties(), VK_FORMAT_B8G8R8A8_UNORM, 512, 512) == VK_SUCCESS);
         // cvk::Framebuffer framebuffer(device, render_pass, 512, 512);
         // framebuffer.attaches((VkImageView)color_buf);

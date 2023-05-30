@@ -14,6 +14,7 @@ namespace cvk
 
     public:
         constexpr MemoryExt(VkDevice device, void CONST_PTR next = nullptr);
+        constexpr MemoryExt(VkDevice device, VkDeviceMemory memory);
 
         void set_flags(VkMemoryAllocateFlags flags);
         void set_mask(uint32_t mask);
@@ -33,6 +34,7 @@ namespace cvk
 
     public:
         constexpr BaseTypeMemoryExt(VkDevice device, void CONST_PTR next = nullptr);
+        constexpr BaseTypeMemoryExt(VkDevice device, VkDeviceMemory memory);
 
     };
 

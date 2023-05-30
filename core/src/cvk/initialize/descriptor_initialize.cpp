@@ -53,22 +53,37 @@ CVK_API void get_default_write_descriptor_set_info(VkWriteDescriptorSet& info)
     info.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 }
 
-CVK_API void get_write_descriptor_set_info(VkDescriptorSet set, VkDescriptorType type, uint32_t binding, VkWriteDescriptorSet& info)
+CVK_API void get_write_descriptor_set_info(VkDescriptorSet set, VkDescriptorType type, uint32_t binding, uint32_t size, VkWriteDescriptorSet& info)
 {
     info.dstSet = set;
     info.descriptorType = type;
     info.dstBinding = binding;
+    info.descriptorCount = size;
 }
 
-CVK_API void get_write_descriptor_set_info(std::vector<VkDescriptorImageInfo> CONST_REFERENCE images, std::vector<VkDescriptorBufferInfo> CONST_REFERENCE buffers, VkWriteDescriptorSet& info)
+CVK_API void get_write_descriptor_set_info(std::vector<VkDescriptorImageInfo> CONST_REFERENCE images, VkWriteDescriptorSet& info, void*)
 {
-    CVK_ASSERT(!(images.size() > 0 && buffers.size() > 0));
+    CVK_ASSERT(images.size() > 0);
     uint32_t image_size = 0;
-    uint32_t buffer_size = 0;
 
     utils::vector_fill_info(images, image_size, info.pImageInfo);
+}
+
+CVK_API void get_write_descriptor_set_info(std::vector<VkDescriptorBufferInfo> CONST_REFERENCE buffers, VkWriteDescriptorSet& info, void*)
+{
+    CVK_ASSERT(buffers.size() > 0);
+    uint32_t buffer_size = 0;
+
     utils::vector_fill_info(buffers, buffer_size, info.pBufferInfo);
-    info.descriptorCount = image_size + buffer_size;
+}
+
+CVK_API void get_write_descriptor_set_info(std::vector<VkAccelerationStructureKHR> CONST_REFERENCE accstructs, VkWriteDescriptorSetAccelerationStructureKHR& accstruct_info, void* prev)
+{
+    accstruct_info.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
+    utils::vector_fill_info(accstructs, accstruct_info.accelerationStructureCount, accstruct_info.pAccelerationStructures);
+    if (prev) {
+        reinterpret_cast<VkBaseOutStructure*>(prev)->pNext = reinterpret_cast<VkBaseOutStructure*>(&accstruct_info);
+    }
 }
 
 CVK_API void get_default_descriptor_set_allocate_info(VkDescriptorPool pool, VkDescriptorSetLayout CONST_REFERENCE set_layout, VkDescriptorSetAllocateInfo& alloc_info)

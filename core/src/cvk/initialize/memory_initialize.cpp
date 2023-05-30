@@ -137,3 +137,22 @@ CVK_API void get_memory_property_index(VkPhysicalDeviceMemoryProperties CONST_RE
 }
 
 };
+
+
+#ifdef CVK_RAYTRACING
+
+namespace __cvk
+{
+
+CVK_API void get_buffer_address(VkDevice device, VkBuffer buffer, uint64_t& address)
+{
+    VkBufferDeviceAddressInfo addr_info {};
+	addr_info.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+	addr_info.buffer = buffer;
+	address = vkGetBufferDeviceAddress(device, &addr_info);
+}
+    
+} // namespace __cvk
+
+
+#endif

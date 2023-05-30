@@ -40,24 +40,24 @@ TEST_FUNC_BEGIN("texture")
     CHECK(result == KTX_SUCCESS);
 
     {
-        cvk::WritableTexture2D texture(device);
+        cvk::Texture2DWritable texture(device);
         CHECK(texture.create(
             device.get_memory_properties(), VK_FORMAT_R8G8B8A8_UNORM, target->baseWidth, target->baseHeight) == VK_SUCCESS);
 
         void* ptr = nullptr;
         CHECK(texture.map(ptr) == VK_SUCCESS);
-        memcpy(ptr, ktxTexture_GetData(target), texture.get_size());
+        memcpy(ptr, ktxTexture_GetData(target), texture.get_memory_size());
         texture.unmap();
         
         
-        CHECK(cvk::StandardTexture2D(device).create(
+        CHECK(cvk::Texture2D(device).create(
             device.get_memory_properties(), VK_FORMAT_R8G8B8A8_UNORM, target->baseWidth, target->baseHeight) == VK_SUCCESS);
-        CHECK(cvk::WritableTexture2DFullSpeed(device).create(
+        CHECK(cvk::Texture2DWritableSpeed(device).create(
             device.get_memory_properties(), VK_FORMAT_R8G8B8A8_UNORM, target->baseWidth, target->baseHeight) == VK_SUCCESS);
             
-        CHECK(cvk::StandardColorAttachment2D(device).create(
+        CHECK(cvk::ColorAttachment2D(device).create(
             device.get_memory_properties(), VK_FORMAT_R8G8B8A8_UNORM, target->baseWidth, target->baseHeight) == VK_SUCCESS);
-        CHECK(cvk::ReadableColorAttachment2D(device).create(
+        CHECK(cvk::ColorAttachment2DReadable(device).create(
             device.get_memory_properties(), VK_FORMAT_R8G8B8A8_UNORM, target->baseWidth, target->baseHeight) == VK_SUCCESS);
     }
 
@@ -76,7 +76,7 @@ TEST_FUNC_BEGIN("texture")
         cvk::BufferTransferSrc src(device);
         CHECK(src.create(device.get_memory_properties(), ktxTexture_GetSize(target)) == VK_SUCCESS);
 
-        cvk::StandardTexture2D texture(device);
+        cvk::Texture2D texture(device);
         texture.set_subresource_miplevels(target->numLevels);
         CHECK(texture.create(
             device.get_memory_properties(), VK_FORMAT_R8G8B8A8_UNORM, target->baseWidth, target->baseHeight) == VK_SUCCESS);
@@ -94,11 +94,11 @@ TEST_FUNC_BEGIN("texture")
 
         cmd.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
         cmd.cmd().set_barrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT)
-            .add_image_barrier(texture, texture.get_all_subresource(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+            .add_image_barrier(texture, texture.get_subresource_range(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
             .apply();
         cmd.cmd().copy_buffer_image(src, texture, image_copies);
         cmd.cmd().set_barrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT)
-            .add_image_barrier(texture, texture.get_all_subresource(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+            .add_image_barrier(texture, texture.get_subresource_range(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
             .apply();
         cmd.end();
 

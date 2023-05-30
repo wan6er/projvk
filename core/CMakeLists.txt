@@ -18,6 +18,7 @@ file(GLOB PROJ_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/sync/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/command/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/descriptor/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/acc_struct/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cvk/initialize/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/*.cpp
 

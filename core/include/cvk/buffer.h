@@ -23,8 +23,23 @@ namespace cvk
     typedef BaseTypeMemoryBuffer<Buffer, Memory, MEMORY_WRITABLE, VK_BUFFER_USAGE_TRANSFER_SRC_BIT> BufferTransferSrc;
     typedef BaseTypeMemoryBuffer<Buffer, Memory, MEMORY_WRITABLE_SPEED, VK_BUFFER_USAGE_TRANSFER_SRC_BIT> BufferTransferSrcSpeed;
 
-    typedef BaseTypeMemoryBuffer<Buffer, MemoryAddress, MEMORY_STANDARD, VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR> AccelerationStructureInputBuffer;
-    typedef BaseTypeMemoryBuffer<Buffer, MemoryAddress, MEMORY_STANDARD, VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR> AccelerationStructureInputBufferWritable;
-
-    typedef BaseTypeMemoryBuffer<Buffer, MemoryAddress, MEMORY_WRITABLE, VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR> AccelerationStructureBuffer;
 };
+
+#ifdef CVK_RAYTRACING
+
+#include "cvk/buffer/memory_address_buffer.h"
+
+namespace cvk
+{
+    
+    typedef BaseTypeMemoryAddressBuffer<Buffer, MemoryAddress, MEMORY_STANDARD, VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR> AccelerationStructureInputBuffer;
+    typedef BaseTypeMemoryAddressBuffer<Buffer, MemoryAddress, MEMORY_WRITABLE, VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR> AccelerationStructureInputBufferWritable;
+
+    typedef BaseTypeMemoryAddressBuffer<Buffer, MemoryAddress, MEMORY_STANDARD, VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR> AccelerationStructureBuffer;
+    typedef BaseTypeMemoryAddressBuffer<Buffer, MemoryAddress, MEMORY_STANDARD, VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT> AccelerationStructureScratchBuffer;
+
+    typedef BaseTypeMemoryAddressBuffer<Buffer, MemoryAddress, MEMORY_WRITABLE, VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR> ShaderBindingTableBufferWritable;
+
+} // namespace cvk
+
+#endif

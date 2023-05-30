@@ -83,7 +83,7 @@ TEST_FUNC_BEGIN("framebuffer")
     render_pass.attaches(color_attachment_desc, depth_attachment_desc, subpass.get_description());
     CHECK(render_pass.create() == VK_SUCCESS);
 
-    cvk::StandardDepthAttachment2D depth_attach(device);
+    cvk::DepthAttachment2D depth_attach(device);
     CHECK(depth_attach.create(device.get_memory_properties(), VK_FORMAT_D16_UNORM, width, height) == VK_SUCCESS);
 
     std::vector<cvk::Framebuffer> framebuffers;

@@ -5,7 +5,7 @@ namespace cvk
 {
 
 BasePipeline::BasePipeline(VkDevice device) :
-    device(device)
+    _BaseDevice(device)
 {
 }
 
@@ -23,8 +23,8 @@ BasePipeline::operator VkPipeline() const
 
 void BasePipeline::release()
 {
-    if (device != VK_NULL_HANDLE && object() != VK_NULL_HANDLE) {
-        __cvk::destroy_pipeline(device, object());
+    if (device() != VK_NULL_HANDLE && object() != VK_NULL_HANDLE) {
+        __cvk::destroy_pipeline(device(), object());
     }
 }
 

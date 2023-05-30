@@ -17,7 +17,7 @@ namespace cvk
         void set_subresource_miplevels(uint32_t mip_levels);
         void set_subresource_arraylayers(uint32_t array_layers);
 
-        VkImageSubresourceRange get_all_subresource() const;
+        VkImageSubresourceRange get_subresource_range() const;
         VkImageSubresourceLayers get_subresource_layers(uint32_t mip_level) const;
         VkImageSubresource get_subresource(uint32_t mip_level, uint32_t layer) const;
 

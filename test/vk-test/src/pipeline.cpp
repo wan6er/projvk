@@ -12,7 +12,7 @@
 #include "cvk/descriptor/descriptor_set.h"
 #include "cvk/pipe/pipeline_layout.h"
 #include "cvk/render_pass.h"
-#include "cvk/graphics_pipeline.h"
+#include "cvk/pipeline_graphics.h"
 #include "cvk/image/image_view.h"
 #include "cvk/initialize/pipe_initialize.h"
 #include "cvk/initialize/surface_initialize.h"

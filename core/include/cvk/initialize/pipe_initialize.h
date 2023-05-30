@@ -29,3 +29,15 @@ namespace __cvk
     // pipline
     CVK_API void destroy_pipeline(VkDevice device, VkPipeline& pipeline);
 }; 
+
+namespace __cvk
+{
+
+    CVK_API void get_default_raytracing_pipeline_create_info(VkRayTracingPipelineCreateInfoKHR& create_info);
+    CVK_API void get_raytracing_pipeline_create_info(VkPipelineLayout layout, VkRayTracingPipelineCreateInfoKHR& create_info);
+    CVK_API void get_raytracing_pipeline_create_info(std::vector<VkPipelineShaderStageCreateInfo> CONST_REFERENCE stages, VkRayTracingPipelineCreateInfoKHR& create_info);
+    CVK_API void get_raytracing_pipeline_create_info(std::vector<VkRayTracingShaderGroupCreateInfoKHR> CONST_REFERENCE groups, VkRayTracingPipelineCreateInfoKHR& create_info);
+    // raytracing pipeline
+    CVK_API VkResult create_raytracing_pipeline(VkDevice device, VkRayTracingPipelineCreateInfoKHR CONST_REFERENCE info, VkPipeline& pipeline, VkPipelineCache cache = VK_NULL_HANDLE);
+
+}

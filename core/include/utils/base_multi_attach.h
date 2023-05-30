@@ -15,7 +15,8 @@ namespace utils
         constexpr BaseMultipleAttachWrapper() noexcept = default;
 
         void clear();
-        virtual auto get_attachments() -> std::vector<_Type>& final;
+        auto get_attachments() -> std::vector<_Type>&;
+        auto get_attachments() const -> std::vector<_Type> CONST_REFERENCE;
         operator std::vector<_Type> CONST_REFERENCE () const;
         operator std::vector<_Type>& ();
 

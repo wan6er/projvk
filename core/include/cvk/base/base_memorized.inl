@@ -10,6 +10,13 @@ BaseMemorized<_Base, _Memory>::BaseMemorized(VkDevice device) :
 {
 }
 
+template<class _Base, class _Memory>
+BaseMemorized<_Base, _Memory>::BaseMemorized(VkDevice device, VkDeviceMemory memory) :
+    _Base(device),
+    _Memory(device)
+{
+}
+
 // template<class _Base, class _Memory>
 // template<class...__Args>
 // VkResult BaseMemorized<_Base, _Memory>::create(VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, VkMemoryPropertyFlags property, __Args&&...args)

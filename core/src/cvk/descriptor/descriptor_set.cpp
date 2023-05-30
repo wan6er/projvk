@@ -62,23 +62,23 @@ VkResult DescriptorSet::create(VkDescriptorPool pool)
     return result;
 }
 
-void DescriptorSet::write(uint32_t binding, VkDescriptorImageInfo CONST_REFERENCE info)
-{
-    CVK_ASSERT((VkDescriptorSet)*this != VK_NULL_HANDLE);
-    cvk::WriteDescriptorSet write_set;
-    write_set.attaches(info);
-    write_set.setup(*this, get_layout_binding(binding));
-    write_set.update(_device);
-}
+// void DescriptorSet::write(uint32_t binding, VkDescriptorImageInfo CONST_REFERENCE info)
+// {
+//     CVK_ASSERT((VkDescriptorSet)*this != VK_NULL_HANDLE);
+//     cvk::WriteDescriptorSet write_set;
+//     write_set.attaches(info);
+//     write_set.setup(*this, get_layout_binding(binding));
+//     write_set.update(_device);
+// }
 
-void DescriptorSet::write(uint32_t binding, VkDescriptorBufferInfo CONST_REFERENCE info)
-{
-    CVK_ASSERT((VkDescriptorSet)*this != VK_NULL_HANDLE);
-    cvk::WriteDescriptorSet write_set;
-    write_set.attaches(info);
-    write_set.setup(*this, get_layout_binding(binding));
-    write_set.update(_device);
-}
+// void DescriptorSet::write(uint32_t binding, VkDescriptorBufferInfo CONST_REFERENCE info)
+// {
+//     CVK_ASSERT((VkDescriptorSet)*this != VK_NULL_HANDLE);
+//     cvk::WriteDescriptorSet write_set;
+//     write_set.attaches(info);
+//     write_set.setup(*this, get_layout_binding(binding));
+//     write_set.update(_device);
+// }
 
 // void DescriptorSet::update()
 // {

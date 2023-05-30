@@ -4,26 +4,44 @@
 namespace cvk
 {
 
-cvk::PhysicalDevice::PhysicalDevice(VkPhysicalDevice physical_device) :
+PhysicalDevice::PhysicalDevice(VkPhysicalDevice physical_device) :
     _physical_device(physical_device)
 {
-    __cvk::get_device_memory_properties(_physical_device, _memory_properties);
 }
 
-// cvk::PhysicalDevice::PhysicalDevice(const PhysicalDevice& physical_device)
-// {
-//     _physical_device = physical_device.get_physical_device();
-//     _memory_properties = physical_device.get_memory_properties();
-// }
-
-auto cvk::PhysicalDevice::get_memory_properties() const -> const VkPhysicalDeviceMemoryProperties &
+auto PhysicalDevice::get_memory_properties() const -> VkPhysicalDeviceMemoryProperties
 {
-    return _memory_properties;
+    VkPhysicalDeviceMemoryProperties memory_properties {};
+    __cvk::get_phydev_memory_properties(_physical_device, memory_properties);
+    return memory_properties;
 }
 
-auto cvk::PhysicalDevice::get_physical_device() const -> VkPhysicalDevice
+auto PhysicalDevice::get_properties2() const -> VkPhysicalDeviceProperties2
+{
+    VkPhysicalDeviceProperties2 properties {};
+    __cvk::get_phydev_properties2(_physical_device, properties);
+    return properties;
+}
+
+
+auto PhysicalDevice::get_physical_device() const -> VkPhysicalDevice
 {
     return _physical_device;
 }
 
 };
+
+namespace cvk
+{
+    
+auto PhysicalDevice::get_raytracing_properties() const -> VkPhysicalDeviceRayTracingPipelinePropertiesKHR
+{
+    VkPhysicalDeviceRayTracingPipelinePropertiesKHR rt_properties {};
+    rt_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR;
+    VkPhysicalDeviceProperties2 properties {};
+    properties.pNext = &rt_properties;
+    __cvk::get_phydev_properties2(_physical_device, properties);
+    return rt_properties;
+}
+
+} // namespace cvk

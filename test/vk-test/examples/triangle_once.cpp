@@ -21,7 +21,7 @@
 #include "cvk/descriptor/write_descriptor_set.h"
 #include "cvk/descriptor.h"
 #include "cvk/render_pass.h"
-#include "cvk/graphics_pipeline.h"
+#include "cvk/pipeline_graphics.h"
 #include "cvk/pipe/pipeline_layout.h"
 #include "cvk/pipe/subpass.h"
 
@@ -107,7 +107,7 @@ int main()
     CVK_ASSERT(graphics_index != UINT32_MAX);
     CVK_ASSERT(present_index != UINT32_MAX);
 
-    cvk::StandardDepthAttachment2D depth(device);
+    cvk::DepthAttachment2D depth(device);
     CVK_ASSERT(depth.create(device.get_memory_properties(), VK_FORMAT_D16_UNORM, width, height) == VK_SUCCESS);
 
     cvk::Sampler sampler(device);

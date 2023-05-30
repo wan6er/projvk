@@ -1,4 +1,4 @@
-#include "cvk/graphics_pipeline.h"
+#include "cvk/pipeline_graphics.h"
 #include "cvk/initialize/pipe_initialize.h"
 
 
@@ -40,7 +40,7 @@ VkResult GraphicsPipeline::create()
     CVK_ASSERT(_create_info.renderPass != VK_NULL_HANDLE);
     CVK_ASSERT(_create_info.layout != VK_NULL_HANDLE);
     setup_create_info();
-    return __cvk::create_graphics_pipeline(device, _create_info, object());
+    return __cvk::create_graphics_pipeline(device(), _create_info, object());
 }
 
 void GraphicsPipeline::setup_create_info()

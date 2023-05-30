@@ -28,9 +28,8 @@ namespace cvk
         virtual VkResult create();
         virtual VkResult create(VkDescriptorPool pool);
 
-        void write(uint32_t binding, VkDescriptorImageInfo CONST_REFERENCE info);
-        void write(uint32_t binding, VkDescriptorBufferInfo CONST_REFERENCE info);
-        // void update();
+        template<class _Ty>
+        inline void write(uint32_t binding, _Ty&& info);
 
     protected:
         void free();
@@ -41,3 +40,6 @@ namespace cvk
 
     };
 };
+
+
+#include "descriptor_set.inl"

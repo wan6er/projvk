@@ -10,11 +10,13 @@ namespace cvk
         explicit PhysicalDevice(VkPhysicalDevice physical_device);
         PhysicalDevice(const PhysicalDevice& physical_device) = default;
 
-        auto get_memory_properties() const -> const VkPhysicalDeviceMemoryProperties&;
+        auto get_memory_properties() const -> VkPhysicalDeviceMemoryProperties;
         auto get_physical_device() const -> VkPhysicalDevice;
+
+        auto get_properties2() const -> VkPhysicalDeviceProperties2;
+        auto get_raytracing_properties() const -> VkPhysicalDeviceRayTracingPipelinePropertiesKHR;
 
     private:
         VkPhysicalDevice _physical_device;
-        VkPhysicalDeviceMemoryProperties _memory_properties;
     };
 };

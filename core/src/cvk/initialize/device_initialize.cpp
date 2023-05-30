@@ -76,9 +76,15 @@ void get_device_queue(VkDevice device, uint32_t index, VkQueue& queue)
 	vkGetDeviceQueue(device, index, 0, &queue);
 }
 
-void get_device_memory_properties(VkPhysicalDevice device, VkPhysicalDeviceMemoryProperties& properties)
+void get_phydev_memory_properties(VkPhysicalDevice device, VkPhysicalDeviceMemoryProperties& properties)
 {
 	vkGetPhysicalDeviceMemoryProperties(device, &properties);
+}
+
+CVK_API void get_phydev_properties2(VkPhysicalDevice device, VkPhysicalDeviceProperties2& properties)
+{
+	properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+    vkGetPhysicalDeviceProperties2(device, &properties);
 }
 
 // void get_all_device_queue_family_indices(VkPhysicalDevice device, QueueIndexType& queue_index)

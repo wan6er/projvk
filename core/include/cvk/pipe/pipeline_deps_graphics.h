@@ -99,4 +99,4 @@ namespace cvk
     };
 };
 
-#include "graphics_pipeline_deps.inl"
+#include "pipeline_deps_graphics.inl"

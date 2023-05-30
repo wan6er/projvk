@@ -76,7 +76,7 @@ TEST_FUNC_BEGIN("descriptor")
     uint32_t tex_width = 100, tex_height = 100;
     // cvk::Image2D texture(device, VK_FORMAT_R8G8B8A8_UNORM, tex_width, tex_height, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_TILING_LINEAR);
 
-    cvk::StandardTexture2D texture(device);
+    cvk::Texture2D texture(device);
     texture.create(device.get_memory_properties(), VK_FORMAT_R8G8B8A8_UNORM, tex_width, tex_height);
 
     cvk::Sampler sampler(device);
@@ -138,10 +138,12 @@ TEST_FUNC_BEGIN("descriptor")
 
     {
         cvk::DescriptorSetWriter writer(2);
-        writer[0].setup(tex_set[0], VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1)
-            .attaches(tex_copy_info);
-        writer[1].setup(tex_set[1], VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1)
-            .attaches(tex_copy_info);
+        writer[0]
+            .attaches(tex_copy_info)
+            .setup(tex_set[0], VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1);
+        writer[1]
+            .attaches(tex_copy_info)
+            .setup(tex_set[1], VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1);
         writer.update(device);
     }
 

@@ -25,6 +25,8 @@ namespace utils
         virtual auto isolated() const -> bool final;
         virtual void count_swap(BaseObj& obj) final;
 
+        constexpr inline auto get_object() const noexcept { return object(); }
+
     protected:
         // virtual void release() = 0;
 

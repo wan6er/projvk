@@ -22,7 +22,8 @@ namespace __cvk
     CVK_API void get_all_device_extensions(VkPhysicalDevice device, std::vector<std::string>& extensions);
     // CVK_API void get_all_device_queue_families(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties>& queue_families);
     // CVK_API void get_all_device_queue_family_indices(VkPhysicalDevice device, QueueIndexType& queue_index);
-    CVK_API void get_device_memory_properties(VkPhysicalDevice device, VkPhysicalDeviceMemoryProperties& properties);
+    CVK_API void get_phydev_memory_properties(VkPhysicalDevice device, VkPhysicalDeviceMemoryProperties& properties);
+    CVK_API void get_phydev_properties2(VkPhysicalDevice device, VkPhysicalDeviceProperties2& properties);
 
     // queue family
     CVK_API VkResult get_queue_family_properties(VkPhysicalDevice physical_device, std::vector<VkQueueFamilyProperties>& properties);

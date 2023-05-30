@@ -6,7 +6,7 @@
 namespace cvk
 {
     
-    class CVK_API Texture2D : public basic::Texture
+    class CVK_API BaseTexture2D : public basic::Texture
     {
     public:
         using basic::Texture::Texture;
@@ -16,14 +16,14 @@ namespace cvk
     };
 
     template<VkMemoryPropertyFlags _Property, VkImageLayout _Layout, VkImageUsageFlags _Usage, VkImageTiling _Tiling, VkImageAspectFlags _Aspect>
-    class BaseTypeTexture2D : public Texture2D
+    class BaseTypeTexture2D : public BaseTexture2D
     {
     public:
-        using Texture2D::Texture2D;
+        using BaseTexture2D::BaseTexture2D;
 
         inline VkResult create(VkPhysicalDeviceMemoryProperties CONST_REFERENCE properties, VkFormat format, uint32_t width, uint32_t height)
         {
-            return Texture2D::create(properties, _Property, format, width, height, _Layout, _Usage, _Tiling, _Aspect);
+            return BaseTexture2D::create(properties, _Property, format, width, height, _Layout, _Usage, _Tiling, _Aspect);
         }
     };
 

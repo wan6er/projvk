@@ -50,7 +50,7 @@ namespace cvk
 //     CVK_ASSERT(_create_info.image != VK_NULL_HANDLE);
 //     CVK_ASSERT(info.sType == VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO);
     
-//     __cvk::get_image_view_create_info(info.format, static_cast<VkImageViewType>(info.imageType), _BaseImage::object(), this->get_all_subresource(), _create_info);
+//     __cvk::get_image_view_create_info(info.format, static_cast<VkImageViewType>(info.imageType), _BaseImage::object(), this->get_subresource_range(), _create_info);
 
 //     return __cvk::create_image_view(_device, _create_info, object());
 // }

@@ -7,9 +7,15 @@
 
 namespace cvk
 {
+
     class CVK_API WriteDescriptorSet :
-        protected utils::BaseMultipleAttaches<VkDescriptorImageInfo, VkDescriptorBufferInfo>
+        protected utils::BaseMultipleAttaches<
+            VkDescriptorImageInfo, VkDescriptorBufferInfo,
+            VkAccelerationStructureKHR>
     {
+    protected:
+        using BaseAttachesType = utils::BaseMultipleAttaches<VkDescriptorImageInfo, VkDescriptorBufferInfo, VkAccelerationStructureKHR>;
+
     public:
         WriteDescriptorSet();
         virtual ~WriteDescriptorSet() = default;
@@ -22,11 +28,11 @@ namespace cvk
 
         operator VkWriteDescriptorSet CONST_REFERENCE () const;
 
-    protected:
-        using BaseAttachesType = utils::BaseMultipleAttaches<VkDescriptorImageInfo, VkDescriptorBufferInfo>;
-
     private:
+        friend struct _WriteInfos;
+
         VkWriteDescriptorSet _write = {};
+        VkWriteDescriptorSetAccelerationStructureKHR _write_accstruct = {};
     };
 
 };

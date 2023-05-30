@@ -7,7 +7,7 @@
 #include "cvk/framebuffer.h"
 #include "cvk/descriptor.h"
 #include "cvk/render_pass.h"
-#include "cvk/graphics_pipeline.h"
+#include "cvk/pipeline_graphics.h"
 #include "cvk/image.h"
 #include "cvk/buffer.h"
 #include "cvk/semaphore.h"
@@ -92,7 +92,7 @@ int main()
     CVK_ASSERT(graphics_index != UINT32_MAX);
     CVK_ASSERT(present_index != UINT32_MAX);
 
-    cvk::StandardDepthAttachment2D depth(device);
+    cvk::DepthAttachment2D depth(device);
     CVK_ASSERT(depth.create(device.get_memory_properties(), VK_FORMAT_D16_UNORM, width, height) == VK_SUCCESS);
 
     cvk::Sampler sampler(device);
@@ -135,7 +135,7 @@ int main()
     CVK_ASSERT(uniform_buffer.upload(ubo.data(), ubo_size) == VK_SUCCESS);
     char* ptr = nullptr;
 
-    cvk::StandardTexture2D texture(device);
+    cvk::Texture2D texture(device);
     load_texture(device, "texture/colored_glass_rgba.ktx", graphics_index, texture);
 
     std::vector<NodeBuffers> node_buffers;
@@ -160,7 +160,7 @@ int main()
         transition_set.setup(descriptor[i], VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1).update(device);
 
         cvk::WriteDescriptorSet texture_copy_set;
-        texture_copy_set.attaches(texture.get_descriptor_info(sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+        texture_copy_set.attaches(texture.get_descriptor_info(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, sampler));
         texture_copy_set.setup(descriptor[i], VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 2).update(device);
     }
 
@@ -225,7 +225,7 @@ int main()
             command_buffer.cmd().bind_descriptor_sets(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, { descriptor[i] });
             command_buffer.cmd().bind_vertex_buffer(node_buffers[i].vertex);
             command_buffer.cmd().bind_index_buffer(VK_INDEX_TYPE_UINT16, node_buffers[i].index);
-            command_buffer.cmd().draw_indexed(node_buffers[i].index.get_size() / sizeof(uint16_t));
+            command_buffer.cmd().draw_indexed(node_buffers[i].index.get_memory_size() / sizeof(uint16_t));
         }
 
         command_buffer.cmd().end_renderpass();

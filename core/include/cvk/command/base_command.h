@@ -1,16 +1,19 @@
 #pragma once
 
 #include "cvk/vk_header.h"
+#include "utils/base_device_obj.h"
 #include "base_barrier.h"
 
 namespace cvk
 {
     
-    struct CVK_API BaseCommand
+    struct CVK_API BaseCommand : public utils::BaseDeviceObj<VkCommandBuffer>
     {
-        VkCommandBuffer CONST_REFERENCE buffer;
+        using _BaseCmd = utils::BaseDeviceObj<VkCommandBuffer>;
 
-        BaseCommand(VkCommandBuffer CONST_REFERENCE buffer);
+        // VkCommandBuffer buffer;
+
+        BaseCommand(VkDevice device, VkCommandBuffer buffer);
 
         void bind_pipeline(VkPipelineBindPoint bind_point, VkPipeline pipeline) const;
         void bind_descriptor_sets(VkPipelineBindPoint bind_point, VkPipelineLayout layout, std::vector<VkDescriptorSet> CONST_REFERENCE sets) const;
@@ -25,15 +28,19 @@ namespace cvk
         void copy_buffer(VkBuffer src, VkBuffer dst, std::vector<VkBufferCopy> CONST_REFERENCE offset) const;
         void copy_buffer_image(VkBuffer src, VkImage dst, std::vector<VkBufferImageCopy> CONST_REFERENCE offset) const;
 
+        void copy_image(VkImage src, VkImage dst, VkImageAspectFlags aspect, VkExtent3D extent) const;
+        void set_image_layout_barrier(VkImageLayout srclayout, VkImageLayout dstlayout, VkImage image, VkImageSubresourceRange range, VkPipelineStageFlags srcstage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VkPipelineStageFlags dststage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT) const;
+
+        void build_acceleration_structure(VkAccelerationStructureBuildGeometryInfoKHR CONST_REFERENCE geoinfo, VkAccelerationStructureBuildRangeInfoKHR CONST_REFERENCE rangeinfo) const;
 
         BaseBarrier set_barrier(VkPipelineStageFlags src, VkPipelineStageFlags dst) const;
 
         void end_renderpass() const;
     };
 
-    struct CVK_API BaseCommandPrimary : public BaseCommand
+    struct CVK_API CommandPrimary : public BaseCommand
     {
-        BaseCommandPrimary(VkCommandBuffer CONST_REFERENCE buffer);
+        using BaseCommand::BaseCommand;
         
         void begin_renderpass(VkRenderPassBeginInfo CONST_REFERENCE info) const;
         void exec_secondary_commands(std::vector<VkCommandBuffer> CONST_REFERENCE buffers) const;
@@ -41,9 +48,9 @@ namespace cvk
         void next_subpass() const;
     };
 
-    struct CVK_API BaseCommandSecondary : public BaseCommand
+    struct CVK_API CommandSecondary : public BaseCommand
     {
-        BaseCommandSecondary(VkCommandBuffer CONST_REFERENCE buffer);
+        using BaseCommand::BaseCommand;
 
         void begin_renderpass(VkRenderPassBeginInfo CONST_REFERENCE info) const;
 

@@ -22,7 +22,7 @@
 // #include "cvk/descriptor/descriptor_pool.h"
 #include "cvk/descriptor.h"
 #include "cvk/render_pass.h"
-#include "cvk/graphics_pipeline.h"
+#include "cvk/pipeline_graphics.h"
 #include "cvk/pipe/pipeline_layout.h"
 #include "cvk/pipe/subpass.h"
 

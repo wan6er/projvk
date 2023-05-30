@@ -25,7 +25,7 @@ void Subresource::set_subresource_arraylayers(uint32_t array_layers)
     this->array_layers = array_layers;
 }
     
-VkImageSubresourceRange Subresource::get_all_subresource() const
+VkImageSubresourceRange Subresource::get_subresource_range() const
 {
     VkImageSubresourceRange range = {};
     range.aspectMask = aspect;

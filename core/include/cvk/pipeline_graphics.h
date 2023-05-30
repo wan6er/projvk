@@ -1,7 +1,8 @@
 #pragma once
 
 #include "cvk/vk_header.h"
-#include "cvk/pipe/graphics_pipeline_deps.h"
+#include "cvk/pipe/pipeline_layout.h"
+#include "cvk/pipe/pipeline_deps_graphics.h"
 #include "cvk/pipe/base_pipeline.h"
 #include "utils/base_obj.h"
 #include "utils/base_multi_attach.h"
@@ -56,4 +57,4 @@ namespace cvk
 
 };
 
-#include "graphics_pipeline.inl"
+#include "pipeline_graphics.inl"

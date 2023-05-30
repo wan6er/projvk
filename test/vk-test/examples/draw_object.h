@@ -56,7 +56,7 @@ public:
         for (uint32_t i = 0; i < _obj_buffers.size(); ++i) {
             _descriptor[i].write(0, _uniform.get_descriptor_info());
             _descriptor[i].write(1, _obj_buffers[i].transform.get_descriptor_info());
-            _descriptor[i].write(2, _texture.get_descriptor_info(_sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+            _descriptor[i].write(2, _texture.get_descriptor_info(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, _sampler));
         }
     }
 
@@ -67,7 +67,7 @@ public:
             command_buffer.bind_descriptor_sets(VK_PIPELINE_BIND_POINT_GRAPHICS, _layout, { _descriptor[i] });
             command_buffer.bind_vertex_buffer(_obj_buffers[i].vertex);
             command_buffer.bind_index_buffer(VK_INDEX_TYPE_UINT16, _obj_buffers[i].index);
-            command_buffer.draw_indexed(_obj_buffers[i].index.get_size() / sizeof(uint16_t));
+            command_buffer.draw_indexed(_obj_buffers[i].index.get_memory_size() / sizeof(uint16_t));
         }
     }
 
@@ -92,7 +92,7 @@ private:
     cvk::Device _device;
 
     cvk::Sampler _sampler;
-    cvk::StandardTexture2D _texture;
+    cvk::Texture2D _texture;
     cvk::UniformBufferWritable _uniform;
     std::vector<NodeBuffers> _obj_buffers;
 

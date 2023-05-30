@@ -26,9 +26,10 @@ public:
     VkResult create(VkImageViewCreateInfo CONST_REFERENCE info);
 
     inline operator VkImageView CONST_REFERENCE () const { return object(); }
+    // inline operator VkImage CONST_REFERENCE () const { return _create_info.image; }
 
     inline auto get_image_view_info() -> VkImageViewCreateInfo& { return _create_info; }
-    auto get_descriptor_info(VkSampler sampler, VkImageLayout layout) const -> VkDescriptorImageInfo;
+    auto get_descriptor_info(VkImageLayout layout, VkSampler sampler = VK_NULL_HANDLE) const -> VkDescriptorImageInfo;
 
 protected:
     void release();

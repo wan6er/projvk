@@ -7,7 +7,7 @@
 #include "cvk/framebuffer.h"
 #include "cvk/descriptor.h"
 #include "cvk/render_pass.h"
-#include "cvk/graphics_pipeline.h"
+#include "cvk/pipeline_graphics.h"
 #include "cvk/image.h"
 #include "cvk/buffer.h"
 #include "cvk/semaphore.h"
@@ -102,21 +102,21 @@ int main()
     CVK_ASSERT(graphics_index != UINT32_MAX);
     CVK_ASSERT(present_index != UINT32_MAX);
 
-    cvk::StandardColorAttachInput2D position_attachment(device);
+    cvk::ColorAttachInput2D position_attachment(device);
     CVK_ASSERT(position_attachment.create(device.get_memory_properties(), VK_FORMAT_R16G16B16A16_SFLOAT, width, height) == VK_SUCCESS);
-    cvk::StandardColorAttachInput2D normal_attachment(device);
+    cvk::ColorAttachInput2D normal_attachment(device);
     CVK_ASSERT(normal_attachment.create(device.get_memory_properties(), VK_FORMAT_R16G16B16A16_SFLOAT, width, height) == VK_SUCCESS);
-    cvk::StandardColorAttachInput2D albedo_attachment(device);
+    cvk::ColorAttachInput2D albedo_attachment(device);
     CVK_ASSERT(albedo_attachment.create(device.get_memory_properties(), VK_FORMAT_R8G8B8A8_UNORM, width, height) == VK_SUCCESS);
 
-    cvk::StandardColorAttachInput2D transparent_position_attachment(device);
+    cvk::ColorAttachInput2D transparent_position_attachment(device);
     CVK_ASSERT(transparent_position_attachment.create(device.get_memory_properties(), VK_FORMAT_R16G16B16A16_SFLOAT, width, height) == VK_SUCCESS);
-    cvk::StandardColorAttachInput2D transparent_normal_attachment(device);
+    cvk::ColorAttachInput2D transparent_normal_attachment(device);
     CVK_ASSERT(transparent_normal_attachment.create(device.get_memory_properties(), VK_FORMAT_R16G16B16A16_SFLOAT, width, height) == VK_SUCCESS);
-    cvk::StandardColorAttachInput2D transparent_albedo_attachment(device);
+    cvk::ColorAttachInput2D transparent_albedo_attachment(device);
     CVK_ASSERT(transparent_albedo_attachment.create(device.get_memory_properties(), VK_FORMAT_R8G8B8A8_UNORM, width, height) == VK_SUCCESS);
 
-    cvk::StandardDepthAttachment2D depth(device);
+    cvk::DepthAttachment2D depth(device);
     CVK_ASSERT(depth.create(device.get_memory_properties(), VK_FORMAT_D16_UNORM, width, height) == VK_SUCCESS);
 
     cvk::Sampler sampler(device);
@@ -192,7 +192,7 @@ int main()
     CVK_ASSERT(uniform_buffer.create(device.get_memory_properties(), ubo_size) == VK_SUCCESS);
     CVK_ASSERT(uniform_buffer.upload(ubo.data(), ubo_size) == VK_SUCCESS);
 
-    cvk::StandardTexture2D texture(device);
+    cvk::Texture2D texture(device);
     load_texture(device, "texture/colored_glass_rgba.ktx", graphics_index, texture);
 
     std::vector<NodeBuffers> building_buffers;
@@ -213,7 +213,7 @@ int main()
     for (uint32_t i = 0; i < building_buffers.size(); ++i) {
         descriptor[i].write(0, uniform_buffer.get_descriptor_info());
         descriptor[i].write(1, building_buffers[i].transform.get_descriptor_info());
-        descriptor[i].write(2, texture.get_descriptor_info(sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+        descriptor[i].write(2, texture.get_descriptor_info(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, sampler));
     }
     cvk::PipelineLayout layout(device);
     layout.attaches(static_cast<VkDescriptorSetLayout>(descriptor[0].get_layout()));
@@ -253,7 +253,7 @@ int main()
     for (uint32_t i = 0; i < building_glass_buffers.size(); ++i) {
         glass_descriptor[i].write(0, uniform_buffer.get_descriptor_info());
         glass_descriptor[i].write(1, building_glass_buffers[i].transform.get_descriptor_info());
-        glass_descriptor[i].write(2, texture.get_descriptor_info(sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+        glass_descriptor[i].write(2, texture.get_descriptor_info(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, sampler));
     }
 
     cvk::GraphicsPipeline transparent_pipeline = obj_pipeline;
@@ -301,13 +301,13 @@ int main()
         .set(6, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 1);
     CVK_ASSERT(light_descriptor.create() == VK_SUCCESS);
     
-    light_descriptor[0].write(0, position_attachment.get_descriptor_info(VK_NULL_HANDLE, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
-    light_descriptor[0].write(1, normal_attachment.get_descriptor_info(VK_NULL_HANDLE, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
-    light_descriptor[0].write(2, albedo_attachment.get_descriptor_info(VK_NULL_HANDLE, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+    light_descriptor[0].write(0, position_attachment.get_descriptor_info(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+    light_descriptor[0].write(1, normal_attachment.get_descriptor_info(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+    light_descriptor[0].write(2, albedo_attachment.get_descriptor_info(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
     
-    light_descriptor[0].write(3, transparent_position_attachment.get_descriptor_info(VK_NULL_HANDLE, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
-    light_descriptor[0].write(4, transparent_normal_attachment.get_descriptor_info(VK_NULL_HANDLE, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
-    light_descriptor[0].write(5, transparent_albedo_attachment.get_descriptor_info(VK_NULL_HANDLE, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+    light_descriptor[0].write(3, transparent_position_attachment.get_descriptor_info(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+    light_descriptor[0].write(4, transparent_normal_attachment.get_descriptor_info(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+    light_descriptor[0].write(5, transparent_albedo_attachment.get_descriptor_info(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
 
     light_descriptor[0].write(6, light_ubo_buffer.get_descriptor_info());
 
@@ -366,7 +366,7 @@ int main()
             command_buffer.cmd().bind_descriptor_sets(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, { descriptor[i] });
             command_buffer.cmd().bind_vertex_buffer(building_buffers[i].vertex);
             command_buffer.cmd().bind_index_buffer(VK_INDEX_TYPE_UINT16, building_buffers[i].index);
-            command_buffer.cmd().draw_indexed(building_buffers[i].index.get_size() / sizeof(uint16_t));
+            command_buffer.cmd().draw_indexed(building_buffers[i].index.get_memory_size() / sizeof(uint16_t));
         }
 
         command_buffer.cmd().next_subpass();
@@ -377,7 +377,7 @@ int main()
             command_buffer.cmd().bind_descriptor_sets(VK_PIPELINE_BIND_POINT_GRAPHICS, transparent_layout, { glass_descriptor[i] });
             command_buffer.cmd().bind_vertex_buffer(building_glass_buffers[i].vertex);
             command_buffer.cmd().bind_index_buffer(VK_INDEX_TYPE_UINT16, building_glass_buffers[i].index);
-            command_buffer.cmd().draw_indexed(building_glass_buffers[i].index.get_size() / sizeof(uint16_t));
+            command_buffer.cmd().draw_indexed(building_glass_buffers[i].index.get_memory_size() / sizeof(uint16_t));
         }
 
         command_buffer.cmd().next_subpass();

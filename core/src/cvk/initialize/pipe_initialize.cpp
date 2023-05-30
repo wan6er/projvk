@@ -105,4 +105,39 @@ CVK_API void destroy_pipeline(VkDevice device, VkPipeline& pipeline)
     vkDestroyPipeline(device, pipeline, nullptr);
 }
 
+
 };
+
+namespace __cvk
+{
+
+CVK_API void get_default_raytracing_pipeline_create_info(VkRayTracingPipelineCreateInfoKHR& create_info)
+{
+    create_info = {};
+    create_info.sType = VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR;
+}
+
+CVK_API void get_raytracing_pipeline_create_info(VkPipelineLayout layout, VkRayTracingPipelineCreateInfoKHR& create_info)
+{
+    create_info.layout = layout;
+}
+
+CVK_API void get_raytracing_pipeline_create_info(std::vector<VkPipelineShaderStageCreateInfo> CONST_REFERENCE stages, VkRayTracingPipelineCreateInfoKHR& create_info)
+{
+    utils::vector_fill_info(stages, create_info.stageCount, create_info.pStages);
+}
+
+CVK_API void get_raytracing_pipeline_create_info(std::vector<VkRayTracingShaderGroupCreateInfoKHR> CONST_REFERENCE groups, VkRayTracingPipelineCreateInfoKHR& create_info)
+{
+    utils::vector_fill_info(groups, create_info.groupCount, create_info.pGroups);
+}
+
+CVK_API VkResult create_raytracing_pipeline(VkDevice device, VkRayTracingPipelineCreateInfoKHR CONST_REFERENCE info, VkPipeline& pipeline, VkPipelineCache cache)
+{
+    CVK_ASSERT(device != nullptr);
+    CVK_IMPORT_FUNCTION(device, vkCreateRayTracingPipelinesKHR);
+    return vkCreateRayTracingPipelinesKHR(device, VK_NULL_HANDLE, cache, 1, &info, nullptr, &pipeline);
+}
+    
+} // namespace __cvk
+

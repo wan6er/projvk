@@ -31,6 +31,12 @@ auto BaseMultipleAttachWrapper<_Type>::get_attachments() -> std::vector<_Type>&
 {
     return _attachments;
 }
+
+template<class _Type>
+auto BaseMultipleAttachWrapper<_Type>::get_attachments() const -> std::vector<_Type> CONST_REFERENCE
+{
+    return _attachments;
+}
         
 template<class _Type>
 BaseMultipleAttachWrapper<_Type>::operator std::vector<_Type> CONST_REFERENCE () const

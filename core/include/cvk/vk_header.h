@@ -55,9 +55,17 @@
 constexpr static const char *EngineName = "cvk";
 constexpr static uint32_t VulkanApiVersion = VK_API_VERSION_1_3;
 
+#define CVK_DEFINE_FUNCTION(func) PFN_ ## func func
+#define CVK_IMPORT_FUNCTION(device, func) auto func = reinterpret_cast<PFN_ ## func>(vkGetDeviceProcAddr(device, # func))
+
 #include <vector>
 
 template <class _Func, class _Properties, class... _Args>
 VkResult query_properties(_Func func, std::vector<_Properties> &properties, _Args &&...args);
+
+template<class _Str>
+PFN_vkVoidFunction cvk_get_addr(VkDevice device, _Str str);
+
+CVK_API size_t cvk_aligned_size(size_t size, size_t align);
 
 #include "vk_header.inl"

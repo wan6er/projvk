@@ -15,6 +15,8 @@ namespace cvk
         Swapchain(VkDevice device, VkSwapchainCreateInfoKHR CONST_REFERENCE create_info);
         virtual ~Swapchain();
 
+        inline void set_image_usage(VkImageUsageFlags usage) noexcept { _create_info.imageUsage |= usage; }
+
         VkResult create();
 
         VkSwapchainCreateInfoKHR& info();

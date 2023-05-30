@@ -7,7 +7,7 @@
 #include "cvk/framebuffer.h"
 #include "cvk/descriptor.h"
 #include "cvk/render_pass.h"
-#include "cvk/graphics_pipeline.h"
+#include "cvk/pipeline_graphics.h"
 #include "cvk/image.h"
 #include "cvk/buffer.h"
 #include "cvk/semaphore.h"
@@ -106,17 +106,17 @@ int main(int argc, char *argv[])
     CVK_ASSERT(graphics_index != UINT32_MAX);
     CVK_ASSERT(present_index != UINT32_MAX);
 
-    cvk::StandardColorAttachInput2D position_attachment(device);
+    cvk::ColorAttachInput2D position_attachment(device);
     CVK_ASSERT(position_attachment.create(device.get_memory_properties(), VK_FORMAT_R16G16B16A16_SFLOAT, width, height) == VK_SUCCESS);
-    cvk::StandardColorAttachInput2D normal_attachment(device);
+    cvk::ColorAttachInput2D normal_attachment(device);
     CVK_ASSERT(normal_attachment.create(device.get_memory_properties(), VK_FORMAT_R16G16B16A16_SFLOAT, width, height) == VK_SUCCESS);
-    cvk::StandardColorAttachInput2D albedo_attachment(device);
+    cvk::ColorAttachInput2D albedo_attachment(device);
     CVK_ASSERT(albedo_attachment.create(device.get_memory_properties(), VK_FORMAT_R8G8B8A8_UNORM, width, height) == VK_SUCCESS);
 
-    cvk::StandardColorAttachTexture2D radial_attachment(device);
+    cvk::ColorAttachTexture2D radial_attachment(device);
     CVK_ASSERT(radial_attachment.create(device.get_memory_properties(), format, width, height) == VK_SUCCESS);
 
-    cvk::StandardDepthAttachment2D depth_attach(device);
+    cvk::DepthAttachment2D depth_attach(device);
     CVK_ASSERT(depth_attach.create(device.get_memory_properties(), VK_FORMAT_D32_SFLOAT, width, height) == VK_SUCCESS);
 
     cvk::Sampler sampler(device);
@@ -219,9 +219,9 @@ int main(int argc, char *argv[])
         .set(3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 1);
     CVK_ASSERT(light_descriptor.create() == VK_SUCCESS);
 
-    light_descriptor[0].write(0, position_attachment.get_descriptor_info(VK_NULL_HANDLE, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
-    light_descriptor[0].write(1, normal_attachment.get_descriptor_info(VK_NULL_HANDLE, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
-    light_descriptor[0].write(2, albedo_attachment.get_descriptor_info(VK_NULL_HANDLE, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+    light_descriptor[0].write(0, position_attachment.get_descriptor_info(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+    light_descriptor[0].write(1, normal_attachment.get_descriptor_info(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+    light_descriptor[0].write(2, albedo_attachment.get_descriptor_info(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
     light_descriptor[0].write(3, light_ubo_buffer.get_descriptor_info());
 
     cvk::PipelineLayout light_layout(device);
@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
         .set(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 1);
     CVK_ASSERT(radial_descriptor.create() == VK_SUCCESS);
 
-    radial_descriptor[0].write(0, radial_attachment.get_descriptor_info(sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+    radial_descriptor[0].write(0, radial_attachment.get_descriptor_info(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, sampler));
     // radial_descriptor[0].write(1, radial_ubo_buffer.get_descriptor_info());
 
     cvk::Shader radial_frag(device, utils::load_file("shader/radial_multisample.frag.spv"));
@@ -315,8 +315,6 @@ int main(int argc, char *argv[])
             cmd_buf.cmd().draw(6);
         }
         
-        // cmd_buf.cmd().next_subpass();
-
         cmd_buf.cmd().end_renderpass();
 
 
@@ -340,12 +338,12 @@ int main(int argc, char *argv[])
     cvk::CommandPool command_pool(device, graphics_index);
     CVK_ASSERT(command_pool.create() == VK_SUCCESS);
 
-    cvk::CommandBufferSet command_buffers(device, command_pool, framebuffers.size());
-    command_buffers.create();
-    for (uint32_t i = 0; i < command_buffers.size(); ++i) {
+    std::vector<cvk::CommandBuffer> command_buffers;
+    for (int i = 0; i < framebuffers.size(); ++i) {
+        command_buffers.emplace_back(device, command_pool);
+        CVK_ASSERT(command_buffers[i].create() == VK_SUCCESS);
         prepare_command(command_buffers[i], framebuffers[i]);
     }
-
 
     utils::Stopwatch benchmark;
     benchmark.start();

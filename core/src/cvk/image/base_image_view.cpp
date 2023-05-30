@@ -21,7 +21,7 @@ ImageView::~ImageView()
 void ImageView::setup(VkFormat format, VkImageViewType type, VkImageAspectFlags aspect)
 {
     set_subresource_aspect(aspect);
-    __cvk::get_image_view_create_info(format, type, VK_NULL_HANDLE, get_all_subresource(), _create_info);
+    __cvk::get_image_view_create_info(format, type, VK_NULL_HANDLE, get_subresource_range(), _create_info);
 }
 
 void ImageView::setup(VkFormat format)
@@ -32,7 +32,7 @@ void ImageView::setup(VkFormat format)
 VkResult ImageView::create(VkImage image)
 {
     _create_info.image = image;
-    _create_info.subresourceRange = this->get_all_subresource();
+    _create_info.subresourceRange = this->get_subresource_range();
     return __cvk::create_image_view(_device, _create_info, object());
 }
 
@@ -42,7 +42,7 @@ VkResult ImageView::create(VkImageViewCreateInfo CONST_REFERENCE info)
     return __cvk::create_image_view(_device, _create_info, object());
 }
 
-auto ImageView::get_descriptor_info(VkSampler sampler, VkImageLayout layout) const -> VkDescriptorImageInfo
+auto ImageView::get_descriptor_info(VkImageLayout layout, VkSampler sampler) const -> VkDescriptorImageInfo
 {
     VkDescriptorImageInfo descriptor_info = {};
     descriptor_info.sampler = sampler;

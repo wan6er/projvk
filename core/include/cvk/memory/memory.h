@@ -1,15 +1,17 @@
 #pragma once
 
-#include "utils/base_obj.h"
+#include "utils/base_device_obj.h"
 #include "cvk/vk_header.h"
 
 namespace cvk
 {
-    class CVK_API Memory : protected utils::BaseObj<VkDeviceMemory>
+    class CVK_API Memory : protected utils::BaseDeviceObj<VkDeviceMemory>
     {
+        using _BaseMemory = utils::BaseDeviceObj<VkDeviceMemory>;
+
     public:
-        constexpr Memory(VkDevice device, void CONST_PTR next = nullptr);
-        constexpr Memory(VkDeviceMemory CONST_REFERENCE memory);
+        Memory(VkDevice device, void CONST_PTR next = nullptr);
+        Memory(VkDevice device, VkDeviceMemory CONST_REFERENCE memory);
         Memory(Memory CONST_REFERENCE) = default;
         ~Memory();
 
@@ -30,13 +32,15 @@ namespace cvk
         auto allocate_info() const -> VkMemoryAllocateInfo CONST_REFERENCE;
         auto allocate_info() -> VkMemoryAllocateInfo&;
 
-        size_t get_size() const;
+        inline size_t get_memory_size() const noexcept { return _info.allocationSize; }
+
+        inline auto get_memory() const noexcept { return object(); }
 
     protected:
         void deallocate();
 
     private:
-        VkDevice _device = nullptr;
+        // VkDevice _device = nullptr;
         VkMemoryAllocateInfo _info = {};
     };
 };

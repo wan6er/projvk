@@ -36,6 +36,10 @@ namespace __cvk
     CVK_API void cmd_execute_command(VkCommandBuffer buffer, std::vector<VkCommandBuffer> CONST_REFERENCE buffers);
     CVK_API void cmd_copy_buffer(VkCommandBuffer buffer, VkBuffer src, VkBuffer dst, std::vector<VkBufferCopy> CONST_REFERENCE offset);
     CVK_API void cmd_copy_buffer_to_image(VkCommandBuffer buffer, VkBuffer src, VkImage dst, VkImageLayout dst_layout, std::vector<VkBufferImageCopy> CONST_REFERENCE offset);
+    CVK_API void cmd_image_layout_barrier(VkCommandBuffer buffer, VkImageLayout srclayout, VkImageLayout dstlayout, VkImage image, VkImageSubresourceRange range, VkPipelineStageFlags srcstage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VkPipelineStageFlags dststage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+    CVK_API void cmd_copy_image(VkCommandBuffer buffer, VkImageAspectFlags aspect, VkImage srcimage, VkImage dstimage, VkExtent3D extent);
+
+    CVK_API void cmd_build_acceleration_structure(VkDevice device, VkCommandBuffer buffer, VkAccelerationStructureBuildGeometryInfoKHR CONST_REFERENCE geoinfo, VkAccelerationStructureBuildRangeInfoKHR CONST_REFERENCE rangeinfo);
     
     CVK_API void get_image_memory_barrier(VkImage image, VkImageSubresourceRange CONST_REFERENCE subresource, VkImageLayout src_layout, VkImageLayout dst_layout, VkImageMemoryBarrier& barrier);
     CVK_API void get_image_layout_access_mask(VkImageLayout layout, VkAccessFlags& access);

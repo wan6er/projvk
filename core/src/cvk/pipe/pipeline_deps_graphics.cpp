@@ -1,4 +1,4 @@
-#include "cvk/pipe/graphics_pipeline_deps.h"
+#include "cvk/pipe/pipeline_deps_graphics.h"
 
 namespace cvk
 {

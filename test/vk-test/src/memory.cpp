@@ -116,7 +116,7 @@ TEST_FUNC_BEGIN("memory")
         CHECK(uniform_buffer.create(device.get_memory_properties(), 512) == VK_SUCCESS);
         
         VkBufferCopy copy = {};
-        copy.size = uniform_buffer.get_size();
+        copy.size = uniform_buffer.get_memory_size();
 
         cmd.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
         cmd.cmd().copy_buffer(src_buffer, uniform_buffer, {copy});

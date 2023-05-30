@@ -29,3 +29,15 @@ namespace __cvk
 };
 
 #include "memory_initialize.inl"
+
+#ifdef CVK_RAYTRACING
+
+namespace __cvk
+{
+
+    CVK_API void get_buffer_address(VkDevice device, VkBuffer buffer, uint64_t& address);
+    
+} // namespace __cvk
+
+
+#endif

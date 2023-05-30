@@ -26,6 +26,7 @@ namespace cvk
 
     protected:
         void release();
+        inline VkDevice get_device() { return _device; }
     
     private:
         VkDevice _device = VK_NULL_HANDLE;

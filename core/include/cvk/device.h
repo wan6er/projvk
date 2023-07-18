@@ -10,6 +10,7 @@
 #include "cvk/device/device_feat_acceleration_structure.h"
 #include "cvk/device/device_feat_buffer_address.h"
 #include "cvk/device/device_feat_raytracing.h"
+#include "cvk/device/device_feat_maintenance4.h"
 #endif
 
 namespace cvk

@@ -98,6 +98,20 @@ CVK_API VkResult create_graphics_pipeline(VkDevice device, VkGraphicsPipelineCre
     CVK_ASSERT(device != VK_NULL_HANDLE);
     return vkCreateGraphicsPipelines(device, cache, 1, &create_info, nullptr, &pipeline);
 }
+    
+CVK_API void get_default_compute_pipeline_create_info(VkPipelineLayout layout, VkPipelineShaderStageCreateInfo CONST_REFERENCE shader, VkComputePipelineCreateInfo& create_info)
+{
+    create_info = {};
+    create_info.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+    create_info.layout = layout;
+    create_info.stage = shader;
+}
+
+CVK_API VkResult create_computer_pipeline(VkDevice device, VkComputePipelineCreateInfo CONST_REFERENCE create_info, VkPipeline& pipeline, VkPipelineCache cache)
+{
+    return vkCreateComputePipelines(device, cache, 1, &create_info, nullptr, &pipeline);
+}
+
 CVK_API void destroy_pipeline(VkDevice device, VkPipeline& pipeline)
 {
     CVK_ASSERT(device != VK_NULL_HANDLE);

@@ -156,7 +156,7 @@ int main()
     layout.attaches(descriptor[0].get_layout());
     CVK_ASSERT(layout.create() == VK_SUCCESS);
 
-    cvk::GraphicsPipeline pipeline(device, render_pass, layout);
+    cvk::GraphicsPipeline pipeline(device);
     pipeline.vertex_input().add_binding(0, sizeof(Vertex))
         .add_attribute(0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position))
         .add_attribute(1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color));
@@ -166,7 +166,7 @@ int main()
     pipeline.shader()
         .attach(VK_SHADER_STAGE_VERTEX_BIT, vert_shader)
         .attach(VK_SHADER_STAGE_FRAGMENT_BIT, frag_shader);
-    CVK_ASSERT(pipeline.create() == VK_SUCCESS);
+    CVK_ASSERT(pipeline.create(render_pass, layout) == VK_SUCCESS);
 
     // Setup vertices
     std::vector<Vertex> vertex =

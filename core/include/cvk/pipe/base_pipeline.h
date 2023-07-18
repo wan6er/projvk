@@ -16,14 +16,14 @@ namespace cvk
         BasePipeline(BasePipeline CONST_REFERENCE) = default;
         ~BasePipeline();
 
-        // virtual VkResult create_cache() final;
+        inline auto cache() const noexcept { return _cache; }
         virtual operator VkPipeline() const final;
 
     protected:
         virtual void release() final;
 
         // VkDevice device = VK_NULL_HANDLE;
-        VkPipelineCache cache = VK_NULL_HANDLE;
+        VkPipelineCache _cache = VK_NULL_HANDLE;
 
     };
 

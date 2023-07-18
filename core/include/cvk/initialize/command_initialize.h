@@ -30,8 +30,11 @@ namespace __cvk
     CVK_API void cmd_bind_index_buffer(VkCommandBuffer buffer, VkIndexType type, VkBuffer index_buffer);
     CVK_API void cmd_set_viewport(VkCommandBuffer buffer, std::vector<VkViewport> CONST_REFERENCE viewports);
     CVK_API void cmd_set_scissor(VkCommandBuffer buffer, std::vector<VkRect2D> CONST_REFERENCE scissors);
+
     CVK_API void cmd_draw(VkCommandBuffer buffer, uint32_t vertex_count);
     CVK_API void cmd_draw_indexed(VkCommandBuffer buffer, uint32_t index_count, uint32_t first_index = 0);
+    CVK_API void cmd_dispatch(VkCommandBuffer buffer, uint32_t groupx, uint32_t groupy, uint32_t groupz);
+
     CVK_API void cmd_next_subpass(VkCommandBuffer buffer, VkSubpassContents contents);
     CVK_API void cmd_execute_command(VkCommandBuffer buffer, std::vector<VkCommandBuffer> CONST_REFERENCE buffers);
     CVK_API void cmd_copy_buffer(VkCommandBuffer buffer, VkBuffer src, VkBuffer dst, std::vector<VkBufferCopy> CONST_REFERENCE offset);

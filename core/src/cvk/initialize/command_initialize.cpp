@@ -153,6 +153,13 @@ CVK_API void cmd_draw_indexed(VkCommandBuffer buffer, uint32_t index_count, uint
     vkCmdDrawIndexed(buffer, index_count, 1, first_index, 0, 0);
 }
 
+CVK_API void cmd_dispatch(VkCommandBuffer buffer, uint32_t groupx, uint32_t groupy, uint32_t groupz)
+{
+    CVK_ASSERT(buffer != VK_NULL_HANDLE);
+    CVK_ASSERT((groupx * groupy * groupz) > 0);
+    vkCmdDispatch(buffer, groupx, groupy, groupz);
+}
+
 CVK_API void cmd_next_subpass(VkCommandBuffer buffer, VkSubpassContents contents)
 {
     CVK_ASSERT(buffer != VK_NULL_HANDLE);

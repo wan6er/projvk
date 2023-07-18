@@ -27,13 +27,13 @@ namespace cvk
     {
     public:
         // explicit GraphicsPipeline();
-        explicit GraphicsPipeline(VkDevice device, VkRenderPass renderpass, VkPipelineLayout layout);
+        explicit GraphicsPipeline(VkDevice device);
 
-        virtual VkResult create();
+        virtual VkResult create(VkRenderPass renderpass, VkPipelineLayout layout, uint32_t subpass = 0);
 
-        void set_renderpass(VkRenderPass renderpass);
-        void set_layout(VkPipelineLayout layout);
-        void set_subpass(uint32_t subpass);
+        // void set_renderpass(VkRenderPass renderpass);
+        // void set_layout(VkPipelineLayout layout);
+        // void set_subpass(uint32_t subpass);
 
         template<class...__Args>
         void attaches(__Args&&...args);
@@ -50,6 +50,7 @@ namespace cvk
 
     protected:
         void setup_create_info();
+        void fill_other_info(VkRenderPass renderpass, VkPipelineLayout layout, uint32_t subpass);
 
     private:
         VkGraphicsPipelineCreateInfo _create_info;

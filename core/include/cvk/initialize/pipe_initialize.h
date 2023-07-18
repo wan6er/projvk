@@ -25,10 +25,18 @@ namespace __cvk
     // graphics pipeline
     CVK_API void get_default_graphics_pipeline_create_info(VkGraphicsPipelineCreateInfo& create_info);
     CVK_API VkResult create_graphics_pipeline(VkDevice device, VkGraphicsPipelineCreateInfo CONST_REFERENCE create_info, VkPipeline& pipeline, VkPipelineCache cache = VK_NULL_HANDLE);
+
+
+    CVK_API void get_default_compute_pipeline_create_info(VkPipelineLayout layout, VkPipelineShaderStageCreateInfo CONST_REFERENCE shader, VkComputePipelineCreateInfo& create_info);
+    CVK_API VkResult create_computer_pipeline(VkDevice device, VkComputePipelineCreateInfo CONST_REFERENCE create_info, VkPipeline& pipeline, VkPipelineCache cache = VK_NULL_HANDLE);
     
     // pipline
     CVK_API void destroy_pipeline(VkDevice device, VkPipeline& pipeline);
 }; 
+
+namespace __cvk
+{
+};
 
 namespace __cvk
 {

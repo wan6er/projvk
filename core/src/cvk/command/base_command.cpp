@@ -80,6 +80,11 @@ void BaseCommand::draw_indexed(uint32_t index_count, uint32_t first_index) const
     __cvk::cmd_draw_indexed(object(), index_count, first_index);
 }
 
+void BaseCommand::dispatch(uint32_t groupx, uint32_t groupy, uint32_t groupz) const
+{
+    __cvk::cmd_dispatch(object(), groupx, groupy, groupz);
+}
+
 void BaseCommand::copy_buffer(VkBuffer src, VkBuffer dst, std::vector<VkBufferCopy> CONST_REFERENCE offset) const
 {
     __cvk::cmd_copy_buffer(object(), src, dst, offset);

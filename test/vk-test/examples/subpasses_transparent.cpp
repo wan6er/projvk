@@ -226,7 +226,7 @@ int main()
     cvk::Shader gbufft_frag_shader(device, utils::load_file("shader/gbuff_transparent.frag.spv"));
     CVK_ASSERT(gbufft_frag_shader.create() == VK_SUCCESS);
 
-    cvk::GraphicsPipeline obj_pipeline(device, render_pass, layout);
+    cvk::GraphicsPipeline obj_pipeline(device);
     obj_pipeline.vertex_input().add_binding(0, sizeof(Vertex))
         .add_attribute(0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, POSITION))
         .add_attribute(1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, NORMAL))
@@ -240,7 +240,7 @@ int main()
     obj_pipeline.shader()
         .attach(VK_SHADER_STAGE_VERTEX_BIT, vert_shader)
         .attach(VK_SHADER_STAGE_FRAGMENT_BIT, gbuff_frag_shader);
-    CVK_ASSERT(obj_pipeline.create() == VK_SUCCESS);
+    CVK_ASSERT(obj_pipeline.create(render_pass, layout) == VK_SUCCESS);
 
     cvk::Descriptor glass_descriptor(device);
     for (auto& buf : building_glass_buffers) {
@@ -261,16 +261,15 @@ int main()
     transparent_layout.attaches(static_cast<VkDescriptorSetLayout>(glass_descriptor[0].get_layout()));
     CVK_ASSERT(transparent_layout.create() == VK_SUCCESS);
     {
-        cvk::GraphicsPipeline _temp(device, render_pass, transparent_layout);
+        cvk::GraphicsPipeline _temp(device);
         obj_pipeline.count_swap(_temp);
     }
     // transparent_pipeline.rasterization().polygonMode = VK_POLYGON_MODE_LINE;
-    transparent_pipeline.set_subpass(1);
     transparent_pipeline.shader().clear_all();
     transparent_pipeline.shader()
         .attach(VK_SHADER_STAGE_VERTEX_BIT, vert_shader)
         .attach(VK_SHADER_STAGE_FRAGMENT_BIT, gbufft_frag_shader);
-    CVK_ASSERT(transparent_pipeline.create() == VK_SUCCESS);
+    CVK_ASSERT(transparent_pipeline.create(render_pass, transparent_layout, 1) == VK_SUCCESS);
 
     struct Light {
     };
@@ -320,15 +319,15 @@ int main()
     cvk::Shader composition_frag_shader(device, utils::load_file("shader/composition_transparent.frag.spv"));
     CVK_ASSERT(composition_frag_shader.create() == VK_SUCCESS);
 
-    cvk::GraphicsPipeline light_pipeline(device, render_pass, light_layout);
+    cvk::GraphicsPipeline light_pipeline(device);
     light_pipeline.viewport().attaches(render_area, viewport);
     light_pipeline.color_blend()
         .attach(0xf, false);
-    light_pipeline.set_subpass(2);
+    // light_pipeline.set_subpass(2);
     light_pipeline.shader()
         .attach(VK_SHADER_STAGE_VERTEX_BIT, composition_vert_shader)
         .attach(VK_SHADER_STAGE_FRAGMENT_BIT, composition_frag_shader);
-    CVK_ASSERT(light_pipeline.create() == VK_SUCCESS);
+    CVK_ASSERT(light_pipeline.create(render_pass, light_layout) == VK_SUCCESS);
 
     cvk::CommandPool command_pool(device, graphics_index);
     CVK_ASSERT(command_pool.create() == VK_SUCCESS);

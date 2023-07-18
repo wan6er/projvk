@@ -24,6 +24,7 @@ namespace cvk
         void set_scissor(std::vector<VkRect2D> CONST_REFERENCE scissors) const;
         void draw(uint32_t vertex_count) const;
         void draw_indexed(uint32_t index_count, uint32_t first_index = 0) const;
+        void dispatch(uint32_t groupx, uint32_t groupy, uint32_t groupz = 1) const;
 
         void copy_buffer(VkBuffer src, VkBuffer dst, std::vector<VkBufferCopy> CONST_REFERENCE offset) const;
         void copy_buffer_image(VkBuffer src, VkImage dst, std::vector<VkBufferImageCopy> CONST_REFERENCE offset) const;

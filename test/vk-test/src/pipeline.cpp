@@ -32,7 +32,7 @@
 void test_pipeline_attachment() 
 {
     // cvk::VertexInputState vi;
-    cvk::GraphicsPipeline test_pipeline(nullptr, nullptr, nullptr);
+    cvk::GraphicsPipeline test_pipeline(nullptr);
     test_pipeline.vertex_input()
         .add_binding(0, 32)
             .add_attribute(0, VK_FORMAT_R32G32B32_SFLOAT, 0)
@@ -246,7 +246,7 @@ TEST_FUNC_BEGIN("graphics pipeline")
     CHECK(layout.create() == VK_SUCCESS);
 
 
-    cvk::GraphicsPipeline pipeline(device, render_pass, layout);
+    cvk::GraphicsPipeline pipeline(device);
     pipeline.vertex_input().add_binding(0, sizeof(Vertex))
         .add_attribute(0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position))
         .add_attribute(1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color));
@@ -256,6 +256,6 @@ TEST_FUNC_BEGIN("graphics pipeline")
     pipeline.shader()
         .attach(VK_SHADER_STAGE_VERTEX_BIT, vert_shader)
         .attach(VK_SHADER_STAGE_FRAGMENT_BIT, frag_shader);
-    CHECK(pipeline.create() == VK_SUCCESS);
+    CHECK(pipeline.create(render_pass, layout) == VK_SUCCESS);
     
 TEST_FUNC_END

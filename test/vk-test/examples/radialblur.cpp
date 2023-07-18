@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
     cvk::Shader gbuff_frag_shader(device, utils::load_file("shader/gbuff.frag.spv"));
     CVK_ASSERT(gbuff_frag_shader.create() == VK_SUCCESS);
 
-    cvk::GraphicsPipeline obj_pipeline(device, render_pass, glowsphere.get_layout());
+    cvk::GraphicsPipeline obj_pipeline(device);
     obj_pipeline.vertex_input().add_binding(0, sizeof(Vertex))
         .add_attribute(0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, POSITION))
         .add_attribute(1, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, NORMAL))
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
     obj_pipeline.shader()
         .attach(VK_SHADER_STAGE_VERTEX_BIT, vert_shader)
         .attach(VK_SHADER_STAGE_FRAGMENT_BIT, gbuff_frag_shader);
-    CVK_ASSERT(obj_pipeline.create() == VK_SUCCESS);
+    CVK_ASSERT(obj_pipeline.create(render_pass, glowsphere.get_layout()) == VK_SUCCESS);
 
     struct Light {
     };
@@ -233,15 +233,14 @@ int main(int argc, char *argv[])
     cvk::Shader composition_frag_shader(device, utils::load_file("shader/radial_composition.frag.spv"));
     CVK_ASSERT(composition_frag_shader.create() == VK_SUCCESS);
 
-    cvk::GraphicsPipeline light_pipeline(device, render_pass, light_layout);
+    cvk::GraphicsPipeline light_pipeline(device);
     light_pipeline.viewport().attaches(render_area, viewport);
     light_pipeline.color_blend()
         .attach(0xf, false);
-    light_pipeline.set_subpass(1);
     light_pipeline.shader()
         .attach(VK_SHADER_STAGE_VERTEX_BIT, composition_vert_shader)
         .attach(VK_SHADER_STAGE_FRAGMENT_BIT, composition_frag_shader);
-    CVK_ASSERT(light_pipeline.create() == VK_SUCCESS);
+    CVK_ASSERT(light_pipeline.create(render_pass, light_layout, 1) == VK_SUCCESS);
 
 
 
@@ -270,14 +269,14 @@ int main(int argc, char *argv[])
     cvk::PipelineLayout radial_layout(device);
     radial_layout.attaches(static_cast<VkDescriptorSetLayout>(radial_descriptor[0].get_layout()));
     CVK_ASSERT(radial_layout.create() == VK_SUCCESS);
-    cvk::GraphicsPipeline radial_pipeline(device, radial_renderpass, radial_layout);
+    cvk::GraphicsPipeline radial_pipeline(device);
     radial_pipeline.viewport().attaches(render_area, viewport);
     radial_pipeline.color_blend()
         .attach(0xf, false);
     radial_pipeline.shader()
         .attach(VK_SHADER_STAGE_VERTEX_BIT, composition_vert_shader)
         .attach(VK_SHADER_STAGE_FRAGMENT_BIT, radial_frag);
-    CVK_ASSERT(radial_pipeline.create() == VK_SUCCESS);
+    CVK_ASSERT(radial_pipeline.create(radial_renderpass, radial_layout) == VK_SUCCESS);
 
     std::vector<cvk::Framebuffer> framebuffers;
     auto CONST_REFERENCE images = swapchain.get_images();

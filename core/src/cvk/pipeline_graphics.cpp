@@ -11,35 +11,34 @@ namespace cvk
 //     setup_create_info();
 // }
 
-GraphicsPipeline::GraphicsPipeline(VkDevice device, VkRenderPass renderpass, VkPipelineLayout layout) :
+GraphicsPipeline::GraphicsPipeline(VkDevice device) :
     BasePipeline(device)
 {
     _create_info = {};
     setup_create_info();
-    _create_info.renderPass = renderpass;
-    _create_info.layout = layout;
+    // _create_info.renderPass = renderpass;
+    // _create_info.layout = layout;
 }
 
-void GraphicsPipeline::set_renderpass(VkRenderPass renderpass)
-{
-    _create_info.renderPass = renderpass;
-}
+// void GraphicsPipeline::set_renderpass(VkRenderPass renderpass)
+// {
+//     _create_info.renderPass = renderpass;
+// }
 
-void GraphicsPipeline::set_layout(VkPipelineLayout layout)
-{
-    _create_info.layout = layout;
-}
+// void GraphicsPipeline::set_layout(VkPipelineLayout layout)
+// {
+//     _create_info.layout = layout;
+// }
 
-void GraphicsPipeline::set_subpass(uint32_t subpass)
-{
-    _create_info.subpass = subpass;
-}
+// void GraphicsPipeline::set_subpass(uint32_t subpass)
+// {
+//     _create_info.subpass = subpass;
+// }
 
-VkResult GraphicsPipeline::create()
+VkResult GraphicsPipeline::create(VkRenderPass renderpass, VkPipelineLayout layout, uint32_t subpass)
 {
-    CVK_ASSERT(_create_info.renderPass != VK_NULL_HANDLE);
-    CVK_ASSERT(_create_info.layout != VK_NULL_HANDLE);
-    setup_create_info();
+    // setup_create_info();
+    fill_other_info(renderpass, layout, subpass);
     return __cvk::create_graphics_pipeline(device(), _create_info, object());
 }
 
@@ -54,9 +53,15 @@ void GraphicsPipeline::setup_create_info()
     _create_info.pDepthStencilState = &static_cast<VkPipelineDepthStencilStateCreateInfo CONST_REFERENCE>(*this);
     _create_info.pColorBlendState = &static_cast<VkPipelineColorBlendStateCreateInfo CONST_REFERENCE>(*this);
     _create_info.pDynamicState = &static_cast<VkPipelineDynamicStateCreateInfo CONST_REFERENCE>(*this);
-    
+}
+
+void GraphicsPipeline::fill_other_info(VkRenderPass renderpass, VkPipelineLayout layout, uint32_t subpass)
+{
     std::vector<VkPipelineShaderStageCreateInfo> CONST_REFERENCE stages = shader();
     utils::vector_fill_info(stages, _create_info.stageCount, _create_info.pStages);
+    _create_info.renderPass = renderpass;
+    _create_info.layout = layout;
+    _create_info.subpass = subpass;
 }
 
 auto GraphicsPipeline::vertex_input() -> VertexInputState&

@@ -19,6 +19,16 @@ Queue& Queue::set_wait(VkPipelineStageFlags wait_stage, std::vector<VkSemaphore>
 {
     CVK_ASSERT(wait.size() > 0);
     _wait_stage = wait_stage;
+    _wait_stages.assign(wait.size(), wait_stage);
+    _wait = wait;
+    return *this;
+}
+
+Queue& Queue::set_waits(std::vector<VkPipelineStageFlags> CONST_REFERENCE wait_stages, std::vector<VkSemaphore> CONST_REFERENCE wait)
+{
+    CVK_ASSERT(wait.size() > 0);
+    CVK_ASSERT(wait_stages.size() == wait.size());
+    _wait_stages = wait_stages;
     _wait = wait;
     return *this;
 }
@@ -32,6 +42,7 @@ Queue& Queue::set_signal(std::vector<VkSemaphore> CONST_REFERENCE signal)
 
 Queue& Queue::clear_all()
 {
+    _wait_stages.clear();
     _wait.clear();
     _signal.clear();
     return *this;
@@ -39,7 +50,7 @@ Queue& Queue::clear_all()
 
 VkResult Queue::submit(std::vector<VkCommandBuffer> CONST_REFERENCE buffers, VkFence signal)
 {
-    VkResult result = __cvk::queue_submit(_wait_stage, _wait, _signal, signal, buffers, object());
+    VkResult result = __cvk::queue_submit(_wait_stages, _wait, _signal, signal, buffers, object());
     clear_all();
     return result;
 }

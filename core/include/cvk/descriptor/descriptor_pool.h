@@ -12,7 +12,10 @@ namespace cvk
     {
     public:
         DescriptorPool(VkDevice device);
-        DescriptorPool(DescriptorPool CONST_REFERENCE) = default;
+        DescriptorPool(DescriptorPool CONST_REFERENCE) = delete;
+        DescriptorPool& operator=(DescriptorPool CONST_REFERENCE) = delete;
+        DescriptorPool(DescriptorPool&&) noexcept = default;
+        DescriptorPool& operator=(DescriptorPool&&) noexcept = default;
         virtual ~DescriptorPool();
 
         virtual VkResult create(uint32_t max_sets);

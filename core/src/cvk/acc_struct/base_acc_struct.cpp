@@ -5,7 +5,7 @@
 namespace cvk
 {
     
-    constexpr AccelerationStructure::AccelerationStructure(VkDevice device) :
+    AccelerationStructure::AccelerationStructure(VkDevice device) :
         _Base(), _Geometries(), _device(device)
     {
     }

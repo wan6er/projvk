@@ -15,7 +15,7 @@ namespace cvk
         using _Geometries = AccStructGeometries;
 
     public:
-        constexpr AccelerationStructure(VkDevice device);
+        AccelerationStructure(VkDevice device);
         ~AccelerationStructure();
 
         inline operator VkAccelerationStructureKHR() const noexcept { return object(); }

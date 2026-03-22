@@ -17,7 +17,7 @@
 class AccStructTest
 {
 public:
-    AccStructTest(cvk::Device device, cvk::CommandPool cmdpool, cvk::Queue queue) :
+    AccStructTest(cvk::Device& device, cvk::CommandPool& cmdpool, cvk::Queue& queue) :
         _device(device), _cmdpool(cmdpool), _queue(queue),
         vertex_buffer(device), index_buffer(device), bottom_transform_buffer(device),
         bottom_buffer(device), bottom(device),
@@ -155,9 +155,9 @@ public:
     }
 
 private:
-    cvk::Device _device;
-    cvk::CommandPool _cmdpool;
-    cvk::Queue _queue;
+    cvk::Device& _device;
+    cvk::CommandPool& _cmdpool;
+    cvk::Queue& _queue;
 
     cvk::AccelerationStructureInputBufferWritable vertex_buffer;
     cvk::AccelerationStructureInputBufferWritable index_buffer;

@@ -46,8 +46,38 @@ auto RenderPass::add_subpass_dependency(uint32_t src_subpass, uint32_t dst_subpa
 
 auto RenderPass::add_attachment(VkFormat format, VkImageLayout final_layout) -> RenderPass&
 {
+    return add_attachment(
+        format,
+        VK_IMAGE_LAYOUT_UNDEFINED,
+        final_layout,
+        VK_ATTACHMENT_LOAD_OP_CLEAR,
+        VK_ATTACHMENT_STORE_OP_STORE,
+        VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+        VK_ATTACHMENT_STORE_OP_DONT_CARE,
+        VK_SAMPLE_COUNT_1_BIT);
+}
+
+auto RenderPass::add_attachment(
+    VkFormat format,
+    VkImageLayout initial_layout,
+    VkImageLayout final_layout,
+    VkAttachmentLoadOp load_op,
+    VkAttachmentStoreOp store_op,
+    VkAttachmentLoadOp stencil_load_op,
+    VkAttachmentStoreOp stencil_store_op,
+    VkSampleCountFlagBits samples) -> RenderPass&
+{
     VkAttachmentDescription attachment_desc = {};
-    __cvk::get_default_attachment_description(format, final_layout, attachment_desc);
+    __cvk::get_default_attachment_description(
+        format,
+        initial_layout,
+        final_layout,
+        load_op,
+        store_op,
+        stencil_load_op,
+        stencil_store_op,
+        samples,
+        attachment_desc);
     BaseRenderPass::attaches(attachment_desc);
     return *this;
 }

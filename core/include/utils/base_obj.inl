@@ -67,6 +67,15 @@ template <class Obj>
 void BaseObj<Obj>::operator=(const BaseObj& base_obj)
 {
     if (this != &base_obj) {
+        // Release current shared counter before rebinding to another object.
+        if (_count != nullptr) {
+            red_ref();
+            if (*_count <= 0) {
+                delete _count;
+                _count = nullptr;
+            }
+        }
+
         object() = base_obj.object();
         _count = base_obj.ref();
         add_ref();

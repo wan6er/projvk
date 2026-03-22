@@ -12,7 +12,7 @@ namespace utils
     class BaseMultipleAttachWrapper
     {
     public:
-        constexpr BaseMultipleAttachWrapper() noexcept = default;
+        constexpr BaseMultipleAttachWrapper() noexcept {}
 
         void clear();
         auto get_attachments() -> std::vector<_Type>&;
@@ -31,6 +31,7 @@ namespace utils
     class BaseMultipleAttaches : public BaseMultipleAttachWrapper<_Type> ...
     {
     public:
+        constexpr BaseMultipleAttaches() noexcept {}
 
         template<class __Type>
         void attaches(__Type&& arg);
@@ -40,13 +41,6 @@ namespace utils
         void clear_all();
 
     private:
-        template<class __Type>
-        void _clear_recursive(__Type&& obj);
-        template<class __Type, class...__Args>
-        void _clear_recursive(__Type&& obj, __Args&&...args);
-
-        template<class __Type>
-        auto remove_clr() -> std::remove_const_t<std::remove_reference_t<__Type>>;
     };
 
 

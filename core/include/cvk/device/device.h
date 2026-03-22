@@ -20,7 +20,10 @@ namespace cvk
     {
     public:
         Device(VkPhysicalDevice physical_device, void CONST_PTR next = nullptr);
-        Device(const Device& device) = default;
+        Device(const Device& device) = delete;
+        Device& operator=(const Device& device) = delete;
+        Device(Device&& device) noexcept = default;
+        Device& operator=(Device&& device) noexcept = default;
         ~Device();
 
         operator VkDevice() const;
@@ -40,19 +43,26 @@ namespace cvk
 
         VkResult create();
         VkResult create(VkQueueFlags flag);
+        VkResult wait() const;
 
     protected:
         void release();
         void clean();
 
     private:
+        struct FeatureStorage {
+            void* data { nullptr };
+            void (*deleter)(void*) { nullptr };
+            VkBaseOutStructure* base { nullptr };
+        };
+
         // typedef std::map<VkQueueFlagBits, uint32_t> DeviceQueueFamilyIndexType;
         // DeviceQueueFamilyIndexType _indices;
         std::vector<VkDeviceQueueCreateInfo> _queues; 
         std::vector<char CONST_PTR> _layers;
         std::vector<char CONST_PTR> _exts;
 
-        std::vector<void CONST_PTR> _feats;
+        std::vector<FeatureStorage> _feats;
 
         VkDeviceCreateInfo _create_info {};
     };

@@ -2,13 +2,13 @@
 
 namespace utils
 {
-    constexpr CvkIterator::CvkIterator(void* ptr)
-    {
-        // _head = reinterpret_cast<CvkIteratorPtr>(ptr);
-        // _ptr = reinterpret_cast<CvkIteratorPtr>(ptr);
-        _head = (CvkIteratorPtr) ptr;
-        _ptr = (CvkIteratorPtr) ptr;
-    }
+    // constexpr CvkIterator::CvkIterator(void* ptr)
+    // {
+    //     // _head = reinterpret_cast<CvkIteratorPtr>(ptr);
+    //     // _ptr = reinterpret_cast<CvkIteratorPtr>(ptr);
+    //     _head = (CvkIteratorPtr) ptr;
+    //     _ptr = (CvkIteratorPtr) ptr;
+    // }
 
     CvkIterator& CvkIterator::operator++() { 
         next();

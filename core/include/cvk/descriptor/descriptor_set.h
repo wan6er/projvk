@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cvk/vk_header.h"
-// #include "write_descriptor_set.h"
+#include "write_descriptor_set.h"
 #include "descriptor_set_layout.h"
 #include "utils/base_obj.h"
 #include "utils/base_multi_attach.h"
@@ -41,5 +41,19 @@ namespace cvk
     };
 };
 
+namespace cvk
+{
+
+    template<class _Ty>
+    inline void DescriptorSet::write(uint32_t binding, _Ty&& info)
+    {
+        CVK_ASSERT((VkDescriptorSet)*this != VK_NULL_HANDLE);
+        cvk::WriteDescriptorSet write_set;
+        write_set.attaches(info);
+        write_set.setup(*this, get_layout_binding(binding));
+        write_set.update(_device);
+    }
+
+};
 
 #include "descriptor_set.inl"

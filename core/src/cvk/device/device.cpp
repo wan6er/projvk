@@ -28,7 +28,9 @@ void Device::release()
 void Device::clean()
 {
     for (auto feat : _feats) {
-        delete feat;
+        if (feat.deleter && feat.data) {
+            feat.deleter(feat.data);
+        }
     }
     _feats.clear();
 }
@@ -64,6 +66,11 @@ VkResult Device::create(VkQueueFlags flag)
 {
     Device::add_queue_flags(flag);
     return Device::create();
+}
+
+VkResult Device::wait() const
+{
+    return __cvk::wait_device_idle(object());
 }
 
 Device::operator VkDevice() const

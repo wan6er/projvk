@@ -16,6 +16,7 @@ namespace __cvk
 
     CVK_API VkResult create_device(VkPhysicalDevice physical_device, VkDeviceCreateInfo CONST_REFERENCE create_info, VkDevice& device);
     CVK_API void destroy_device(VkDevice device);
+    CVK_API VkResult wait_device_idle(VkDevice device);
 
     CVK_API void get_device_queue(VkDevice device, uint32_t index, VkQueue& queue);
 

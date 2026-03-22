@@ -15,6 +15,7 @@ namespace cvk
         virtual ~Queue();
 
         Queue& set_wait(VkPipelineStageFlags wait_stage, std::vector<VkSemaphore> CONST_REFERENCE wait);
+        Queue& set_waits(std::vector<VkPipelineStageFlags> CONST_REFERENCE wait_stages, std::vector<VkSemaphore> CONST_REFERENCE wait);
         Queue& set_signal(std::vector<VkSemaphore> CONST_REFERENCE signal);
 
         VkResult submit(std::vector<VkCommandBuffer> CONST_REFERENCE buffers, VkFence signal);
@@ -25,7 +26,8 @@ namespace cvk
         Queue& clear_all();
 
     private:
-        VkPipelineStageFlags _wait_stage;
+        VkPipelineStageFlags _wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        std::vector<VkPipelineStageFlags> _wait_stages;
         std::vector<VkSemaphore> _wait;
         std::vector<VkSemaphore> _signal;
     };

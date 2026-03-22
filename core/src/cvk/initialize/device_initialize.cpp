@@ -46,6 +46,11 @@ void destroy_device(VkDevice device)
 	vkDestroyDevice(device, nullptr);
 }
 
+VkResult wait_device_idle(VkDevice device)
+{
+    return vkDeviceWaitIdle(device);
+}
+
 // void get_all_device_queue_families(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties> &queue_families)
 // {
 // 	uint32_t count;

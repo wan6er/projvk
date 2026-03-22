@@ -28,15 +28,38 @@ CVK_API void destroy_render_pass(VkDevice device, VkRenderPass render_pass)
 
 CVK_API void get_default_attachment_description(VkFormat format, VkImageLayout final_layout, VkAttachmentDescription& description)
 {
+    get_default_attachment_description(
+        format,
+        VK_IMAGE_LAYOUT_UNDEFINED,
+        final_layout,
+        VK_ATTACHMENT_LOAD_OP_CLEAR,
+        VK_ATTACHMENT_STORE_OP_STORE,
+        VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+        VK_ATTACHMENT_STORE_OP_DONT_CARE,
+        VK_SAMPLE_COUNT_1_BIT,
+        description);
+}
+
+CVK_API void get_default_attachment_description(
+    VkFormat format,
+    VkImageLayout initial_layout,
+    VkImageLayout final_layout,
+    VkAttachmentLoadOp load_op,
+    VkAttachmentStoreOp store_op,
+    VkAttachmentLoadOp stencil_load_op,
+    VkAttachmentStoreOp stencil_store_op,
+    VkSampleCountFlagBits samples,
+    VkAttachmentDescription& description)
+{
     description = {};
     description.flags = 0;
     description.format = format;
-    description.samples = VK_SAMPLE_COUNT_1_BIT;
-    description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    description.samples = samples;
+    description.loadOp = load_op;
+    description.storeOp = store_op;
+    description.stencilLoadOp = stencil_load_op;
+    description.stencilStoreOp = stencil_store_op;
+    description.initialLayout = initial_layout;
     description.finalLayout = final_layout;
 }
 

@@ -56,6 +56,7 @@ namespace __cvk
 
     // queue
     CVK_API void get_queue(VkDevice device, uint32_t queue_index, VkQueue& queue);
+    CVK_API VkResult queue_submit(std::vector<VkPipelineStageFlags> CONST_REFERENCE wait_stages, std::vector<VkSemaphore> CONST_REFERENCE wait, std::vector<VkSemaphore> CONST_REFERENCE signal, VkFence finish_fence, std::vector<VkCommandBuffer> CONST_REFERENCE buffers, VkQueue queue);
     CVK_API VkResult queue_submit(VkPipelineStageFlags wait_stage, std::vector<VkSemaphore> CONST_REFERENCE wait, std::vector<VkSemaphore> CONST_REFERENCE signal, VkFence finish_fence, std::vector<VkCommandBuffer> CONST_REFERENCE buffers, VkQueue queue);
     
 };

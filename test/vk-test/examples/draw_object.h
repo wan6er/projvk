@@ -2,10 +2,11 @@
 
 #include "cvk/descriptor.h"
 #include "cvk/buffer.h"
+#include "cvk/pipe/pipeline_layout.h"
 #include "load_model.h"
 #include "load_texture.h"
 
-void create_descriptor_layout(cvk::DescriptorSetLayout& descriptor_layout)
+inline void create_descriptor_layout(cvk::DescriptorSetLayout& descriptor_layout)
 {
     descriptor_layout
             .set(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1)
@@ -14,7 +15,7 @@ void create_descriptor_layout(cvk::DescriptorSetLayout& descriptor_layout)
             .create();
 }
 
-void create_pipeline_layout(cvk::PipelineLayout& layout, VkDescriptorSetLayout descriptor_layout)
+inline void create_pipeline_layout(cvk::PipelineLayout& layout, VkDescriptorSetLayout descriptor_layout)
 {
     layout.attaches(descriptor_layout);
     CVK_ASSERT(layout.create() == VK_SUCCESS);
@@ -89,7 +90,7 @@ protected:
     }
 
 private:
-    cvk::Device _device;
+    cvk::Device CONST_REFERENCE _device;
 
     cvk::Sampler _sampler;
     cvk::Texture2D _texture;

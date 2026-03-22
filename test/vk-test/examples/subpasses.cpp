@@ -59,7 +59,6 @@ int main(int argc, char *argv[])
 
     cvk::Instance instance(instance_extensions, instance_layers);
     std::vector<VkPhysicalDevice>&& devices = instance.get_all_physical_device();
-    VkPhysicalDeviceFeatures device_features = {};
     cvk::Device device(devices[0]);
     device.add_extensions(
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
@@ -157,7 +156,7 @@ int main(int argc, char *argv[])
     std::vector<glm::mat4> ubo = {
         glm::scale(glm::mat4(1.0f), glm::vec3(1.0)),
         glm::lookAt(view_pos, glm::vec3(0, 0, 0), glm::vec3(0, -1, 0)),
-        glm::perspective(glm::radians(60.f), static_cast<float>(width / height), 0.1f, 100.0f)
+        glm::perspective(glm::radians(60.f), static_cast<float>(width) / static_cast<float>(height), 0.1f, 100.0f)
     };
     uint32_t ubo_size = sizeof(glm::mat4) * ubo.size();
 
@@ -172,7 +171,7 @@ int main(int argc, char *argv[])
     load_vertex(device, "model/samplebuilding.gltf", building_buffers);
     
     cvk::Descriptor descriptor(device);
-    for (auto& buf : building_buffers) {
+    for (size_t i = 0; i < building_buffers.size(); ++i) {
         descriptor.add_layout()
             .set(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1)
             .set(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1)
@@ -277,7 +276,6 @@ int main(int argc, char *argv[])
     uint32_t time_i = 0;
     uint32_t time = 0;
 
-    bool should_close = false;
     uint32_t msg = 0;
     while (win.poll_event(msg)) {
 

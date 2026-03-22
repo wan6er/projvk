@@ -10,21 +10,31 @@ namespace cvk
     
     struct CVK_API AccStructGeometry : public VkAccelerationStructureGeometryKHR
     {
-        constexpr AccStructGeometry() noexcept;
+        constexpr AccStructGeometry() noexcept 
+            : VkAccelerationStructureGeometryKHR()
+        {
+            sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
+            flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
+        }
 
-        constexpr auto instances() -> AccStructGeometryDataInstances&;
-        constexpr auto instances() const -> AccStructGeometryDataInstances CONST_REFERENCE;
+        auto instances() -> AccStructGeometryDataInstances&;
+        auto instances() const -> AccStructGeometryDataInstances CONST_REFERENCE;
 
-        constexpr auto triangles() -> AccStructGeometryDataTriangles&;
-        constexpr auto triangles() const -> AccStructGeometryDataTriangles CONST_REFERENCE;
+        auto triangles() -> AccStructGeometryDataTriangles&;
+        auto triangles() const -> AccStructGeometryDataTriangles CONST_REFERENCE;
 
     }; 
 
     class CVK_API AccStructGeometries : public utils::BaseMultipleAttaches<VkAccelerationStructureGeometryKHR>
     {
-        using _GeometriesAttaches = utils::BaseMultipleAttaches<VkAccelerationStructureGeometryKHR>;
     public:
-        constexpr AccStructGeometries() noexcept;
+        using _GeometriesAttaches = utils::BaseMultipleAttaches<VkAccelerationStructureGeometryKHR>;
+        constexpr AccStructGeometries() noexcept 
+            : _GeometriesAttaches()
+        {
+            _info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
+            _info.flags = VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR;
+        }
 
         template<class _Ty>
         void attach(_Ty&& geometry) { _GeometriesAttaches::attaches(std::forward<VkAccelerationStructureGeometryKHR>(geometry)); }

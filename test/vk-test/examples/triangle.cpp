@@ -39,6 +39,8 @@
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
 
+#include <memory>
+
 #ifdef WIN32
 #include "win32/surface_win32.h"
 #include "win32/win.h"
@@ -102,6 +104,9 @@ int main()
     auto format = formats[0].format;
     cvk::Swapchain swapchain(device, device.get_physical_device(), surface, { VK_PRESENT_MODE_FIFO_KHR }, formats[0]);
     swapchain.create();
+    VkExtent2D swapchain_extent = swapchain.get_extent();
+    width = swapchain_extent.width;
+    height = swapchain_extent.height;
     std::cout << "init swapchain\n";
 
     uint32_t graphics_index = UINT32_MAX, present_index = UINT32_MAX;
@@ -109,9 +114,6 @@ int main()
     __cvk::get_queue_family_index_present_support(device.get_physical_device(), surface, VK_QUEUE_GRAPHICS_BIT, present_index);
     CVK_ASSERT(graphics_index != UINT32_MAX);
     CVK_ASSERT(present_index != UINT32_MAX);
-
-    cvk::DepthAttachment2D depth(device);
-    CVK_ASSERT(depth.create(device.get_memory_properties(), VK_FORMAT_D16_UNORM, width, height) == VK_SUCCESS);
 
     cvk::Sampler sampler(device);
     sampler.create();
@@ -127,16 +129,8 @@ int main()
     std::cout << "init renderpass\n";
 
     std::vector<cvk::Framebuffer> framebuffers;
-    auto CONST_REFERENCE images = swapchain.get_images();
-    std::cout << "images count " << images.size() << "\n";
-
     std::vector<cvk::ColorImageView2D> image_views2d;
-    for (auto i : images) {
-        CVK_ASSERT(image_views2d.emplace_back(device).create(swapchain.get_format(), i) == VK_SUCCESS);
-        framebuffers.emplace_back(device, render_pass, width, height).attaches((VkImageView)image_views2d.back(), (VkImageView)depth);
-        CVK_ASSERT(framebuffers.back().create() == VK_SUCCESS);
-    }
-    std::cout << "init framebuffer\n";
+    std::unique_ptr<cvk::DepthAttachment2D> depth;
 
     struct Vertex {
         float position[3];
@@ -187,7 +181,7 @@ int main()
 
     std::vector<glm::mat4> ubo = {
         glm::lookAt(glm::vec3(-5, 3, -10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)),
-        glm::perspective(glm::radians(60.f), static_cast<float>(width / height), 0.1f, 256.0f)
+        glm::perspective(glm::radians(60.f), static_cast<float>(width) / static_cast<float>(height), 0.1f, 256.0f)
     };
     uint32_t ubo_size = sizeof(glm::mat4) * ubo.size();
 
@@ -241,11 +235,57 @@ int main()
 
     cvk::Queue graphics_queue(device, graphics_index);
 
+    auto recreate_swapchain_resources = [&]() -> bool {
+        CVK_ASSERT(device.wait() == VK_SUCCESS);
+        VkResult recreate_result = swapchain.recreate();
+        if (recreate_result != VK_SUCCESS) {
+            return false;
+        }
+
+        VkExtent2D extent = swapchain.get_extent();
+        if (extent.width == 0 || extent.height == 0) {
+            return false;
+        }
+
+        width = extent.width;
+        height = extent.height;
+        render_area = {{0, 0}, {width, height}};
+        viewport = { 0.0f, 0.0f, (float)width, (float)height, 0.0f, 1.0f };
+
+        ubo[1] = glm::perspective(glm::radians(60.f), static_cast<float>(width) / static_cast<float>(height), 0.1f, 256.0f);
+        CVK_ASSERT(uniform_buffer_mem.map(ptr) == VK_SUCCESS);
+        memcpy(ptr, ubo.data(), ubo_size);
+        uniform_buffer_mem.unmap();
+
+        depth = std::make_unique<cvk::DepthAttachment2D>(device);
+        CVK_ASSERT(depth->create(device.get_memory_properties(), VK_FORMAT_D16_UNORM, width, height) == VK_SUCCESS);
+
+        image_views2d.clear();
+        framebuffers.clear();
+        auto CONST_REFERENCE recreated_images = swapchain.get_images();
+        for (auto image : recreated_images) {
+            CVK_ASSERT(image_views2d.emplace_back(device).create(swapchain.get_format(), image) == VK_SUCCESS);
+            framebuffers.emplace_back(device, render_pass, width, height).attaches((VkImageView)image_views2d.back(), (VkImageView)*depth);
+            CVK_ASSERT(framebuffers.back().create() == VK_SUCCESS);
+        }
+        return true;
+    };
+
+    CVK_ASSERT(recreate_swapchain_resources());
+    std::cout << "init framebuffer\n";
+
     std::cout << "prepare finish\n";
     uint32_t event = 0;
     while (win.poll_event(event)) {
 
-        uint32_t cur_index = swapchain.acquire(acquire_semaphore);
+        uint32_t cur_index = UINT32_MAX;
+        VkResult acquire_result = swapchain.acquire(cur_index, acquire_semaphore);
+        if (acquire_result == VK_ERROR_OUT_OF_DATE_KHR || acquire_result == VK_SUBOPTIMAL_KHR) {
+            recreate_swapchain_resources();
+            win.free_event();
+            continue;
+        }
+        CVK_ASSERT(acquire_result == VK_SUCCESS);
 
         CVK_ASSERT(command_buffer.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) == VK_SUCCESS);
 
@@ -270,7 +310,13 @@ int main()
         CVK_ASSERT(wait_fence.reset() == VK_SUCCESS);
         CVK_ASSERT(vkResetFences(device, 1, &(VkFence CONST_REFERENCE)wait_fence) == VK_SUCCESS);
 
-        swapchain.present(graphics_queue, {});
+        VkResult present_result = swapchain.present(graphics_queue, {});
+        if (present_result == VK_ERROR_OUT_OF_DATE_KHR || present_result == VK_SUBOPTIMAL_KHR) {
+            recreate_swapchain_resources();
+            win.free_event();
+            continue;
+        }
+        CVK_ASSERT(present_result == VK_SUCCESS);
 
         win.free_event();
     }

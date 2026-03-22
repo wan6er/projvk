@@ -11,6 +11,16 @@ namespace __cvk
     CVK_API void destroy_render_pass(VkDevice device, VkRenderPass render_pass);
 
     CVK_API void get_default_attachment_description(VkFormat format, VkImageLayout final_layout, VkAttachmentDescription& description);
+    CVK_API void get_default_attachment_description(
+        VkFormat format,
+        VkImageLayout initial_layout,
+        VkImageLayout final_layout,
+        VkAttachmentLoadOp load_op,
+        VkAttachmentStoreOp store_op,
+        VkAttachmentLoadOp stencil_load_op,
+        VkAttachmentStoreOp stencil_store_op,
+        VkSampleCountFlagBits samples,
+        VkAttachmentDescription& description);
     
     // subpass
     CVK_API void get_default_attachment_reference(uint32_t attachment, VkImageLayout attachment_layout, VkAttachmentReference& reference);

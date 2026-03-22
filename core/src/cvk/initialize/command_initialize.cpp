@@ -395,18 +395,27 @@ CVK_API void get_queue(VkDevice device, uint32_t queue_index, VkQueue& queue)
     vkGetDeviceQueue(device, queue_index, 0, &queue);
 }
 
-CVK_API VkResult queue_submit(VkPipelineStageFlags wait_stage, std::vector<VkSemaphore> CONST_REFERENCE wait, std::vector<VkSemaphore> CONST_REFERENCE signal, VkFence finish_fence, std::vector<VkCommandBuffer> CONST_REFERENCE buffers, VkQueue queue)
+CVK_API VkResult queue_submit(std::vector<VkPipelineStageFlags> CONST_REFERENCE wait_stages, std::vector<VkSemaphore> CONST_REFERENCE wait, std::vector<VkSemaphore> CONST_REFERENCE signal, VkFence finish_fence, std::vector<VkCommandBuffer> CONST_REFERENCE buffers, VkQueue queue)
 {
     CVK_ASSERT(queue != VK_NULL_HANDLE);
     CVK_ASSERT(buffers.size() > 0);
+    CVK_ASSERT(wait.size() == wait_stages.size());
+
     VkSubmitInfo submit_info = {};
     submit_info.pNext = NULL;
     submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submit_info.pWaitDstStageMask = &wait_stage;
-    utils::vector_fill_info(wait, submit_info.waitSemaphoreCount, submit_info.pWaitSemaphores);
+    submit_info.waitSemaphoreCount = static_cast<uint32_t>(wait.size());
+    submit_info.pWaitSemaphores = wait.size() == 0 ? nullptr : wait.data();
+    submit_info.pWaitDstStageMask = wait_stages.size() == 0 ? nullptr : wait_stages.data();
     utils::vector_fill_info(signal, submit_info.signalSemaphoreCount, submit_info.pSignalSemaphores);
     utils::vector_fill_info(buffers, submit_info.commandBufferCount, submit_info.pCommandBuffers);
     return vkQueueSubmit(queue, 1, &submit_info, finish_fence);
+}
+
+CVK_API VkResult queue_submit(VkPipelineStageFlags wait_stage, std::vector<VkSemaphore> CONST_REFERENCE wait, std::vector<VkSemaphore> CONST_REFERENCE signal, VkFence finish_fence, std::vector<VkCommandBuffer> CONST_REFERENCE buffers, VkQueue queue)
+{
+    std::vector<VkPipelineStageFlags> wait_stages(wait.size(), wait_stage);
+    return queue_submit(wait_stages, wait, signal, finish_fence, buffers, queue);
 }
 
 };

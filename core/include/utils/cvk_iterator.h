@@ -12,7 +12,10 @@ namespace utils
         using CvkIteratorPtr = CvkIteratorType*;
         using CvkIteratorCPtr = CvkIteratorType CONST_PTR;
 
-        constexpr CvkIterator(void* ptr);
+        constexpr CvkIterator(void* ptr) : 
+            _head((CvkIteratorPtr) ptr), _ptr((CvkIteratorPtr) ptr)
+        {
+        }
         constexpr CvkIterator(CvkIterator CONST_REFERENCE) = default;
 
         bool has_next() const { return _ptr != nullptr && _ptr->pNext != nullptr; }

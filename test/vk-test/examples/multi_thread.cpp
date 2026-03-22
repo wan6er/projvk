@@ -31,6 +31,8 @@
 
 #include "load_texture.h"
 #include "load_model.h"
+#include <cstdio>
+#include <vulkan/vulkan_core.h>
 
 
 #ifdef WIN32
@@ -136,7 +138,7 @@ int main(int argc, char *argv[])
         .add_attachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
         .add_attachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
 
-        .add_attachment(VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+        .add_attachment(swapchain.get_format(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
         .add_attachment(VK_FORMAT_D16_UNORM, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
     CVK_ASSERT(render_pass.create() == VK_SUCCESS);
 
@@ -281,6 +283,7 @@ int main(int argc, char *argv[])
     bool should_close = false;
     uint32_t msg = 0;
     while (win.poll_event(msg)) {
+        printf("Event: %u\n", msg);
         uint32_t cur_index = swapchain.acquire(acquire_semaphore);
 
         CVK_ASSERT(command_buffer.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT) == VK_SUCCESS);

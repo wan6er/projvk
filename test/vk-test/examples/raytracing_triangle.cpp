@@ -32,9 +32,9 @@
 class AccStructTriangle
 {
 private:
-    cvk::Device _device;
-    cvk::CommandPool _cmdpool;
-    cvk::Queue _queue;
+    cvk::Device& _device;
+    cvk::CommandPool& _cmdpool;
+    cvk::Queue& _queue;
 
     cvk::AccelerationStructureInputBufferWritable vertex_buffer;
     cvk::AccelerationStructureInputBufferWritable index_buffer;
@@ -62,7 +62,7 @@ private:
     cvk::CommandBuffer cmdbuf;
 
 public:
-    AccStructTriangle(cvk::Device device, cvk::CommandPool cmdpool, cvk::Queue queue, size_t cmdsize) :
+    AccStructTriangle(cvk::Device& device, cvk::CommandPool& cmdpool, cvk::Queue& queue, size_t cmdsize) :
         _device(device), _cmdpool(cmdpool), _queue(queue),
         vertex_buffer(device), index_buffer(device), bottom_transform_buffer(device),
         bottom_buffer(device), bottom(device),

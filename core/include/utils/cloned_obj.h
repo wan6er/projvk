@@ -8,8 +8,8 @@ namespace utils
     {
     public:
         ClonedObj() = default;
-        constexpr explicit ClonedObj(bool is_cloned);
-        constexpr explicit ClonedObj(const ClonedObj& obj);
+        constexpr explicit ClonedObj(bool is_cloned) : _is_cloned(is_cloned) {}
+        constexpr explicit ClonedObj(const ClonedObj& obj) : _is_cloned(obj._is_cloned) {}
 
         virtual void clone() final;
         virtual bool is_cloned() final;

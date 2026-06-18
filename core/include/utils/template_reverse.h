@@ -83,7 +83,8 @@ namespace utils
         return reverse_parameter_impl<__RetType>(Tuple<__LFirst>(std::forward<__LFirst>(first)), std::forward<__LArgs>(args)...);
     }
 
-    template<typename __RetType, typename __LFirst, typename...__Args, typename...__LArgs>
+    template<typename __RetType, typename __LFirst, typename...__Args, typename...__LArgs,
+        std::enable_if_t<(sizeof...(__Args) > 0), int> = 0>
     constexpr auto reverse_parameter_impl(Tuple<__Args...> CONST_REFERENCE largs, __LFirst&& first, __LArgs&&...args) -> 
         __RetType
     {

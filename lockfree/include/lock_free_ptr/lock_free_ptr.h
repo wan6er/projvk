@@ -17,16 +17,14 @@ struct LockFreePtr : public BaseLockFreePtr<_Ty, SharedPtr<_Ty>, CountObjR<_Ty>,
     using Type = _Ty;
     using AtomicWeakPtr = LockFreeWeakPtr<_Ty>;
     using _CountObj = CountObjR<_Ty>;
+    using SharedPtrType = SharedPtr<_Ty>;
     using _Base = BaseLockFreePtr<_Ty, SharedPtr<_Ty>, _CountObj, MemoryManager<_Ty, _CountObj>>;
     using _Base::_Base;
   
     void operator=(LockFreePtr const& ptr);
 
-    constexpr auto operator*() -> Type&;
-    constexpr auto operator*() const -> Type const&;
-
-    constexpr auto operator->() -> Type*;
-    constexpr auto operator->() const -> Type const*;
+    auto get(MemoryOrder order = MemoryOrderAcquire) -> SharedPtrType;
+    auto get(MemoryOrder order = MemoryOrderAcquire) const -> SharedPtrType;
     
     template<typename __Ptr>
     constexpr auto operator==(__Ptr&& ptr) const -> bool;
@@ -45,6 +43,7 @@ struct LockFreeWeakPtr : public BaseLockFreeWeakPtr<_Ty, WeakPtr<_Ty>, CountObjR
     using AtomicSharedPtr = LockFreePtr<_Ty>;
     using AtomicWeakPtr = LockFreeWeakPtr;
     using _CountObj = CountObjR<_Ty>;
+    using WeakPtrType = WeakPtr<_Ty>;
     using _Base = BaseLockFreeWeakPtr<_Ty, WeakPtr<_Ty>, _CountObj, MemoryManager<_Ty, _CountObj>>;
     using _Base::_Base;
 
@@ -54,12 +53,8 @@ struct LockFreeWeakPtr : public BaseLockFreeWeakPtr<_Ty, WeakPtr<_Ty>, CountObjR
     constexpr auto operator=(AtomicSharedPtr const& ptr) -> AtomicWeakPtr&;
     constexpr auto operator=(AtomicWeakPtr const& ptr) -> AtomicWeakPtr&;
 
-    constexpr auto operator*() -> Type&;
-    constexpr auto operator*() const -> Type const&;
-
-    constexpr auto operator->() -> Type*;
-    constexpr auto operator->() const -> Type const*;
-
+    auto get(MemoryOrder order = MemoryOrderAcquire) const -> WeakPtrType;
+    
     template<typename __Ptr>
     constexpr auto operator==(__Ptr&& ptr) const -> bool;
     template<typename __Ptr>

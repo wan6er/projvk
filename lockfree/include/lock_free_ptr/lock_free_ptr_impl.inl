@@ -4,7 +4,7 @@ namespace utils
 
 template<typename _Ty, typename _CountObj, typename _Derived, typename _MemoryManager>
 BaseLockFreePtrImpl<_Ty, _CountObj, _Derived, _MemoryManager>::BaseLockFreePtrImpl() :
-    _obj()
+    _obj(_CountObj{})
 {
 }
 
@@ -40,7 +40,7 @@ auto BaseLockFreePtrImpl<_Ty, _CountObj, _Derived, _MemoryManager>::load_count(M
 template<typename _Ty, typename _CountObj, typename _Derived, typename _MemoryManager>
 void BaseLockFreePtrImpl<_Ty, _CountObj, _Derived, _MemoryManager>::store_count(_CountObj ptr, MemoryOrder order)
 {
-    return _obj.store(ptr);
+    return _obj.store(ptr, order);
 }
 
 

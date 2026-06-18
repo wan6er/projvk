@@ -194,10 +194,10 @@ void test_lockfree_ring_ref()
         test1_SharedPtr tp1 = utils::make_ptr<test1>();
         test2_SharedPtr tp2 = utils::make_ptr<test2>();
 
-        // assert(tp1 != tp1->ptr);
+        // assert(tp1.get() != tp1.get()->ptr);
 
-        tp1->ptr = tp2;
-        tp2->ptr = tp1;
+        tp1.get()->ptr = tp2;
+        tp2.get()->ptr = tp1;
 
         assert(test_c == 2);
 

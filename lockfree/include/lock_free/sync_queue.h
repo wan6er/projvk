@@ -25,7 +25,7 @@ public:
     using SharedNodePtr = SharedPtr<NodeType>;
     using SharedNodePtrs = SharedPtrs<NodeType, 2>;
 
-    LockFreeQueue() noexcept = default;
+    LockFreeQueue() noexcept : _size(0) {}
     
     LockFreeQueue(LockFreeQueue const&) = default; 
 

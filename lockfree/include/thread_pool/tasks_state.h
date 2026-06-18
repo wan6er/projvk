@@ -27,6 +27,7 @@ public:
     using ATTaskQueue = LockFreeStack<std::function<void()>>;
     using SharedTaskPtr = ATTaskQueue::SharedNodePtr;
 
+    TasksState() = default;
     virtual ~TasksState();
 
     void push(TaskType task);

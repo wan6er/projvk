@@ -15,27 +15,19 @@ void LockFreePtr<_Ty>::operator=(LockFreePtr const& ptr)
 }
 
 template<typename _Ty>
-constexpr auto LockFreePtr<_Ty>::operator*() -> Type&
+auto LockFreePtr<_Ty>::get(MemoryOrder order) -> SharedPtrType
 {
-    return *this->_obj.load(MemoryOrderRelaxed)->get();
+    SharedPtrType ptr;
+    this->load(ptr, order);
+    return ptr;
 }
 
 template<typename _Ty>
-constexpr auto LockFreePtr<_Ty>::operator*() const -> Type const&
+auto LockFreePtr<_Ty>::get(MemoryOrder order) const -> SharedPtrType
 {
-    return *this->_obj.load(MemoryOrderRelaxed)->get();
-}
-
-template<typename _Ty>
-constexpr auto LockFreePtr<_Ty>::operator->() -> Type*
-{
-    return this->_obj.load(MemoryOrderRelaxed)->get();
-}
-
-template<typename _Ty>
-constexpr auto LockFreePtr<_Ty>::operator->() const -> Type const*
-{
-    return this->_obj.load(MemoryOrderRelaxed)->get();
+    SharedPtrType ptr;
+    const_cast<LockFreePtr<_Ty>*>(this)->load(ptr, order);
+    return ptr;
 }
 
 
@@ -81,27 +73,9 @@ constexpr auto LockFreeWeakPtr<_Ty>::operator=(AtomicWeakPtr const& ptr) -> Atom
 }
 
 template<typename _Ty>
-constexpr auto LockFreeWeakPtr<_Ty>::operator*() -> Type&
+auto LockFreeWeakPtr<_Ty>::get(MemoryOrder order) const -> WeakPtrType
 {
-    return *this->_obj.load(MemoryOrderRelaxed)->get();
-}
-
-template<typename _Ty>
-constexpr auto LockFreeWeakPtr<_Ty>::operator*() const -> Type const&
-{
-    return *this->_obj.load(MemoryOrderRelaxed)->get();
-}
-
-template<typename _Ty>
-constexpr auto LockFreeWeakPtr<_Ty>::operator->() -> Type*
-{
-    return this->_obj.load(MemoryOrderRelaxed)->get();
-}
-
-template<typename _Ty>
-constexpr auto LockFreeWeakPtr<_Ty>::operator->() const -> Type const*
-{
-    return this->_obj.load(MemoryOrderRelaxed)->get();
+    return this->load(order);
 }
 
 

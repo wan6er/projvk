@@ -15,8 +15,7 @@ namespace cvk
     class RenderTarget
     {
     public:
-        explicit RenderTarget(VkDevice device) :
-            _device(device)
+        explicit RenderTarget()
         {
         }
 
@@ -35,8 +34,8 @@ namespace cvk
             return *this;
         }
 
-        // Build the render pass from the elements' attachment declarations.
-        RenderPass create();
+        // Configure attachments, subpasses and dependencies on render_pass.
+        void setup(RenderPass& render_pass);
 
     private:
         struct Dependency
@@ -51,7 +50,6 @@ namespace cvk
 
         static VkImageLayout final_layout(Attachment::Type type);
 
-        VkDevice _device;
         std::vector<RenderElement> _elements;
         std::vector<Dependency> _dependencies;
     };

@@ -32,6 +32,12 @@ Image::operator VkImage CONST_REFERENCE () const
     return object();
 }
 
+Image::operator VkFormat() const
+{
+    CVK_ASSERT(_create_info.format != VK_FORMAT_UNDEFINED);
+    return _create_info.format;
+}
+
 void Image::release()
 {
     if (_device != VK_NULL_HANDLE && object() != VK_NULL_HANDLE) {

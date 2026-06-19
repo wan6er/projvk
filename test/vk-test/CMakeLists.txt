@@ -6,7 +6,7 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src PROJ_SRC)
 
 add_executable(${PROJ_NAME} ${PROJ_SRC})
 
-set(PROJ_LIBS "core;lockfree")
+set(PROJ_LIBS "core;lockfree;framework")
 set(PROJ_INCLUDE_DIR "${core_INCLUDE_DIR};${lockfree_INCLUDE_DIR}")
 # set(PROJ_EXT_LIBS ${SDL2_LIBRARIES})
 # set(PROJ_EXT_INCLUDE_DIR ${SDL2_INCLUDE_DIR})

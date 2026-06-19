@@ -4,10 +4,8 @@
 
 namespace cvk
 {
-    RenderPass RenderTarget::create()
+    void RenderTarget::setup(RenderPass& render_pass)
     {
-        RenderPass render_pass(_device);
-
         // Unique attachments keyed by id; the ordered map registers them in
         // id order, so the attachment index matches its id.
         std::map<uint32_t, Attachment> attachments;
@@ -41,9 +39,6 @@ namespace cvk
                 .set_src(dependency.src_stage, dependency.src_access)
                 .set_dst(dependency.dst_stage, dependency.dst_access);
         }
-
-        render_pass.create();
-        return render_pass;
     }
 
     VkImageLayout RenderTarget::final_layout(Attachment::Type type)

@@ -176,26 +176,26 @@ int main()
 
     // Attachment ids: 0..2 opaque GBuffer, 3..5 transparent GBuffer,
     // 6 swapchain color, 7 depth.
-    cvk::RenderTarget target(device);
+    cvk::RenderTarget target;
     // Subpass 0: render opaque geometry into opaque GBuffer.
     auto& opaque = target.add_element();
-    auto position = opaque.output().add_color(0, VK_FORMAT_R16G16B16A16_SFLOAT);
-    auto normal = opaque.output().add_color(1, VK_FORMAT_R16G16B16A16_SFLOAT);
-    auto albedo = opaque.output().add_color(2, VK_FORMAT_R8G8B8A8_UNORM);
-    opaque.output().set_depth(7, VK_FORMAT_D16_UNORM);
+    auto position = opaque.output().add_color(0, *position_attachment);
+    auto normal = opaque.output().add_color(1, *normal_attachment);
+    auto albedo = opaque.output().add_color(2, *albedo_attachment);
+    opaque.output().set_depth(7, *depth);
     // Subpass 1: render transparent geometry into transparent GBuffer.
     auto& transparent = target.add_element();
-    auto transparent_position = transparent.output().add_color(3, VK_FORMAT_R16G16B16A16_SFLOAT);
-    auto transparent_normal = transparent.output().add_color(4, VK_FORMAT_R16G16B16A16_SFLOAT);
-    auto transparent_albedo = transparent.output().add_color(5, VK_FORMAT_R8G8B8A8_UNORM);
-    transparent.output().set_depth(7, VK_FORMAT_D16_UNORM);
+    auto transparent_position = transparent.output().add_color(3, *transparent_position_attachment);
+    auto transparent_normal = transparent.output().add_color(4, *transparent_normal_attachment);
+    auto transparent_albedo = transparent.output().add_color(5, *transparent_albedo_attachment);
+    transparent.output().set_depth(7, *depth);
     // Subpass 2: lighting/composition, read both GBuffer sets as input attachments.
     auto& composition = target.add_element();
     composition.input()
         .add(position).add(normal).add(albedo)
         .add(transparent_position).add(transparent_normal).add(transparent_albedo);
     composition.output().add_present(6, color_format);
-    composition.output().set_depth(7, VK_FORMAT_D16_UNORM);
+    composition.output().set_depth(7, *depth);
     // Keep write ordering between the first two color-output passes.
     target.add_dependency(0, 1,
         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
@@ -205,7 +205,9 @@ int main()
         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_ACCESS_SHADER_READ_BIT);
 
-    cvk::RenderPass render_pass = target.create();
+    cvk::RenderPass render_pass(device);
+    target.setup(render_pass);
+    CVK_ASSERT(render_pass.create() == VK_SUCCESS);
 
     std::vector<cvk::Framebuffer> framebuffers;
     auto CONST_REFERENCE images = swapchain.get_images();

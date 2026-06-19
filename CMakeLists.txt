@@ -78,4 +78,5 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/external/ktx)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/core)
 add_subdirectory(${PROJECT_SOURCE_DIR}/lockfree)
+add_subdirectory(${PROJECT_SOURCE_DIR}/framework)
 add_subdirectory(${PROJECT_SOURCE_DIR}/test/vk-test)

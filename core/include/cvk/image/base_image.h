@@ -20,6 +20,7 @@ public:
     virtual ~Image();
 
     operator VkImage CONST_REFERENCE () const;
+    operator VkFormat() const;
 
     void setup(VkFormat format, VkExtent3D CONST_REFERENCE extent, VkImageType type, VkImageLayout image_layout, VkImageUsageFlags usage, VkImageTiling tiling);
     VkResult create();

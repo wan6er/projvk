@@ -1,5 +1,6 @@
 #include "cvk/initialize/swapchain_initialize.h"
 #include "cvk/initialize/surface_initialize.h"
+#include "cvk/initialize/device_initialize.h"
 #include "utils/vector_util.h"
 
 
@@ -142,9 +143,8 @@ void destroy_swapchain(VkDevice device, VkSwapchainKHR swapchain)
 {
 	CVK_ASSERT(device != VK_NULL_HANDLE);
 	CVK_ASSERT(swapchain != VK_NULL_HANDLE);
-	// if (swapchain != VK_NULL_HANDLE) {
-		vkDestroySwapchainKHR(device, swapchain, nullptr);
-	// }
+	wait_device_idle(device);
+	vkDestroySwapchainKHR(device, swapchain, nullptr);
 }
 
 VkResult get_swapchain_images(VkDevice device, VkSwapchainKHR swapchain, std::vector<VkImage>& images)

@@ -7,7 +7,7 @@
 #define CONST_REFERENCE const &
 #define CONST_PTR const *
 
-#if defined(WIN32)
+#if defined(_WIN32)
 
     #include <windows.h>
     #include <vulkan/vulkan_win32.h>

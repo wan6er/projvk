@@ -38,7 +38,8 @@ BaseLockFreePtr<_Ty, _Derived, _CountObj, _MemoryManager>::~BaseLockFreePtr()
 {
     auto _count = this->load_count(std::memory_order_relaxed);
     this->decrement(_count);
-    this->store_count(_CountObj{}, std::memory_order_acquire);
+    std::remove_reference_t<_CountObj> empty{};
+    this->store_count(empty, std::memory_order_acquire);
 }
 
 template<typename _Ty, typename _Derived, typename _CountObj, typename _MemoryManager>
